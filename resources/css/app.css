@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    --color-asesco-orange: #E8611A;
+    --color-asesco-coral: #E84C5E;
+    --color-asesco-magenta: #C94477;
+    --color-asesco-dark: #1a1a2e;
+    --color-asesco-darker: #16162a;
+}
