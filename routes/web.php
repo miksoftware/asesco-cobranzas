@@ -34,6 +34,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('permission:sistemas.editar')->group(function () {
         Route::put('/sistemas/{system}', [EpsSystemController::class, 'update'])->name('sistemas.update');
         Route::post('/sistemas/{system}/toggle', [EpsSystemController::class, 'toggle'])->name('sistemas.toggle');
+        Route::post('/sistemas/{system}/test', [EpsSystemController::class, 'test'])->name('sistemas.test');
     });
     Route::middleware('permission:sistemas.eliminar')->group(function () {
         Route::delete('/sistemas/{system}', [EpsSystemController::class, 'destroy'])->name('sistemas.destroy');

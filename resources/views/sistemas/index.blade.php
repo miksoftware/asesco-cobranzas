@@ -79,6 +79,17 @@
             {{-- Actions --}}
             <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100">
                 @can('sistemas.editar')
+                <button @click="testConnection({{ $system->id }}, '{{ $system->name }}')"
+                        :disabled="testing === {{ $system->id }}"
+                        class="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-wait flex items-center gap-1">
+                    <template x-if="testing === {{ $system->id }}">
+                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                    </template>
+                    <template x-if="testing !== {{ $system->id }}">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </template>
+                    Probar
+                </button>
                 <form method="POST" action="{{ route('sistemas.toggle', $system) }}" class="inline">
                     @csrf
                     <button type="submit" class="px-3 py-1.5 text-xs font-medium rounded-lg transition-all cursor-pointer {{ $system->is_active ? 'bg-gray-100 text-gray-600 hover:bg-gray-200' : 'bg-green-50 text-green-600 hover:bg-green-100' }}">
@@ -99,6 +110,22 @@
                     </button>
                 </form>
                 @endcan
+            </div>
+
+            {{-- Test result --}}
+            <div x-show="testResult && testResult.id === {{ $system->id }}" x-transition class="mt-3 p-3 rounded-lg text-xs"
+                 :class="testResult?.ok ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'"
+                 style="display:none;">
+                <div class="flex items-center gap-2">
+                    <template x-if="testResult?.ok">
+                        <svg class="w-4 h-4 text-green-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </template>
+                    <template x-if="!testResult?.ok">
+                        <svg class="w-4 h-4 text-red-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                    </template>
+                    <span x-text="testResult?.message"></span>
+                    <span class="ml-auto text-[10px] opacity-60" x-text="testResult?.status ? 'HTTP ' + testResult.status : ''"></span>
+                </div>
             </div>
         </div>
         @endforeach
@@ -184,7 +211,7 @@
 <script>
 function sistemasPage() {
     return {
-        showModal: false, isEditing: false,
+        showModal: false, isEditing: false, testing: null, testResult: null,
         form: { id: null, name: '', base_url: '', api_token: '', endpoint_path: '/api/consulta/cedula/{cedula}', timeout: 15, is_active: '1' },
         openCreate() {
             this.isEditing = false;
@@ -195,6 +222,25 @@ function sistemasPage() {
             this.isEditing = true;
             this.form = { id: system.id, name: system.name, base_url: system.base_url, api_token: '', endpoint_path: system.endpoint_path, timeout: system.timeout, is_active: system.is_active ? '1' : '0' };
             this.showModal = true;
+        },
+        async testConnection(id, name) {
+            this.testing = id;
+            this.testResult = null;
+            try {
+                const res = await fetch(`/sistemas/${id}/test`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+                this.testResult = { id, ...data };
+            } catch (e) {
+                this.testResult = { id, ok: false, status: 0, message: 'Error de red: ' + e.message };
+            } finally {
+                this.testing = null;
+            }
         }
     };
 }

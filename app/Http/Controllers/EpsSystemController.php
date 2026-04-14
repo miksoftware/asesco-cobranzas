@@ -80,4 +80,64 @@ class EpsSystemController extends Controller
         return redirect()->route('sistemas.index')
             ->with('success', $system->name . ($system->is_active ? ' activado.' : ' desactivado.'));
     }
+
+    /**
+     * Prueba la conexión con un sistema EPS usando una cédula de prueba.
+     */
+    public function test(EpsSystem $system)
+    {
+        try {
+            $testCedula = '0000000000';
+            $url = $system->buildUrl($testCedula);
+
+            $response = \Illuminate\Support\Facades\Http::withToken($system->api_token)
+                ->accept('application/json')
+                ->timeout($system->timeout)
+                ->connectTimeout(5)
+                ->get($url);
+
+            if ($response->status() === 404) {
+                // 404 = endpoint funciona, solo no encontró la cédula de prueba
+                return response()->json([
+                    'ok'      => true,
+                    'status'  => $response->status(),
+                    'message' => 'Conexión exitosa. El endpoint responde correctamente.',
+                ]);
+            }
+
+            if ($response->status() === 401) {
+                return response()->json([
+                    'ok'      => false,
+                    'status'  => 401,
+                    'message' => 'Token inválido o expirado. Genera un nuevo token en el sistema.',
+                ]);
+            }
+
+            if ($response->successful()) {
+                return response()->json([
+                    'ok'      => true,
+                    'status'  => $response->status(),
+                    'message' => 'Conexión exitosa. El endpoint responde correctamente.',
+                ]);
+            }
+
+            return response()->json([
+                'ok'      => false,
+                'status'  => $response->status(),
+                'message' => "El servidor respondió con HTTP {$response->status()}.",
+            ]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json([
+                'ok'      => false,
+                'status'  => 0,
+                'message' => 'No se pudo conectar al servidor. Verifica la URL.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok'      => false,
+                'status'  => 0,
+                'message' => 'Error: ' . $e->getMessage(),
+            ]);
+        }
+    }
 }
