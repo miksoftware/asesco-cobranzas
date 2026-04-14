@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Consultas')
-@section('page-title', 'Consulta por Cédula')
+@section('title', 'Localización')
+@section('page-title', 'Localización')
 
 @section('content')
 <div x-data="consultaPage()" class="space-y-6">
