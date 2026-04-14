@@ -23,17 +23,21 @@ class EpsSystemController extends Controller
             'timeout'       => 'nullable|integer|min:5|max:60',
         ]);
 
-        EpsSystem::create([
-            'name'          => $validated['name'],
-            'base_url'      => $validated['base_url'],
-            'api_token'     => $validated['api_token'],
-            'endpoint_path' => $validated['endpoint_path'] ?? '/api/consulta/cedula/{cedula}',
-            'timeout'       => $validated['timeout'] ?? 15,
-            'is_active'     => true,
-            'order'         => EpsSystem::max('order') + 1,
-        ]);
+        try {
+            EpsSystem::create([
+                'name'          => $validated['name'],
+                'base_url'      => rtrim($validated['base_url'], '/'),
+                'api_token'     => $validated['api_token'],
+                'endpoint_path' => $validated['endpoint_path'] ?? '/api/consulta/cedula/{cedula}',
+                'timeout'       => $validated['timeout'] ?? 15,
+                'is_active'     => true,
+                'order'         => (int) EpsSystem::max('order') + 1,
+            ]);
 
-        return redirect()->route('sistemas.index')->with('success', 'Sistema EPS agregado exitosamente.');
+            return redirect()->route('sistemas.index')->with('success', 'Sistema EPS agregado exitosamente.');
+        } catch (\Throwable $e) {
+            return redirect()->route('sistemas.index')->with('error', 'Error al guardar: ' . $e->getMessage());
+        }
     }
 
     public function update(Request $request, EpsSystem $system)
