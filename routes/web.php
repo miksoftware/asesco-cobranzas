@@ -24,19 +24,13 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/consultas/historial', [ConsultaController::class, 'historial'])->name('consultas.historial');
     });
 
-    // Sistemas EPS
-    Route::middleware('permission:sistemas.ver')->group(function () {
+    // Sistemas EPS (solo admin@asesco.com)
+    Route::middleware('superadmin')->group(function () {
         Route::get('/sistemas', [EpsSystemController::class, 'index'])->name('sistemas.index');
-    });
-    Route::middleware('permission:sistemas.crear')->group(function () {
         Route::post('/sistemas', [EpsSystemController::class, 'store'])->name('sistemas.store');
-    });
-    Route::middleware('permission:sistemas.editar')->group(function () {
         Route::put('/sistemas/{system}', [EpsSystemController::class, 'update'])->name('sistemas.update');
         Route::post('/sistemas/{system}/toggle', [EpsSystemController::class, 'toggle'])->name('sistemas.toggle');
         Route::post('/sistemas/{system}/test', [EpsSystemController::class, 'test'])->name('sistemas.test');
-    });
-    Route::middleware('permission:sistemas.eliminar')->group(function () {
         Route::delete('/sistemas/{system}', [EpsSystemController::class, 'destroy'])->name('sistemas.destroy');
     });
 

@@ -50,7 +50,7 @@
         <p class="px-3 mt-6 mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/30"
            :class="sidebarOpen ? 'block' : 'hidden'">Administración</p>
 
-        @can('sistemas.ver')
+        @if(auth()->user()->email === 'admin@asesco.com')
         <a href="{{ route('sistemas.index') }}"
            class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200
                   {{ request()->routeIs('sistemas.*') ? 'bg-gradient-to-r from-asesco-orange/20 to-transparent text-asesco-orange border-l-2 border-asesco-orange' : 'text-white/50 hover:bg-white/5 hover:text-white/90' }}">
@@ -59,7 +59,7 @@
             </svg>
             <span class="whitespace-nowrap transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Sistemas EPS</span>
         </a>
-        @endcan
+        @endif
 
         @can('usuarios.ver')
         <a href="{{ route('usuarios.index') }}"
