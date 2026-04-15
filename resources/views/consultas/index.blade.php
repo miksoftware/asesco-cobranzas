@@ -104,7 +104,7 @@
                                     <template x-for="(value, key) in result.data" :key="key">
                                         <div>
                                             <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
-                                            <p class="text-sm text-gray-700 font-medium" x-text="value || '—'"></p>
+                                            <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
                                         </div>
                                     </template>
                                 </div>
@@ -181,6 +181,16 @@ function consultaPage() {
 
         formatLabel(key) {
             return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        },
+
+        formatValue(value) {
+            if (!value) return '—';
+            if (typeof value === 'string') {
+                // Match datetime patterns like "2026-04-14 10:30:00" or "2026-04-14T10:30:00"
+                const dtMatch = value.match(/^(\d{4}-\d{2}-\d{2})[T\s]\d{2}:\d{2}(:\d{2})?/);
+                if (dtMatch) return dtMatch[1];
+            }
+            return value;
         }
     };
 }
