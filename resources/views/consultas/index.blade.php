@@ -100,12 +100,34 @@
                         {{-- Card body --}}
                         <div class="p-5">
                             <template x-if="result.found && result.data">
-                                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                                    <template x-for="(value, key) in result.data" :key="key">
-                                        <div>
-                                            <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
-                                            <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
-                                        </div>
+                                <div class="space-y-5">
+                                    {{-- Simple fields --}}
+                                    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                                        <template x-for="(value, key) in result.data" :key="key">
+                                            <template x-if="!isObject(value)">
+                                                <div>
+                                                    <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
+                                                    <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
+                                                </div>
+                                            </template>
+                                        </template>
+                                    </div>
+
+                                    {{-- Nested object sections --}}
+                                    <template x-for="(value, key) in result.data" :key="'section-' + key">
+                                        <template x-if="isObject(value)">
+                                            <div class="border-t border-gray-100 pt-4">
+                                                <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" x-text="formatLabel(key)"></h5>
+                                                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                                                    <template x-for="(subVal, subKey) in value" :key="subKey">
+                                                        <div>
+                                                            <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(subKey)"></p>
+                                                            <p class="text-sm text-gray-700 font-medium" x-text="formatValue(subVal)"></p>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
                                     </template>
                                 </div>
                             </template>
@@ -183,11 +205,16 @@ function consultaPage() {
             return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         },
 
+        isObject(value) {
+            return value !== null && typeof value === 'object' && !Array.isArray(value);
+        },
+
         formatValue(value) {
-            if (!value) return '—';
+            if (value === null || value === undefined || value === '') return '—';
+            if (typeof value === 'number' || typeof value === 'boolean') return String(value);
             if (typeof value === 'string') {
-                // Match datetime patterns like "2026-04-14 10:30:00" or "2026-04-14T10:30:00"
-                const dtMatch = value.match(/^(\d{4}-\d{2}-\d{2})[T\s]\d{2}:\d{2}(:\d{2})?/);
+                // Match datetime patterns like "2026-04-14T10:30:00+00:00" or "2026-04-14 10:30:00"
+                const dtMatch = value.match(/^(\d{4}-\d{2}-\d{2})[T\s]\d{2}:\d{2}/);
                 if (dtMatch) return dtMatch[1];
             }
             return value;
