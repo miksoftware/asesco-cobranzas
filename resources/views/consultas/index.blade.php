@@ -37,12 +37,28 @@
                 <span x-text="loading ? 'Consultando...' : 'Consultar'"></span>
             </button>
         </div>
-        <p class="text-xs text-gray-400 mt-3">
-            <span class="inline-flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Se consultarán <strong x-text="systemCount">{{ $systemCount }}</strong> sistemas de forma simultánea
-            </span>
-        </p>
+    </div>
+
+    {{-- Sticky person name banner --}}
+    <div x-show="personName"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 -translate-y-2"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-2"
+         class="sticky top-0 z-20 -mx-6 px-6 py-3 bg-gradient-to-r from-asesco-orange to-asesco-coral shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-[11px] text-white/70 font-medium uppercase tracking-wider leading-none mb-0.5">Consultando</p>
+                <p class="text-base font-bold text-white leading-tight" x-text="personName"></p>
+            </div>
+        </div>
     </div>
 
     {{-- Loading state --}}
@@ -59,131 +75,180 @@
         </div>
     </template>
 
-    {{-- Results --}}
+    {{-- Results with tabs --}}
     <template x-if="results && !loading">
-        <div class="space-y-4">
-            {{-- Summary --}}
-            <div class="bg-white rounded-xl border border-gray-200 p-5">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-asesco-orange/10 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-asesco-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-gray-800">Cédula: <span x-text="searchedCedula" class="font-mono"></span></p>
-                        <p class="text-xs text-gray-400">
-                            Encontrado en <span x-text="results.found" class="font-semibold text-green-600"></span> de <span x-text="results.total"></span> sistemas
-                        </p>
-                    </div>
-                </div>
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+
+            {{-- Tab navigation --}}
+            <div class="flex border-b border-gray-200">
+                <button @click="activeTab = 'localizacion'"
+                        :class="activeTab === 'localizacion' ? 'border-b-2 border-asesco-orange text-asesco-orange' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                        class="px-6 py-3.5 text-sm font-medium transition-colors">
+                    Localización
+                </button>
+                <button @click="activeTab = 'comentarios'"
+                        :class="activeTab === 'comentarios' ? 'border-b-2 border-asesco-orange text-asesco-orange' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                        class="px-6 py-3.5 text-sm font-medium transition-colors">
+                    Comentarios
+                </button>
+                <button @click="activeTab = 'telefonos'"
+                        :class="activeTab === 'telefonos' ? 'border-b-2 border-asesco-orange text-asesco-orange' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                        class="px-6 py-3.5 text-sm font-medium transition-colors">
+                    Teléfonos
+                </button>
             </div>
 
-            {{-- No results found --}}
-            <template x-if="results.found === 0">
-                <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
-                    <svg class="w-14 h-14 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-sm text-gray-400">No se encontraron registros para esta cédula en ningún sistema</p>
-                </div>
-            </template>
+            {{-- Tab: Localización --}}
+            <div x-show="activeTab === 'localizacion'">
 
-            {{-- Results table --}}
-            <template x-if="results.found > 0">
-                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="bg-gray-50 border-b border-gray-200">
-                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-8"></th>
-                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sistema EPS</th>
-                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="(result, idx) in results.results.filter(r => r.found || r.error)" :key="result.slug">
-                                <tr>
-                                    {{-- Main row --}}
-                                    <td colspan="3" class="p-0">
+                {{-- No results --}}
+                <template x-if="results.found === 0">
+                    <div class="p-10 text-center">
+                        <svg class="w-14 h-14 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-sm text-gray-400">No se encontraron registros para esta cédula en ningún sistema</p>
+                    </div>
+                </template>
+
+                {{-- Table --}}
+                <template x-if="results.found > 0">
+                    <div class="overflow-x-auto">
+
+                        {{-- Column headers --}}
+                        <div class="grid grid-cols-[180px_1fr_90px_140px_1fr_1fr_44px] bg-gray-50 border-b border-gray-200 min-w-[860px]">
+                            <div class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sistema EPS</div>
+                            <div class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</div>
+                            <div class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo Doc.</div>
+                            <div class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">N° Documento</div>
+                            <div class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombres</div>
+                            <div class="px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Apellidos</div>
+                            <div></div>
+                        </div>
+
+                        {{-- System rows --}}
+                        <template x-for="result in results.results.filter(r => r.found || r.error)" :key="result.slug">
+                            <div>
+                                {{-- System group header --}}
+                                <div class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-orange-50/30 cursor-pointer hover:bg-orange-50/60 select-none min-w-[860px]"
+                                     @click="result.expanded = !result.expanded">
+                                    <svg :class="result.expanded ? 'rotate-90' : ''"
+                                         class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200"
+                                         fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                    <span class="font-semibold text-gray-700 text-sm" x-text="result.name"></span>
+                                    <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-xs font-medium"
+                                          x-text="result.records.length + ' registro' + (result.records.length !== 1 ? 's' : '')"></span>
+                                    <template x-if="result.error && !result.found">
+                                        <span class="text-xs text-red-500 ml-1" x-text="result.error"></span>
+                                    </template>
+                                </div>
+
+                                {{-- Record rows (shown when system is expanded) --}}
+                                <div x-show="result.expanded"
+                                     x-transition:enter="transition ease-out duration-150"
+                                     x-transition:enter-start="opacity-0"
+                                     x-transition:enter-end="opacity-100">
+                                    <template x-for="(rec, recIdx) in result.records" :key="recIdx">
                                         <div>
-                                            {{-- Clickable row --}}
-                                            <div class="flex items-center gap-4 px-5 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100"
-                                                 :class="result.expanded ? 'bg-gray-50/80' : ''"
-                                                 @click="result.expanded = !result.expanded">
-                                                {{-- Chevron --}}
-                                                <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200"
-                                                     :class="result.expanded ? 'rotate-90' : ''"
-                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                                                </svg>
-                                                {{-- Name --}}
-                                                <div class="flex items-center gap-2 flex-1 min-w-0">
-                                                    <span class="w-2 h-2 rounded-full shrink-0" :class="result.found ? 'bg-green-500' : 'bg-red-400'"></span>
-                                                    <span class="font-medium text-gray-800 truncate" x-text="result.name"></span>
+                                            {{-- Record row --}}
+                                            <div class="grid grid-cols-[180px_1fr_90px_140px_1fr_1fr_44px] border-b border-gray-100 cursor-pointer hover:bg-gray-50/60 select-none min-w-[860px]"
+                                                 :class="rec._expanded ? 'bg-gray-50/40' : ''"
+                                                 @click="rec._expanded = !rec._expanded">
+                                                <div class="px-4 py-3 pl-10 flex items-center">
+                                                    <span class="text-xs text-gray-400 font-mono">#<span x-text="recIdx + 1"></span></span>
                                                 </div>
-                                                {{-- Badge --}}
-                                                <span class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0"
-                                                      :class="result.found ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
-                                                      x-text="result.found ? 'Encontrado' : 'Error'"></span>
+                                                <div class="px-4 py-3 flex items-center gap-1.5">
+                                                    <span class="w-1.5 h-1.5 rounded-full shrink-0" :class="getEstadoColor(rec)"></span>
+                                                    <span class="text-sm text-gray-700 truncate" x-text="getEstado(rec)"></span>
+                                                </div>
+                                                <div class="px-4 py-3 flex items-center">
+                                                    <span class="text-sm text-gray-600" x-text="getTipoDoc(rec)"></span>
+                                                </div>
+                                                <div class="px-4 py-3 flex items-center">
+                                                    <span class="text-sm text-gray-700 font-mono" x-text="getCedulaField(rec)"></span>
+                                                </div>
+                                                <div class="px-4 py-3 flex items-center">
+                                                    <span class="text-sm text-gray-700 font-medium truncate" x-text="getNombres(rec)"></span>
+                                                </div>
+                                                <div class="px-4 py-3 flex items-center">
+                                                    <span class="text-sm text-gray-700 font-medium truncate" x-text="getApellidos(rec)"></span>
+                                                </div>
+                                                <div class="flex items-center justify-center px-2">
+                                                    <svg :class="rec._expanded ? 'rotate-90' : ''"
+                                                         class="w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0"
+                                                         fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                                    </svg>
+                                                </div>
                                             </div>
 
-                                            {{-- Expandable detail --}}
-                                            <div x-show="result.expanded"
+                                            {{-- Detail panel --}}
+                                            <div x-show="rec._expanded"
                                                  x-transition:enter="transition ease-out duration-150"
                                                  x-transition:enter-start="opacity-0 -translate-y-1"
                                                  x-transition:enter-end="opacity-100 translate-y-0"
-                                                 x-transition:leave="transition ease-in duration-100"
-                                                 x-transition:leave-start="opacity-100 translate-y-0"
-                                                 x-transition:leave-end="opacity-0 -translate-y-1"
-                                                 class="border-b border-gray-100 bg-gray-50/50 px-8 py-5">
-
-                                                <template x-if="result.found && result.data">
-                                                    <div class="space-y-4">
-                                                        {{-- Simple fields --}}
-                                                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3">
-                                                            <template x-for="(value, key) in result.data" :key="key">
-                                                                <template x-if="!isObject(value)">
+                                                 class="bg-gray-50/70 border-b border-gray-200 px-12 py-5 min-w-[860px]">
+                                                {{-- Simple fields --}}
+                                                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3">
+                                                    <template x-for="(value, key) in rec" :key="key">
+                                                        <template x-if="!String(key).startsWith('_') && !isObject(value) && !isArray(value)">
+                                                            <div>
+                                                                <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
+                                                                <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
+                                                            </div>
+                                                        </template>
+                                                    </template>
+                                                </div>
+                                                {{-- Nested object sections --}}
+                                                <template x-for="(value, key) in rec" :key="'sec-' + key">
+                                                    <template x-if="isObject(value)">
+                                                        <div class="mt-4 border-t border-gray-200 pt-4">
+                                                            <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" x-text="formatLabel(key)"></h5>
+                                                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3">
+                                                                <template x-for="(subVal, subKey) in value" :key="subKey">
                                                                     <div>
-                                                                        <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
-                                                                        <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
+                                                                        <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(subKey)"></p>
+                                                                        <p class="text-sm text-gray-700 font-medium" x-text="formatValue(subVal)"></p>
                                                                     </div>
                                                                 </template>
-                                                            </template>
+                                                            </div>
                                                         </div>
-                                                        {{-- Nested sections --}}
-                                                        <template x-for="(value, key) in result.data" :key="'sec-' + key">
-                                                            <template x-if="isObject(value)">
-                                                                <div class="border-t border-gray-200 pt-4">
-                                                                    <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" x-text="formatLabel(key)"></h5>
-                                                                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3">
-                                                                        <template x-for="(subVal, subKey) in value" :key="subKey">
-                                                                            <div>
-                                                                                <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(subKey)"></p>
-                                                                                <p class="text-sm text-gray-700 font-medium" x-text="formatValue(subVal)"></p>
-                                                                            </div>
-                                                                        </template>
-                                                                    </div>
-                                                                </div>
-                                                            </template>
-                                                        </template>
-                                                    </div>
-                                                </template>
-
-                                                <template x-if="result.error">
-                                                    <div class="flex items-center gap-2 text-sm text-red-500">
-                                                        <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                                        <span x-text="result.error"></span>
-                                                    </div>
+                                                    </template>
                                                 </template>
                                             </div>
                                         </div>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            {{-- Tab: Comentarios --}}
+            <div x-show="activeTab === 'comentarios'" class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                    </svg>
                 </div>
-            </template>
+                <p class="text-sm font-semibold text-gray-700 mb-1">Se está trabajando</p>
+                <p class="text-xs text-gray-400">Módulo en desarrollo</p>
+            </div>
+
+            {{-- Tab: Teléfonos --}}
+            <div x-show="activeTab === 'telefonos'" class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                    </svg>
+                </div>
+                <p class="text-sm font-semibold text-gray-700 mb-1">Se está trabajando</p>
+                <p class="text-xs text-gray-400">Módulo en desarrollo</p>
+            </div>
+
         </div>
     </template>
 
@@ -206,6 +271,8 @@ function consultaPage() {
         loading: false,
         results: null,
         searchedCedula: '',
+        personName: null,
+        activeTab: 'localizacion',
         systemCount: {{ $systemCount }},
 
         async consultar() {
@@ -214,6 +281,8 @@ function consultaPage() {
 
             this.loading = true;
             this.results = null;
+            this.personName = null;
+            this.activeTab = 'localizacion';
             this.searchedCedula = c;
 
             try {
@@ -234,9 +303,16 @@ function consultaPage() {
                 }
 
                 const data = await res.json();
-                // Add expanded state for each row
-                data.results = data.results.map(r => ({ ...r, expanded: false }));
+                // Normalize: each result gets an array of records + expanded state
+                data.results = data.results.map(r => {
+                    const rawData = r.data;
+                    const records = rawData
+                        ? (Array.isArray(rawData) ? rawData : [rawData]).map(rec => ({ ...rec, _expanded: false }))
+                        : [];
+                    return { ...r, expanded: true, records };
+                });
                 this.results = data;
+                this.personName = this.extractPersonName(data.results);
             } catch (e) {
                 alert('Error de conexión: ' + e.message);
             } finally {
@@ -244,19 +320,66 @@ function consultaPage() {
             }
         },
 
+        extractPersonName(results) {
+            const found = results.find(r => r.found && r.records && r.records.length > 0);
+            if (!found) return null;
+            const d = found.records[0];
+            const parts = [d.primer_nombre, d.segundo_nombre, d.primer_apellido, d.segundo_apellido]
+                .filter(v => v && String(v).trim());
+            if (parts.length) return parts.join(' ');
+            if (d.nombres || d.apellidos) return [d.nombres, d.apellidos].filter(Boolean).join(' ');
+            if (d.nombre_completo) return d.nombre_completo;
+            return null;
+        },
+
+        getEstado(rec) {
+            return rec.estado_afiliado || rec.estado_afiliacion || rec.estado || rec.estado_detallado || '—';
+        },
+
+        getEstadoColor(rec) {
+            const estado = (this.getEstado(rec) || '').toUpperCase();
+            if (estado.includes('ACTIVO')) return 'bg-green-500';
+            if (estado.includes('SUSPENDIDO') || estado.includes('RETIRADO') || estado.includes('SIN DERECHO')) return 'bg-red-400';
+            return 'bg-gray-400';
+        },
+
+        getTipoDoc(rec) {
+            return rec.tipo_documento || rec.tipo_id || '—';
+        },
+
+        getCedulaField(rec) {
+            return rec.cedula || rec.numero_documento || rec.identificacion || '—';
+        },
+
+        getNombres(rec) {
+            const parts = [rec.primer_nombre, rec.segundo_nombre].filter(v => v && String(v).trim());
+            if (parts.length) return parts.join(' ');
+            return rec.nombres || (rec.nombre_completo ? rec.nombre_completo.split(' ').slice(0, 2).join(' ') : '—');
+        },
+
+        getApellidos(rec) {
+            const parts = [rec.primer_apellido, rec.segundo_apellido].filter(v => v && String(v).trim());
+            if (parts.length) return parts.join(' ');
+            return rec.apellidos || (rec.nombre_completo ? rec.nombre_completo.split(' ').slice(2).join(' ') : '—');
+        },
+
         formatLabel(key) {
-            return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            return String(key).replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         },
 
         isObject(value) {
             return value !== null && typeof value === 'object' && !Array.isArray(value);
         },
 
+        isArray(value) {
+            return Array.isArray(value);
+        },
+
         formatValue(value) {
             if (value === null || value === undefined || value === '') return '—';
-            if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+            if (typeof value === 'boolean') return value ? 'Sí' : 'No';
+            if (typeof value === 'number') return String(value);
             if (typeof value === 'string') {
-                // Match datetime patterns like "2026-04-14T10:30:00+00:00" or "2026-04-14 10:30:00"
                 const dtMatch = value.match(/^(\d{4}-\d{2}-\d{2})[T\s]\d{2}:\d{2}/);
                 if (dtMatch) return dtMatch[1];
             }

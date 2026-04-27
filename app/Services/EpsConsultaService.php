@@ -54,19 +54,13 @@ class EpsConsultaService
                 }
 
                 if ($response->successful()) {
-                    $body     = $response->json();
-                    $rawData  = $body['data'] ?? null;
-
-                    // Las APIs retornan un array ordenado más reciente → más antiguo.
-                    // Para la vista del agregador tomamos el registro más reciente (índice 0).
-                    $data = (is_array($rawData) && array_is_list($rawData))
-                        ? ($rawData[0] ?? null)
-                        : $rawData;
+                    $body    = $response->json();
+                    $rawData = $body['data'] ?? null;
 
                     $results[$slug] = [
                         'system'  => $system,
                         'success' => $body['success'] ?? false,
-                        'data'    => $data,
+                        'data'    => $rawData,
                         'error'   => null,
                     ];
                 } elseif ($response->status() === 404) {
