@@ -213,8 +213,8 @@
          x-transition:leave-end="opacity-0"
          @keydown.escape.window="modal = false"
          @click.self="modal = false"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-         style="display:none">
+         style="display:none; position:fixed; inset:0; z-index:50; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;"
+         x-bind:style="modal ? 'display:flex' : 'display:none'">
         {{-- Modal card --}}
         <div x-show="modal"
              x-transition:enter="transition ease-out duration-200"
@@ -223,42 +223,48 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95"
-             class="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden max-h-[80vh]">
-            {{-- Header --}}
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
-                <div class="min-w-0">
-                    <p class="text-[9px] text-asesco-orange uppercase tracking-widest font-semibold truncate" x-text="modalRecord ? modalRecord._systemName : ''"></p>
-                    <p class="text-sm font-semibold text-gray-800 leading-snug truncate" x-text="modalRecord ? (getNombres(modalRecord) + ' ' + getApellidos(modalRecord)).trim() : ''"></p>
+             style="width:100%; max-width:360px; max-height:520px; display:flex; flex-direction:column; border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            {{-- Dark header --}}
+            <div style="background:#1e2532; padding:14px 18px 12px; flex-shrink:0; display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+                <div style="min-width:0;">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                        <svg style="width:13px;height:13px;color:#f97316;flex-shrink:0;" fill="none" stroke="#f97316" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/>
+                        </svg>
+                        <p style="font-size:10px; color:#f97316; text-transform:uppercase; letter-spacing:.08em; font-weight:700; white-space:nowrap;" x-text="modalRecord ? modalRecord._systemName : ''"></p>
+                    </div>
+                    <p style="font-size:13px; font-weight:600; color:#f1f5f9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" x-text="modalRecord ? (getNombres(modalRecord) + ' ' + getApellidos(modalRecord)).trim() : ''"></p>
+                    <p style="font-size:11px; color:#64748b; margin-top:1px; font-family:monospace;" x-text="modalRecord ? getCedulaField(modalRecord) : ''"></p>
                 </div>
-                <button @click="modal = false" class="ml-3 w-7 h-7 shrink-0 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <button @click="modal = false" style="flex-shrink:0; width:26px; height:26px; border-radius:8px; border:none; background:rgba(255,255,255,0.08); color:#94a3b8; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+                    <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
                 </button>
             </div>
             {{-- Body: list of fields --}}
-            <div class="flex-1 overflow-y-auto divide-y divide-gray-50">
+            <div style="flex:1; overflow-y:auto; background:#fff;">
                 <template x-if="modalRecord">
                     <div>
                         <template x-for="(value, key) in modalRecord" :key="key">
                             <template x-if="!String(key).startsWith('_') && !isObject(value) && !isArray(value) && hasValue(value)">
-                                <div class="flex items-start justify-between gap-3 px-5 py-2.5 hover:bg-gray-50/60">
-                                    <p class="text-[9px] uppercase tracking-wider text-gray-400 shrink-0 w-24 pt-0.5 leading-tight" x-text="formatLabel(key)"></p>
-                                    <p class="text-xs text-gray-700 font-medium text-right break-all" x-text="formatValue(value)"></p>
+                                <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:7px 18px; border-bottom:1px solid #f1f5f9;">
+                                    <p style="font-size:9px; text-transform:uppercase; letter-spacing:.07em; color:#94a3b8; flex-shrink:0; width:90px; line-height:1.3;" x-text="formatLabel(key)"></p>
+                                    <p style="font-size:11px; color:#1e293b; font-weight:500; text-align:right; word-break:break-all;" x-text="formatValue(value)"></p>
                                 </div>
                             </template>
                         </template>
                         <template x-for="(value, key) in modalRecord" :key="'s-' + key">
                             <template x-if="isObject(value)">
                                 <div>
-                                    <div class="px-5 py-2 bg-gray-50">
-                                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest" x-text="formatLabel(key)"></p>
+                                    <div style="padding:6px 18px; background:#f8fafc; border-bottom:1px solid #f1f5f9;">
+                                        <p style="font-size:9px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.08em;" x-text="formatLabel(key)"></p>
                                     </div>
                                     <template x-for="(subVal, subKey) in value" :key="subKey">
                                         <template x-if="hasValue(subVal)">
-                                            <div class="flex items-start justify-between gap-3 px-5 py-2.5 hover:bg-gray-50/60">
-                                                <p class="text-[9px] uppercase tracking-wider text-gray-400 shrink-0 w-24 pt-0.5 leading-tight" x-text="formatLabel(subKey)"></p>
-                                                <p class="text-xs text-gray-700 font-medium text-right break-all" x-text="formatValue(subVal)"></p>
+                                            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; padding:7px 18px; border-bottom:1px solid #f1f5f9;">
+                                                <p style="font-size:9px; text-transform:uppercase; letter-spacing:.07em; color:#94a3b8; flex-shrink:0; width:90px; line-height:1.3;" x-text="formatLabel(subKey)"></p>
+                                                <p style="font-size:11px; color:#1e293b; font-weight:500; text-align:right; word-break:break-all;" x-text="formatValue(subVal)"></p>
                                             </div>
                                         </template>
                                     </template>
