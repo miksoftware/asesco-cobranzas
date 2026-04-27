@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Localización')
-@section('page-title', 'Localización')
+@section('title', 'Gestiones')
+@section('page-title', 'Gestiones')
 
 @section('content')
 <div x-data="consultaPage()" class="space-y-6">
@@ -64,86 +64,126 @@
         <div class="space-y-4">
             {{-- Summary --}}
             <div class="bg-white rounded-xl border border-gray-200 p-5">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-asesco-orange/10 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-asesco-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-gray-800">Cédula: <span x-text="searchedCedula" class="font-mono"></span></p>
-                            <p class="text-xs text-gray-400">
-                                Encontrado en <span x-text="results.found" class="font-semibold text-green-600"></span> de <span x-text="results.total"></span> sistemas
-                            </p>
-                        </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-asesco-orange/10 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-asesco-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-800">Cédula: <span x-text="searchedCedula" class="font-mono"></span></p>
+                        <p class="text-xs text-gray-400">
+                            Encontrado en <span x-text="results.found" class="font-semibold text-green-600"></span> de <span x-text="results.total"></span> sistemas
+                        </p>
                     </div>
                 </div>
             </div>
 
-            {{-- Result cards --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <template x-for="result in results.results" :key="result.slug">
-                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                        {{-- Card header --}}
-                        <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between"
-                             :class="result.found ? 'bg-green-50/50' : (result.error ? 'bg-red-50/50' : 'bg-gray-50/50')">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full" :class="result.found ? 'bg-green-500' : (result.error ? 'bg-red-400' : 'bg-gray-300')"></span>
-                                <h4 class="text-sm font-semibold text-gray-800" x-text="result.name"></h4>
-                            </div>
-                            <span class="text-xs font-medium px-2.5 py-1 rounded-full"
-                                  :class="result.found ? 'bg-green-100 text-green-700' : (result.error ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-500')"
-                                  x-text="result.found ? 'Encontrado' : (result.error ? 'Error' : 'No encontrado')"></span>
-                        </div>
+            {{-- No results found --}}
+            <template x-if="results.found === 0">
+                <div class="bg-white rounded-xl border border-gray-200 p-10 text-center">
+                    <svg class="w-14 h-14 text-gray-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="text-sm text-gray-400">No se encontraron registros para esta cédula en ningún sistema</p>
+                </div>
+            </template>
 
-                        {{-- Card body --}}
-                        <div class="p-5">
-                            <template x-if="result.found && result.data">
-                                <div class="space-y-5">
-                                    {{-- Simple fields --}}
-                                    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                                        <template x-for="(value, key) in result.data" :key="key">
-                                            <template x-if="!isObject(value)">
-                                                <div>
-                                                    <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
-                                                    <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
+            {{-- Results table --}}
+            <template x-if="results.found > 0">
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-8"></th>
+                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sistema EPS</th>
+                                <th class="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="(result, idx) in results.results.filter(r => r.found || r.error)" :key="result.slug">
+                                <tr>
+                                    {{-- Main row --}}
+                                    <td colspan="3" class="p-0">
+                                        <div>
+                                            {{-- Clickable row --}}
+                                            <div class="flex items-center gap-4 px-5 py-3.5 cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100"
+                                                 :class="result.expanded ? 'bg-gray-50/80' : ''"
+                                                 @click="result.expanded = !result.expanded">
+                                                {{-- Chevron --}}
+                                                <svg class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200"
+                                                     :class="result.expanded ? 'rotate-90' : ''"
+                                                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                                {{-- Name --}}
+                                                <div class="flex items-center gap-2 flex-1 min-w-0">
+                                                    <span class="w-2 h-2 rounded-full shrink-0" :class="result.found ? 'bg-green-500' : 'bg-red-400'"></span>
+                                                    <span class="font-medium text-gray-800 truncate" x-text="result.name"></span>
                                                 </div>
-                                            </template>
-                                        </template>
-                                    </div>
-
-                                    {{-- Nested object sections --}}
-                                    <template x-for="(value, key) in result.data" :key="'section-' + key">
-                                        <template x-if="isObject(value)">
-                                            <div class="border-t border-gray-100 pt-4">
-                                                <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" x-text="formatLabel(key)"></h5>
-                                                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                                                    <template x-for="(subVal, subKey) in value" :key="subKey">
-                                                        <div>
-                                                            <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(subKey)"></p>
-                                                            <p class="text-sm text-gray-700 font-medium" x-text="formatValue(subVal)"></p>
-                                                        </div>
-                                                    </template>
-                                                </div>
+                                                {{-- Badge --}}
+                                                <span class="text-xs font-medium px-2.5 py-1 rounded-full shrink-0"
+                                                      :class="result.found ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'"
+                                                      x-text="result.found ? 'Encontrado' : 'Error'"></span>
                                             </div>
-                                        </template>
-                                    </template>
-                                </div>
+
+                                            {{-- Expandable detail --}}
+                                            <div x-show="result.expanded"
+                                                 x-transition:enter="transition ease-out duration-150"
+                                                 x-transition:enter-start="opacity-0 -translate-y-1"
+                                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                                 x-transition:leave="transition ease-in duration-100"
+                                                 x-transition:leave-start="opacity-100 translate-y-0"
+                                                 x-transition:leave-end="opacity-0 -translate-y-1"
+                                                 class="border-b border-gray-100 bg-gray-50/50 px-8 py-5">
+
+                                                <template x-if="result.found && result.data">
+                                                    <div class="space-y-4">
+                                                        {{-- Simple fields --}}
+                                                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3">
+                                                            <template x-for="(value, key) in result.data" :key="key">
+                                                                <template x-if="!isObject(value)">
+                                                                    <div>
+                                                                        <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(key)"></p>
+                                                                        <p class="text-sm text-gray-700 font-medium" x-text="formatValue(value)"></p>
+                                                                    </div>
+                                                                </template>
+                                                            </template>
+                                                        </div>
+                                                        {{-- Nested sections --}}
+                                                        <template x-for="(value, key) in result.data" :key="'sec-' + key">
+                                                            <template x-if="isObject(value)">
+                                                                <div class="border-t border-gray-200 pt-4">
+                                                                    <h5 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3" x-text="formatLabel(key)"></h5>
+                                                                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-3">
+                                                                        <template x-for="(subVal, subKey) in value" :key="subKey">
+                                                                            <div>
+                                                                                <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-0.5" x-text="formatLabel(subKey)"></p>
+                                                                                <p class="text-sm text-gray-700 font-medium" x-text="formatValue(subVal)"></p>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </div>
+                                                            </template>
+                                                        </template>
+                                                    </div>
+                                                </template>
+
+                                                <template x-if="result.error">
+                                                    <div class="flex items-center gap-2 text-sm text-red-500">
+                                                        <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                                        <span x-text="result.error"></span>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                             </template>
-                            <template x-if="!result.found && !result.error">
-                                <p class="text-sm text-gray-400 text-center py-4">Sin registros para esta cédula</p>
-                            </template>
-                            <template x-if="result.error">
-                                <div class="flex items-center gap-2 text-sm text-red-500 py-4">
-                                    <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                                    <span x-text="result.error"></span>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-                </template>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
         </div>
     </template>
 
@@ -193,7 +233,10 @@ function consultaPage() {
                     return;
                 }
 
-                this.results = await res.json();
+                const data = await res.json();
+                // Add expanded state for each row
+                data.results = data.results.map(r => ({ ...r, expanded: false }));
+                this.results = data;
             } catch (e) {
                 alert('Error de conexión: ' + e.message);
             } finally {
