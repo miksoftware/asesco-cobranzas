@@ -204,6 +204,11 @@
     </template>
 
     {{-- Detail Modal --}}
+    <style>
+        .modal-overlay-centered[style*="display: block"] {
+            display: flex !important;
+        }
+    </style>
     <template x-teleport="body">
         <div x-show="modal"
              x-transition:enter="transition ease-out duration-200"
@@ -214,6 +219,7 @@
              x-transition:leave-end="opacity-0"
              @keydown.escape.window="modal = false"
              @click.self="modal = false"
+             class="modal-overlay-centered"
              style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);">
             {{-- Modal card --}}
             <div x-show="modal"
