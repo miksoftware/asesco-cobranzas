@@ -205,8 +205,21 @@
 
     {{-- Detail Modal --}}
     <style>
-        .modal-overlay-centered[style*="display: block"] {
+        .modal-overlay-centered {
             display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 9999 !important;
+            padding: 16px !important;
+            background: rgba(15,23,42,0.55) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+        }
+        .modal-overlay-centered[x-cloak],
+        .modal-overlay-centered[style*="display: none"] {
+            display: none !important;
         }
     </style>
     <template x-teleport="body">
@@ -219,8 +232,7 @@
              x-transition:leave-end="opacity-0"
              @keydown.escape.window="modal = false"
              @click.self="modal = false"
-             class="modal-overlay-centered"
-             style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);">
+             class="modal-overlay-centered">
             {{-- Modal card --}}
             <div x-show="modal"
                  x-transition:enter="transition ease-out duration-200"
@@ -229,7 +241,7 @@
                  x-transition:leave="transition ease-in duration-150"
                  x-transition:leave-start="opacity-100 scale-100"
                  x-transition:leave-end="opacity-0 scale-95"
-                 style="width:100%;max-width:360px;max-height:540px;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.35);">
+                 style="width:100%;max-width:400px;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.35);">
                 {{-- Dark header --}}
                 <div style="background:#1e2532;padding:14px 18px 12px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
                     <div style="min-width:0;">
