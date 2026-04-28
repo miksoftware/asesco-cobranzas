@@ -87,15 +87,5 @@
                 <p class="text-[11px] text-white/40 truncate leading-tight">{{ auth()->user()->roles->first()?->name ?? 'Sin rol' }}</p>
             </div>
         </div>
-        <form method="POST" action="{{ route('logout') }}" class="mt-3">
-            @csrf
-            <button type="submit"
-                    class="flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs text-red-400/70 hover:bg-red-500/10 hover:text-red-400 transition-all cursor-pointer">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-                <span class="transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Cerrar Sesión</span>
-            </button>
-        </form>
     </div>
 </aside>
