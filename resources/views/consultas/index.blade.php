@@ -6,49 +6,45 @@
 @section('content')
 <div x-data="consultaPage()" class="space-y-5">
 
-    {{-- Search card --}}
-    <div class="bg-white rounded-xl border border-gray-200 p-6">
-        <div class="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-            <div class="flex-1 w-full">
-                <label for="cedula" class="block text-sm font-medium text-gray-700 mb-1.5">Número de cédula</label>
-                <div class="relative">
-                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <input id="cedula" type="text" x-model="cedula" @keydown.enter.prevent="consultar()"
-                           placeholder="Ingresa el número de cédula..."
-                           class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-base text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all"
-                           :disabled="loading" inputmode="numeric" pattern="[0-9]*">
-                </div>
+    {{-- Compact search bar --}}
+    <div class="bg-white rounded-xl border border-gray-200 px-4 py-3">
+        <div class="flex items-center gap-3">
+            {{-- Search input --}}
+            <div class="relative w-64 shrink-0">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input id="cedula" type="text" x-model="cedula" @keydown.enter.prevent="consultar()"
+                       placeholder="Número de cédula..."
+                       class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all"
+                       :disabled="loading" inputmode="numeric" pattern="[0-9]*">
             </div>
+
+            {{-- Search button (icon only) --}}
             <button @click="consultar()" :disabled="loading || !cedula.trim()"
-                    class="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white text-sm font-semibold rounded-xl shadow-md shadow-asesco-orange/20 hover:shadow-lg hover:shadow-asesco-orange/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap">
+                    class="flex items-center justify-center w-9 h-9 shrink-0 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white rounded-lg shadow-md shadow-asesco-orange/20 hover:shadow-lg hover:shadow-asesco-orange/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    title="Consultar">
                 <template x-if="!loading">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </template>
                 <template x-if="loading">
-                    <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                     </svg>
                 </template>
-                <span x-text="loading ? 'Consultando...' : 'Consultar'"></span>
             </button>
-        </div>
 
-        {{-- Minimalist person name strip --}}
-        <div x-show="personName"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 translate-y-1"
-             x-transition:enter-end="opacity-100 translate-y-0"
-             class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-3"
-             style="display:none">
-            <div class="w-0.5 h-7 rounded-full bg-gradient-to-b from-asesco-orange to-asesco-coral shrink-0"></div>
-            <div>
-                <p class="text-[10px] text-gray-400 uppercase tracking-widest leading-none mb-0.5">Consultando</p>
-                <p class="text-sm font-semibold text-gray-800 leading-tight" x-text="personName"></p>
+            {{-- Person name (inline) --}}
+            <div x-show="personName" x-transition class="flex items-center gap-2 min-w-0" style="display:none">
+                <div class="w-px h-6 bg-gray-200 shrink-0"></div>
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                         x-text="personName ? personName.charAt(0).toUpperCase() : ''"></div>
+                    <p class="text-sm font-semibold text-gray-800 truncate" x-text="personName"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -122,14 +118,14 @@
                 {{-- Table --}}
                 <template x-if="results.found > 0">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm min-w-[680px]">
+                        <table class="w-full text-sm min-w-[780px]">
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-200">
-                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sistema EPS</th>
-                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo Doc.</th>
-                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">N° Documento</th>
-                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nombres</th>
-                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Apellidos</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Departamento</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Municipio</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha de Consulta</th>
                                     <th class="w-12"></th>
                                 </tr>
                             </thead>
@@ -146,10 +142,10 @@
                                                 </span>
                                             </div>
                                         </td>
-                                        <td class="px-4 py-3 text-sm text-gray-600" x-text="getTipoDoc(row)"></td>
-                                        <td class="px-4 py-3 text-sm text-gray-700 font-mono" x-text="getCedulaField(row)"></td>
-                                        <td class="px-4 py-3 text-sm text-gray-700" x-text="getNombres(row)"></td>
-                                        <td class="px-4 py-3 text-sm text-gray-700" x-text="getApellidos(row)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-600" x-text="getDepartamento(row)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-600" x-text="getMunicipio(row)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-600" x-text="getTelefono(row)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-500" x-text="row._consultedAt || '—'"></td>
                                         <td class="px-4 py-3">
                                             <button @click="openModal(row)"
                                                     class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-asesco-orange hover:bg-orange-50 transition-colors"
@@ -352,6 +348,8 @@ function consultaPage() {
                 });
 
                 // Flatten all found records for the table
+                const now = new Date();
+                const consultedAt = now.toLocaleDateString('es-CO', { year: 'numeric', month: '2-digit', day: '2-digit' }) + ' ' + now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
                 this.flatRecords = data.results
                     .filter(r => r.found && r.records.length > 0)
                     .flatMap(r => r.records.map((rec, idx) => ({
@@ -360,6 +358,7 @@ function consultaPage() {
                         _systemSlug: r.slug,
                         _recordIdx: idx,
                         _totalInSystem: r.records.length,
+                        _consultedAt: consultedAt,
                     })));
 
                 this.results = data;
@@ -406,6 +405,23 @@ function consultaPage() {
             const parts = [rec.primer_apellido, rec.segundo_apellido].filter(v => v && String(v).trim());
             if (parts.length) return parts.join(' ');
             return rec.apellidos || (rec.nombre_completo ? rec.nombre_completo.split(' ').slice(2).join(' ') : '—');
+        },
+
+        getDepartamento(rec) {
+            return rec.departamento || rec.depto || rec.dept || '—';
+        },
+
+        getMunicipio(rec) {
+            return rec.municipio || rec.ciudad || rec.city || '—';
+        },
+
+        getTelefono(rec) {
+            if (rec.telefono) return rec.telefono;
+            if (rec.telefonos) return rec.telefonos;
+            if (rec.celular) return rec.celular;
+            if (rec.telefono_1) return rec.telefono_1;
+            if (rec.phone) return rec.phone;
+            return '—';
         },
 
         formatLabel(key) {
