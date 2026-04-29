@@ -18,7 +18,7 @@
     @include('layouts.partials.sidebar')
 
     {{-- Main wrapper --}}
-    <div class="lg:ml-64 min-h-screen flex flex-col transition-all duration-300"
+    <div class="min-h-screen flex flex-col transition-all duration-300"
          :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-20'">
 
         {{-- Header --}}
