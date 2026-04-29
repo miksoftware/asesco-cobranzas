@@ -11,9 +11,6 @@
         <div class="flex items-center gap-3">
             {{-- Search input --}}
             <div class="relative w-64 shrink-0">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
                 <input id="cedula" type="text" x-model="cedula" @keydown.enter.prevent="consultar()"
                        class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all"
                        :disabled="loading" inputmode="numeric" pattern="[0-9]*">
@@ -406,11 +403,13 @@ function consultaPage() {
         },
 
         getDepartamento(rec) {
-            return rec.departamento || rec.depto || rec.dept || '—';
+            const val = rec.departamento || rec.depto || rec.dept || '';
+            return (val && !/^\d+$/.test(String(val).trim())) ? val : '—';
         },
 
         getMunicipio(rec) {
-            return rec.municipio || rec.ciudad || rec.city || '—';
+            const val = rec.municipio || rec.ciudad || rec.city || '';
+            return (val && !/^\d+$/.test(String(val).trim())) ? val : '—';
         },
 
         getTelefono(rec) {
