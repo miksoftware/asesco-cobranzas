@@ -15,8 +15,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input id="cedula" type="text" x-model="cedula" @keydown.enter.prevent="consultar()"
-                       placeholder="Número de cédula..."
-                       class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all"
+                       class="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all"
                        :disabled="loading" inputmode="numeric" pattern="[0-9]*">
             </div>
 
@@ -40,9 +39,8 @@
             {{-- Person name (inline) --}}
             <div x-show="personName" x-transition class="flex items-center gap-2 min-w-0" style="display:none">
                 <div class="w-px h-6 bg-gray-200 shrink-0"></div>
-                <div class="flex items-center gap-2 min-w-0">
-                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                         x-text="personName ? personName.charAt(0).toUpperCase() : ''"></div>
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-xs font-medium text-gray-400 shrink-0">Nombre:</span>
                     <p class="text-sm font-semibold text-gray-800 truncate" x-text="personName"></p>
                 </div>
             </div>
