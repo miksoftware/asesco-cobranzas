@@ -33,13 +33,20 @@
                 </template>
             </button>
 
-            {{-- Person name (inline) --}}
+            {{-- Person name + empresa (inline, from terceros) --}}
             <div x-show="personName" x-transition class="flex items-center gap-2 min-w-0" style="display:none">
                 <div class="w-px h-6 bg-gray-200 shrink-0"></div>
                 <div class="flex items-center gap-1.5 min-w-0">
                     <span class="text-xs font-medium text-gray-400 shrink-0">Nombre:</span>
                     <p class="text-sm font-semibold text-gray-800 truncate" x-text="personName"></p>
                 </div>
+                <template x-if="personEmpresa">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <div class="w-px h-6 bg-gray-200 shrink-0"></div>
+                        <span class="text-xs font-medium text-gray-400 shrink-0">Empresa:</span>
+                        <p class="text-sm font-semibold text-gray-800 truncate" x-text="personEmpresa"></p>
+                    </div>
+                </template>
             </div>
         </div>
     </div>
@@ -75,7 +82,7 @@
                     </svg>
                     Actualización
                 </button>
-                <button @click="activeTab = 'comentarios'"
+                <button @click="activeTab = 'comentarios'; cargarComentarios()"
                         :class="activeTab === 'comentarios'
                             ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
                             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
@@ -85,7 +92,7 @@
                     </svg>
                     Comentarios
                 </button>
-                <button @click="activeTab = 'telefonos'"
+                <button @click="activeTab = 'telefonos'; cargarTelefonos()"
                         :class="activeTab === 'telefonos'
                             ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
                             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
@@ -113,13 +120,14 @@
                 {{-- Table --}}
                 <template x-if="results.found > 0">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-sm min-w-[780px]">
+                        <table class="w-full text-sm min-w-[920px]">
                             <thead>
                                 <tr class="bg-gray-50 border-b border-gray-200">
                                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
                                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Departamento</th>
                                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Municipio</th>
                                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Correo</th>
                                     <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fecha de Consulta</th>
                                     <th class="w-12"></th>
                                 </tr>
@@ -140,6 +148,7 @@
                                         <td class="px-4 py-3 text-sm text-gray-600" x-text="getDepartamento(row)"></td>
                                         <td class="px-4 py-3 text-sm text-gray-600" x-text="getMunicipio(row)"></td>
                                         <td class="px-4 py-3 text-sm text-gray-600" x-text="getTelefono(row)"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-600" x-text="getCorreo(row)"></td>
                                         <td class="px-4 py-3 text-sm text-gray-500" x-text="row._consultedAt || '—'"></td>
                                         <td class="px-4 py-3">
                                             <button @click="openModal(row)"
@@ -160,25 +169,457 @@
             </div>
 
             {{-- Tab: Comentarios --}}
-            <div x-show="activeTab === 'comentarios'" class="flex flex-col items-center justify-center py-16 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
-                    <svg class="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                    </svg>
-                </div>
-                <p class="text-sm font-semibold text-gray-600 mb-1">Se está trabajando</p>
-                <p class="text-xs text-gray-400">Módulo en desarrollo</p>
+            <div x-show="activeTab === 'comentarios'">
+
+                {{-- Loading comentarios --}}
+                <template x-if="loadingComentarios">
+                    <div class="p-8 flex flex-col items-center justify-center">
+                        <div class="relative w-10 h-10 mb-3">
+                            <div class="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+                            <div class="absolute inset-0 rounded-full border-4 border-asesco-orange border-t-transparent animate-spin"></div>
+                        </div>
+                        <p class="text-xs text-gray-400">Cargando comentarios...</p>
+                    </div>
+                </template>
+
+                {{-- Comentarios content --}}
+                <template x-if="!loadingComentarios">
+                    <div class="flex flex-col" style="height: calc(100vh - 310px); min-height: 400px;">
+
+                        {{-- Lista de comentarios (scrollable, ocupa todo el espacio) --}}
+                        <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2" x-ref="comentariosList">
+                            <template x-if="comentarios.length === 0">
+                                <div class="h-full flex flex-col items-center justify-center py-12">
+                                    <svg class="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                                    </svg>
+                                    <p class="text-sm text-gray-400">No hay comentarios para esta cédula</p>
+                                    <p class="text-xs text-gray-300 mt-1">Agrega el primer comentario de gestión abajo</p>
+                                </div>
+                            </template>
+
+                            <template x-for="(c, i) in comentarios" :key="c.id">
+                                <div class="rounded-lg border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 hover:bg-orange-50/20 transition-colors">
+                                    <div class="flex items-center justify-between gap-3 mb-1.5">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-[9px] font-bold shrink-0">
+                                                <span x-text="c.gestor ? c.gestor.charAt(0) : '?'"></span>
+                                            </div>
+                                            <span class="text-xs font-semibold text-gray-700 truncate" x-text="c.gestor"></span>
+                                        </div>
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <span class="text-[10px] text-gray-400" x-text="formatFechaComentario(c.fecha) + ' ' + (c.hora || '')"></span>
+                                        </div>
+                                    </div>
+                                    <p class="text-[12.5px] text-gray-600 leading-relaxed mb-1.5" x-text="c.comentario"></p>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span x-show="c.efecto_gestion"
+                                              class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase"
+                                              :class="{
+                                                  'bg-amber-50 text-amber-600 border border-amber-100': c.efecto_gestion && c.efecto_gestion.includes('GESTI'),
+                                                  'bg-blue-50 text-blue-600 border border-blue-100': c.efecto_gestion === 'EN MENSAJE',
+                                                  'bg-emerald-50 text-emerald-600 border border-emerald-100': c.efecto_gestion && (c.efecto_gestion.includes('PROMESA DE PAGO') || c.efecto_gestion.includes('INTENCI')),
+                                                  'bg-red-50 text-red-600 border border-red-100': c.efecto_gestion && (c.efecto_gestion === 'NO CONTESTA' || c.efecto_gestion === 'RENUENTE' || c.efecto_gestion === 'PROMESA ROTA'),
+                                              }"
+                                              x-text="c.efecto_gestion"></span>
+                                        <span x-show="c.accion_cobro"
+                                              class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gray-100 text-gray-500 border border-gray-200"
+                                              x-text="c.accion_cobro"></span>
+                                        <span x-show="c.tipo_contacto"
+                                              class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-indigo-50 text-indigo-500 border border-indigo-100"
+                                              x-text="c.tipo_contacto"></span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        {{-- Formulario nuevo comentario (siempre abajo) --}}
+                        <div class="border-t border-gray-200 bg-gray-50/80 px-4 py-3 shrink-0">
+                            <div class="flex items-center gap-1.5 mb-2.5">
+                                <svg class="w-3.5 h-3.5 text-asesco-orange shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                <span class="text-xs font-semibold text-gray-600">Nuevo comentario</span>
+                            </div>
+
+                            {{-- Selects en fila --}}
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2.5">
+                                <select x-model="nuevoComentario.canal"
+                                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all cursor-pointer">
+                                    <option value="">Canal...</option>
+                                    <option value="GESTOR">Gestor</option>
+                                    <option value="CLIENTE">Cliente</option>
+                                    <option value="WHATSAPP">WhatsApp</option>
+                                    <option value="CORREO">Correo</option>
+                                </select>
+                                <select x-model="nuevoComentario.tipo_contacto"
+                                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all cursor-pointer">
+                                    <option value="">Tipo contacto...</option>
+                                    <option value="CONTACTO DIRECTO">Contacto Directo</option>
+                                    <option value="CONTACTO INDIRECTO">Contacto Indirecto</option>
+                                    <option value="NO CONTACTADO">No Contactado</option>
+                                </select>
+                                <select x-model="nuevoComentario.efecto_gestion"
+                                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all cursor-pointer">
+                                    <option value="">Efecto...</option>
+                                    <option value="EN GESTIÓN">En Gestión</option>
+                                    <option value="EN MENSAJE">En Mensaje</option>
+                                    <option value="INTENCIÓN DE PAGO">Intención de Pago</option>
+                                    <option value="NO CONTESTA">No Contesta</option>
+                                    <option value="PROMESA DE PAGO">Promesa de Pago</option>
+                                    <option value="PROMESA ROTA">Promesa Rota</option>
+                                    <option value="RENUENTE">Renuente</option>
+                                </select>
+                                <select x-model="nuevoComentario.accion_cobro"
+                                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all cursor-pointer">
+                                    <option value="">Acción...</option>
+                                    <option value="LLAMADA">Llamada</option>
+                                    <option value="MENSAJE WPP">Mensaje WPP</option>
+                                    <option value="CORREO">Correo</option>
+                                    <option value="VISITA">Visita</option>
+                                    <option value="SMS">SMS</option>
+                                </select>
+                            </div>
+
+                            {{-- Textarea + botón enviar --}}
+                            <div class="flex items-end gap-2">
+                                <textarea x-model="nuevoComentario.comentario"
+                                          @keydown.ctrl.enter="guardarComentario()"
+                                          placeholder="Escribe el comentario de gestión..."
+                                          rows="2"
+                                          class="flex-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all"
+                                          :disabled="guardandoComentario"></textarea>
+                                <button @click="guardarComentario()"
+                                        :disabled="guardandoComentario || !nuevoComentario.comentario.trim() || !nuevoComentario.canal || !nuevoComentario.tipo_contacto || !nuevoComentario.efecto_gestion || !nuevoComentario.accion_cobro"
+                                        class="flex items-center justify-center w-9 h-9 shrink-0 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white rounded-lg shadow-md shadow-asesco-orange/20 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                        title="Guardar comentario (Ctrl+Enter)">
+                                    <template x-if="!guardandoComentario">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                                        </svg>
+                                    </template>
+                                    <template x-if="guardandoComentario">
+                                        <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                        </svg>
+                                    </template>
+                                </button>
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1.5">Ctrl+Enter para enviar. Fecha y hora se registran automáticamente.</p>
+                        </div>
+
+                    </div>
+                </template>
             </div>
 
             {{-- Tab: Teléfonos --}}
-            <div x-show="activeTab === 'telefonos'" class="flex flex-col items-center justify-center py-16 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
-                    <svg class="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
-                    </svg>
-                </div>
-                <p class="text-sm font-semibold text-gray-600 mb-1">Se está trabajando</p>
-                <p class="text-xs text-gray-400">Módulo en desarrollo</p>
+            <div x-show="activeTab === 'telefonos'">
+
+                <template x-if="loadingTelefonos">
+                    <div class="p-8 flex flex-col items-center justify-center">
+                        <div class="relative w-10 h-10 mb-3">
+                            <div class="absolute inset-0 rounded-full border-4 border-gray-100"></div>
+                            <div class="absolute inset-0 rounded-full border-4 border-asesco-orange border-t-transparent animate-spin"></div>
+                        </div>
+                        <p class="text-xs text-gray-400">Cargando datos de contacto...</p>
+                    </div>
+                </template>
+
+                <template x-if="!loadingTelefonos">
+                    <div class="flex flex-col" style="height: calc(100vh - 310px); min-height: 400px;">
+                        <div class="flex-1 overflow-y-auto px-4 py-3 space-y-5" x-ref="telefonosList">
+
+                            {{-- Sección Teléfonos --}}
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-asesco-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/>
+                                    </svg>
+                                    <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Teléfonos</span>
+                                    <span class="text-[10px] text-gray-400 font-medium" x-text="'(' + dataTelefonos.length + ')'"></span>
+                                </div>
+                                <template x-if="dataTelefonos.length === 0">
+                                    <p class="text-xs text-gray-400 italic pl-6">Sin teléfonos registrados</p>
+                                </template>
+                                <template x-if="dataTelefonos.length > 0">
+                                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                        <table class="w-full text-xs">
+                                            <thead>
+                                                <tr class="bg-gray-50 border-b border-gray-200">
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Fuente</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Relación</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Tipo</th>
+                                                    <th class="text-center px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">SMS</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Modificado por</th>
+                                                    <th class="w-16"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="t in dataTelefonos" :key="t.id">
+                                                    <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors" :class="editingId === t.id ? 'bg-orange-50/40' : ''">
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === t.id">
+                                                                <select x-model="editForm.fuente" class="w-full px-1.5 py-1 rounded border border-gray-300 text-[11px] bg-white">
+                                                                    <option value="">—</option>
+                                                                    <option value="EMPRESA">Empresa</option>
+                                                                    <option value="ACTUALIZACIÓN">Actualización</option>
+                                                                    <option value="AGENTE">Agente</option>
+                                                                    <option value="UBICA">Ubica</option>
+                                                                    <option value="RECONOCER">Reconocer</option>
+                                                                    <option value="GS">GS</option>
+                                                                </select>
+                                                            </template>
+                                                            <template x-if="editingId !== t.id">
+                                                                <span class="text-gray-600" x-text="t.fuente || '—'"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === t.id">
+                                                                <input type="text" x-model="editForm.dato" class="w-full px-1.5 py-1 rounded border border-gray-300 text-[11px] font-mono bg-white">
+                                                            </template>
+                                                            <template x-if="editingId !== t.id">
+                                                                <span class="font-mono font-medium text-gray-800" x-text="t.dato"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === t.id">
+                                                                <input type="text" x-model="editForm.nombre_tercero" class="w-full px-1.5 py-1 rounded border border-gray-300 text-[11px] bg-white">
+                                                            </template>
+                                                            <template x-if="editingId !== t.id">
+                                                                <span class="text-gray-600" x-text="t.nombre_tercero"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === t.id">
+                                                                <input type="text" x-model="editForm.calidad" class="w-20 px-1.5 py-1 rounded border border-gray-300 text-[11px] bg-white">
+                                                            </template>
+                                                            <template x-if="editingId !== t.id">
+                                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase"
+                                                                      :class="t.calidad === 'TT' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-purple-50 text-purple-600 border border-purple-100'"
+                                                                      x-text="t.calidad"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold"
+                                                                  :class="t.tipo_dato === 'celular' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-amber-50 text-amber-600 border border-amber-100'"
+                                                                  x-text="t.tipo_dato"></span>
+                                                        </td>
+                                                        <td class="px-3 py-2 text-center">
+                                                            <button @click="toggleNotificar(t)" class="cursor-pointer" title="Activar/desactivar SMS">
+                                                                <svg x-show="t.notificar" class="w-4 h-4 text-green-500 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                                <svg x-show="!t.notificar" class="w-4 h-4 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="9"/></svg>
+                                                            </button>
+                                                        </td>
+                                                        <td class="px-3 py-2 text-[10px] text-gray-400 whitespace-nowrap">
+                                                            <template x-if="t.modified_by_user">
+                                                                <div>
+                                                                    <span x-text="t.modified_by_user.name"></span>
+                                                                    <br>
+                                                                    <span class="text-gray-300" x-text="t.modified_at ? new Date(t.modified_at).toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : ''"></span>
+                                                                </div>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-2 py-2">
+                                                            <template x-if="editingId === t.id">
+                                                                <div class="flex items-center gap-1">
+                                                                    <button @click="guardarEdicion(t)" class="p-1 rounded hover:bg-green-50 text-green-500 cursor-pointer" title="Guardar">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                                    </button>
+                                                                    <button @click="editingId = null" class="p-1 rounded hover:bg-red-50 text-red-400 cursor-pointer" title="Cancelar">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                    </button>
+                                                                </div>
+                                                            </template>
+                                                            <template x-if="editingId !== t.id">
+                                                                <button @click="iniciarEdicion(t)" class="p-1 rounded hover:bg-orange-50 text-gray-400 hover:text-asesco-orange cursor-pointer" title="Editar">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
+                                                                </button>
+                                                            </template>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </template>
+                            </div>
+
+                            {{-- Sección Correos --}}
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-asesco-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                                    </svg>
+                                    <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Correos</span>
+                                    <span class="text-[10px] text-gray-400 font-medium" x-text="'(' + dataCorreos.length + ')'"></span>
+                                </div>
+                                <template x-if="dataCorreos.length === 0">
+                                    <p class="text-xs text-gray-400 italic pl-6">Sin correos registrados</p>
+                                </template>
+                                <template x-if="dataCorreos.length > 0">
+                                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                        <table class="w-full text-xs">
+                                            <thead>
+                                                <tr class="bg-gray-50 border-b border-gray-200">
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Fuente</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Correo</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Relación</th>
+                                                    <th class="text-center px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Notificar</th>
+                                                    <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Modificado por</th>
+                                                    <th class="w-16"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template x-for="c in dataCorreos" :key="c.id">
+                                                    <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors" :class="editingId === c.id ? 'bg-orange-50/40' : ''">
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === c.id">
+                                                                <select x-model="editForm.fuente" class="w-full px-1.5 py-1 rounded border border-gray-300 text-[11px] bg-white">
+                                                                    <option value="">—</option>
+                                                                    <option value="EMPRESA">Empresa</option>
+                                                                    <option value="ACTUALIZACIÓN">Actualización</option>
+                                                                    <option value="AGENTE">Agente</option>
+                                                                </select>
+                                                            </template>
+                                                            <template x-if="editingId !== c.id">
+                                                                <span class="text-gray-600" x-text="c.fuente || '—'"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === c.id">
+                                                                <input type="text" x-model="editForm.dato" class="w-full px-1.5 py-1 rounded border border-gray-300 text-[11px] font-mono bg-white">
+                                                            </template>
+                                                            <template x-if="editingId !== c.id">
+                                                                <span class="font-mono font-medium text-gray-800" x-text="c.dato"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === c.id">
+                                                                <input type="text" x-model="editForm.nombre_tercero" class="w-full px-1.5 py-1 rounded border border-gray-300 text-[11px] bg-white">
+                                                            </template>
+                                                            <template x-if="editingId !== c.id">
+                                                                <span class="text-gray-600" x-text="c.nombre_tercero"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2">
+                                                            <template x-if="editingId === c.id">
+                                                                <input type="text" x-model="editForm.calidad" class="w-20 px-1.5 py-1 rounded border border-gray-300 text-[11px] bg-white">
+                                                            </template>
+                                                            <template x-if="editingId !== c.id">
+                                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase"
+                                                                      :class="c.calidad === 'TT' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-purple-50 text-purple-600 border border-purple-100'"
+                                                                      x-text="c.calidad"></span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-3 py-2 text-center">
+                                                            <button @click="toggleNotificar(c)" class="cursor-pointer" title="Activar/desactivar notificación">
+                                                                <svg x-show="c.notificar" class="w-4 h-4 text-green-500 mx-auto" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                                <svg x-show="!c.notificar" class="w-4 h-4 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><circle cx="12" cy="12" r="9"/></svg>
+                                                            </button>
+                                                        </td>
+                                                        <td class="px-3 py-2 text-[10px] text-gray-400 whitespace-nowrap">
+                                                            <template x-if="c.modified_by_user">
+                                                                <div>
+                                                                    <span x-text="c.modified_by_user.name"></span>
+                                                                    <br>
+                                                                    <span class="text-gray-300" x-text="c.modified_at ? new Date(c.modified_at).toLocaleDateString('es-CO', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : ''"></span>
+                                                                </div>
+                                                            </template>
+                                                        </td>
+                                                        <td class="px-2 py-2">
+                                                            <template x-if="editingId === c.id">
+                                                                <div class="flex items-center gap-1">
+                                                                    <button @click="guardarEdicion(c)" class="p-1 rounded hover:bg-green-50 text-green-500 cursor-pointer" title="Guardar">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                                    </button>
+                                                                    <button @click="editingId = null" class="p-1 rounded hover:bg-red-50 text-red-400 cursor-pointer" title="Cancelar">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                                    </button>
+                                                                </div>
+                                                            </template>
+                                                            <template x-if="editingId !== c.id">
+                                                                <button @click="iniciarEdicion(c)" class="p-1 rounded hover:bg-orange-50 text-gray-400 hover:text-asesco-orange cursor-pointer" title="Editar">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
+                                                                </button>
+                                                            </template>
+                                                        </td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </template>
+                            </div>
+
+                        </div>
+
+                        {{-- Formulario agregar nuevo dato --}}
+                        <div class="border-t border-gray-200 bg-gray-50/80 px-4 py-3 shrink-0">
+                            <div class="flex items-center gap-1.5 mb-2.5">
+                                <svg class="w-3.5 h-3.5 text-asesco-orange shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                <span class="text-xs font-semibold text-gray-600">Agregar teléfono o correo</span>
+                            </div>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-2">
+                                <input type="text" x-model="nuevoDato.dato" placeholder="Número o correo..."
+                                       class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all font-mono">
+                                <select x-model="nuevoDato.tipo_dato"
+                                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all cursor-pointer">
+                                    <option value="">Tipo...</option>
+                                    <option value="celular">Celular</option>
+                                    <option value="fijo">Fijo</option>
+                                    <option value="correo">Correo</option>
+                                </select>
+                                <select x-model="nuevoDato.fuente"
+                                        class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all cursor-pointer">
+                                    <option value="">Fuente...</option>
+                                    <option value="EMPRESA">Empresa</option>
+                                    <option value="ACTUALIZACIÓN">Actualización</option>
+                                    <option value="AGENTE">Agente</option>
+                                    <template x-if="nuevoDato.tipo_dato !== 'correo'">
+                                        <option value="UBICA">Ubica</option>
+                                    </template>
+                                    <template x-if="nuevoDato.tipo_dato !== 'correo'">
+                                        <option value="RECONOCER">Reconocer</option>
+                                    </template>
+                                    <template x-if="nuevoDato.tipo_dato !== 'correo'">
+                                        <option value="GS">GS</option>
+                                    </template>
+                                </select>
+                                <input type="text" x-model="nuevoDato.calidad" placeholder="Relación (TT, CD, Esposo...)"
+                                       class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all">
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="grid grid-cols-2 gap-2 flex-1">
+                                    <input type="text" x-model="nuevoDato.cedula_tercero" placeholder="Cédula del tercero..."
+                                           class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all font-mono">
+                                    <input type="text" x-model="nuevoDato.nombre_tercero" placeholder="Nombre del tercero..."
+                                           class="px-2.5 py-1.5 rounded-lg border border-gray-200 bg-white text-[11px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange transition-all">
+                                </div>
+                                <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                                    <input type="checkbox" x-model="nuevoDato.notificar" class="w-3.5 h-3.5 rounded border-gray-300 text-asesco-orange focus:ring-asesco-orange/30 cursor-pointer">
+                                    <span class="text-[10px] font-medium text-gray-500" x-text="nuevoDato.tipo_dato === 'correo' ? 'Notificar' : 'SMS'"></span>
+                                </label>
+                                <button @click="guardarDato()"
+                                        :disabled="guardandoDato || !nuevoDato.dato.trim() || !nuevoDato.tipo_dato || !nuevoDato.fuente || !nuevoDato.calidad.trim() || !nuevoDato.cedula_tercero.trim() || !nuevoDato.nombre_tercero.trim()"
+                                        class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white text-[11px] font-semibold rounded-lg shadow-md shadow-asesco-orange/20 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 shrink-0">
+                                    <template x-if="!guardandoDato">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    </template>
+                                    <template x-if="guardandoDato">
+                                        <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    </template>
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
 
         </div>
@@ -299,10 +740,22 @@ function consultaPage() {
         flatRecords: [],
         searchedCedula: '',
         personName: null,
+        personEmpresa: null,
         activeTab: 'localizacion',
         modal: false,
         modalRecord: null,
         systemCount: {{ $systemCount }},
+        comentarios: [],
+        loadingComentarios: false,
+        guardandoComentario: false,
+        nuevoComentario: { comentario: '', canal: '', tipo_contacto: '', efecto_gestion: '', accion_cobro: '' },
+        dataTelefonos: [],
+        dataCorreos: [],
+        loadingTelefonos: false,
+        guardandoDato: false,
+        nuevoDato: { dato: '', tipo_dato: '', fuente: '', calidad: '', cedula_tercero: '', nombre_tercero: '', notificar: false },
+        editingId: null,
+        editForm: {},
 
         async consultar() {
             const c = this.cedula.trim();
@@ -312,6 +765,7 @@ function consultaPage() {
             this.results = null;
             this.flatRecords = [];
             this.personName = null;
+            this.personEmpresa = null;
             this.activeTab = 'localizacion';
             this.searchedCedula = c;
 
@@ -357,7 +811,16 @@ function consultaPage() {
                     })));
 
                 this.results = data;
-                this.personName = this.extractPersonName(data.results);
+
+                // Nombre y empresa desde la tabla de terceros
+                if (data.tercero) {
+                    this.personName = data.tercero.nombre;
+                    this.personEmpresa = data.tercero.empresa;
+                } else {
+                    // Fallback: extraer de las APIs si no hay tercero
+                    this.personName = this.extractPersonName(data.results);
+                    this.personEmpresa = null;
+                }
             } catch (e) {
                 alert('Error de conexión: ' + e.message);
             } finally {
@@ -368,6 +831,195 @@ function consultaPage() {
         openModal(row) {
             this.modalRecord = row;
             this.modal = true;
+        },
+
+        async cargarComentarios() {
+            if (!this.searchedCedula) return;
+            this.loadingComentarios = true;
+            try {
+                const res = await fetch(`/consultas/comentarios/${this.searchedCedula}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                this.comentarios = await res.json();
+            } catch (e) {
+                console.error('Error cargando comentarios:', e);
+            } finally {
+                this.loadingComentarios = false;
+                this.$nextTick(() => {
+                    if (this.$refs.comentariosList) {
+                        this.$refs.comentariosList.scrollTop = 0;
+                    }
+                });
+            }
+        },
+
+        async guardarComentario() {
+            const nc = this.nuevoComentario;
+            if (!nc.comentario.trim() || !nc.canal || !nc.tipo_contacto || !nc.efecto_gestion || !nc.accion_cobro) return;
+            if (this.guardandoComentario) return;
+
+            this.guardandoComentario = true;
+            try {
+                const res = await fetch('{{ route("consultas.comentarios.crear") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        cedula: this.searchedCedula,
+                        comentario: nc.comentario,
+                        canal: nc.canal,
+                        tipo_contacto: nc.tipo_contacto,
+                        efecto_gestion: nc.efecto_gestion,
+                        accion_cobro: nc.accion_cobro,
+                    }),
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // Agregar al inicio de la lista
+                    this.comentarios.unshift(data.comentario);
+                    // Limpiar formulario
+                    this.nuevoComentario = { comentario: '', canal: '', tipo_contacto: '', efecto_gestion: '', accion_cobro: '' };
+                    this.$nextTick(() => {
+                        if (this.$refs.comentariosList) {
+                            this.$refs.comentariosList.scrollTop = 0;
+                        }
+                    });
+                } else {
+                    alert(data.message || 'Error al guardar');
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            } finally {
+                this.guardandoComentario = false;
+            }
+        },
+
+        formatFechaComentario(fecha) {
+            if (!fecha) return '';
+            const d = new Date(fecha);
+            if (isNaN(d.getTime())) return fecha;
+            return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+        },
+
+        async cargarTelefonos() {
+            if (!this.searchedCedula) return;
+            this.loadingTelefonos = true;
+            try {
+                const res = await fetch(`/consultas/telefonos/${this.searchedCedula}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const data = await res.json();
+                this.dataTelefonos = data.telefonos;
+                this.dataCorreos = data.correos;
+            } catch (e) {
+                console.error('Error cargando teléfonos:', e);
+            } finally {
+                this.loadingTelefonos = false;
+            }
+        },
+
+        async toggleNotificar(item) {
+            try {
+                const res = await fetch(`/consultas/telefonos/${item.id}/notificar`, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+                if (data.success) {
+                    item.notificar = data.notificar;
+                }
+            } catch (e) {
+                console.error('Error toggling notificar:', e);
+            }
+        },
+
+        async guardarDato() {
+            const nd = this.nuevoDato;
+            if (!nd.dato.trim() || !nd.tipo_dato || !nd.fuente || !nd.calidad.trim() || !nd.cedula_tercero.trim() || !nd.nombre_tercero.trim()) return;
+            if (this.guardandoDato) return;
+
+            this.guardandoDato = true;
+            try {
+                const res = await fetch('{{ route("consultas.telefonos.crear") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        referencia: this.searchedCedula,
+                        cedula_tercero: nd.cedula_tercero,
+                        nombre_tercero: nd.nombre_tercero,
+                        calidad: nd.calidad,
+                        dato: nd.dato,
+                        tipo_dato: nd.tipo_dato,
+                        fuente: nd.fuente,
+                        notificar: nd.notificar,
+                    }),
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    // Agregar a la lista correcta
+                    if (nd.tipo_dato === 'correo') {
+                        this.dataCorreos.push(data.tercero);
+                    } else {
+                        this.dataTelefonos.push(data.tercero);
+                    }
+                    this.nuevoDato = { dato: '', tipo_dato: '', fuente: '', calidad: '', cedula_tercero: '', nombre_tercero: '', notificar: false };
+                } else {
+                    alert(data.message || 'Error al guardar');
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            } finally {
+                this.guardandoDato = false;
+            }
+        },
+
+        iniciarEdicion(item) {
+            this.editingId = item.id;
+            this.editForm = {
+                dato: item.dato,
+                tipo_dato: item.tipo_dato,
+                calidad: item.calidad,
+                fuente: item.fuente || '',
+                nombre_tercero: item.nombre_tercero,
+                cedula_tercero: item.cedula_tercero,
+                notificar: item.notificar,
+            };
+        },
+
+        async guardarEdicion(item) {
+            try {
+                const res = await fetch(`/consultas/telefonos/${item.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(this.editForm),
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    Object.assign(item, data.tercero);
+                    this.editingId = null;
+                } else {
+                    alert(data.message || 'Error al guardar');
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            }
         },
 
         extractPersonName(results) {
@@ -418,6 +1070,15 @@ function consultaPage() {
             if (rec.celular) return rec.celular;
             if (rec.telefono_1) return rec.telefono_1;
             if (rec.phone) return rec.phone;
+            return '—';
+        },
+
+        getCorreo(rec) {
+            if (rec.correo) return rec.correo;
+            if (rec.email) return rec.email;
+            if (rec.correo_electronico) return rec.correo_electronico;
+            if (rec.mail) return rec.mail;
+            if (rec.e_mail) return rec.e_mail;
             return '—';
         },
 

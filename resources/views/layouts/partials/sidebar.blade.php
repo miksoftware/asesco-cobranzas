@@ -47,6 +47,52 @@
         </a>
         @endcan
 
+        @can('cargues.ver')
+        <div x-data="{ openCargues: {{ request()->routeIs('cargues.*') ? 'true' : 'false' }} }">
+            {{-- Toggle button --}}
+            <button @click="openCargues = !openCargues"
+                    class="w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 cursor-pointer
+                           {{ request()->routeIs('cargues.*') ? 'text-asesco-orange' : 'text-white/50 hover:bg-white/5 hover:text-white/90' }}">
+                <svg class="w-[18px] h-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+                <span class="whitespace-nowrap transition-all duration-300 flex-1 text-left" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Cargues</span>
+                <svg class="w-3.5 h-3.5 shrink-0 transition-transform duration-200"
+                     :class="[openCargues ? 'rotate-180' : '', sidebarOpen ? 'opacity-100' : 'opacity-0']"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            {{-- Submenu --}}
+            <div x-show="openCargues && sidebarOpen"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 style="display: none;"
+                 class="mt-0.5 space-y-0.5">
+                <a href="{{ route('cargues.telefonos') }}"
+                   class="flex items-center gap-3 pl-10 pr-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-200
+                          {{ request()->routeIs('cargues.telefonos*') ? 'bg-gradient-to-r from-asesco-orange/20 to-transparent text-asesco-orange border-l-2 border-asesco-orange' : 'text-white/40 hover:bg-white/5 hover:text-white/80' }}">
+                    <svg class="w-[15px] h-[15px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+                    </svg>
+                    <span class="whitespace-nowrap">Asignación Terceros</span>
+                </a>
+                <a href="{{ route('cargues.comentarios') }}"
+                   class="flex items-center gap-3 pl-10 pr-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-200
+                          {{ request()->routeIs('cargues.comentarios*') ? 'bg-gradient-to-r from-asesco-orange/20 to-transparent text-asesco-orange border-l-2 border-asesco-orange' : 'text-white/40 hover:bg-white/5 hover:text-white/80' }}">
+                    <svg class="w-[15px] h-[15px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                    </svg>
+                    <span class="whitespace-nowrap">Reporte Comentarios</span>
+                </a>
+            </div>
+        </div>
+        @endcan
+
         @canany(['sistemas.ver', 'usuarios.ver'])
         <p class="px-3 mt-6 mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/30"
            :class="sidebarOpen ? 'block' : 'hidden'">Administración</p>

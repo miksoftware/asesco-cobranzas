@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CargueController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpsSystemController;
@@ -22,6 +23,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/consultas', [ConsultaController::class, 'index'])->name('consultas.index');
         Route::post('/consultas/consultar', [ConsultaController::class, 'consultar'])->name('consultas.consultar');
         Route::get('/consultas/historial', [ConsultaController::class, 'historial'])->name('consultas.historial');
+        Route::get('/consultas/comentarios/{cedula}', [ConsultaController::class, 'comentariosPorCedula'])->name('consultas.comentarios');
+        Route::post('/consultas/comentarios', [ConsultaController::class, 'crearComentario'])->name('consultas.comentarios.crear');
+        Route::get('/consultas/telefonos/{cedula}', [ConsultaController::class, 'telefonosPorCedula'])->name('consultas.telefonos');
+        Route::post('/consultas/telefonos', [ConsultaController::class, 'crearTelefono'])->name('consultas.telefonos.crear');
+        Route::put('/consultas/telefonos/{tercero}', [ConsultaController::class, 'editarTelefono'])->name('consultas.telefonos.editar');
+        Route::patch('/consultas/telefonos/{tercero}/notificar', [ConsultaController::class, 'toggleNotificar'])->name('consultas.telefonos.notificar');
     });
 
     // Sistemas EPS (solo admin@asesco.com)
@@ -46,5 +53,17 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
     Route::middleware('permission:usuarios.eliminar')->group(function () {
         Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])->name('usuarios.destroy');
+    });
+
+    // Cargues
+    Route::middleware('permission:cargues.ver')->group(function () {
+        Route::get('/cargues/telefonos', [CargueController::class, 'telefonos'])->name('cargues.telefonos');
+        Route::get('/cargues/telefonos/listar', [CargueController::class, 'listar'])->name('cargues.telefonos.listar');
+        Route::get('/cargues/comentarios', [CargueController::class, 'comentarios'])->name('cargues.comentarios');
+        Route::get('/cargues/comentarios/listar', [CargueController::class, 'listarComentarios'])->name('cargues.comentarios.listar');
+    });
+    Route::middleware('permission:cargues.importar')->group(function () {
+        Route::post('/cargues/telefonos/importar', [CargueController::class, 'importar'])->name('cargues.telefonos.importar');
+        Route::post('/cargues/comentarios/importar', [CargueController::class, 'importarComentarios'])->name('cargues.comentarios.importar');
     });
 });
