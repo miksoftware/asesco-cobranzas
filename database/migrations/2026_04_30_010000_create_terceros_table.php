@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('terceros')) {
+            return;
+        }
+
         Schema::create('terceros', function (Blueprint $table) {
             $table->id();
             $table->string('referencia', 20)->index();          // Cédula del titular

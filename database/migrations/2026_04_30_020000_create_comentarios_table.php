@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('comentarios')) {
+            return;
+        }
+
         Schema::create('comentarios', function (Blueprint $table) {
             $table->id();
             $table->date('fecha');                                // Fecha del comentario

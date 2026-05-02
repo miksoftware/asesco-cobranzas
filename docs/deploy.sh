@@ -48,7 +48,7 @@ echo ""
 echo -e "${YELLOW}[1.5/7] 🐳 Reconstruyendo imagen Docker (si cambió el Dockerfile)...${NC}"
 cd "$PROJECT_DIR"
 docker compose build php 2>&1 | tail -10
-docker compose up -d --no-deps --no-recreate php
+docker compose up -d --no-deps --force-recreate php
 echo -e "${GREEN}✓ Imagen actualizada${NC}"
 cd "$SRC_DIR"
 
