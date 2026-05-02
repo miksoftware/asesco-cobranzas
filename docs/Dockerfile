@@ -36,12 +36,6 @@ RUN docker-php-ext-install \
 # Instalar Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Instalar Node.js 20 LTS
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

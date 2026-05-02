@@ -45,12 +45,23 @@ LAST_COMMIT=$(git log -1 --pretty=format:'%h - %s (%ar) por %an')
 echo -e "${BLUE}    📝 Último commit: $LAST_COMMIT${NC}"
 
 echo ""
-echo -e "${YELLOW}[1.5/7] 🐳 Reconstruyendo imagen Docker (si cambió el Dockerfile)...${NC}"
+echo -e "${YELLOW}[1.5/7] 🐳 Reconstruyendo imagen Docker...${NC}"
 cd "$PROJECT_DIR"
 docker compose build php 2>&1 | tail -10
-docker compose up -d --no-deps --force-recreate php
-echo -e "${GREEN}✓ Imagen actualizada${NC}"
+docker compose stop php 2>/dev/null || true
+docker compose rm -f php 2>/dev/null || true
+docker compose up -d --no-deps php
+echo -e "${GREEN}✓ Imagen y contenedor actualizados${NC}"
 cd "$SRC_DIR"
+
+echo -e "${YELLOW}[1.8/7] ⏳ Esperando que el contenedor PHP esté listo...${NC}"
+for i in $(seq 1 15); do
+    if docker exec ${PROJECT_NAME}_php php -r 'echo "ok";' 2>/dev/null | grep -q 'ok'; then
+        echo -e "${GREEN}✓ Contenedor PHP listo${NC}"
+        break
+    fi
+    sleep 2
+done
 
 echo -e "${YELLOW}[2/7] 📦 Composer install...${NC}"
 docker exec -w /var/www/html ${PROJECT_NAME}_php composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -5
@@ -62,18 +73,8 @@ docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan migrate --force 2>&
 echo -e "${GREEN}✓ Migraciones ejecutadas${NC}"
 
 echo ""
-echo -e "${YELLOW}[4/7] 📦 Compilando assets...${NC}"
-if [ -f "$SRC_DIR/package.json" ]; then
-    docker exec -w /var/www/html ${PROJECT_NAME}_php npm install 2>&1 | tail -3
-    if docker exec -w /var/www/html ${PROJECT_NAME}_php npm run build 2>&1; then
-        echo -e "${GREEN}✓ Assets compilados${NC}"
-    else
-        echo -e "${RED}✗ Error al compilar assets. Revisa que Node.js esté instalado en el contenedor.${NC}"
-        exit 1
-    fi
-else
-    echo -e "${BLUE}⏭️  Sin package.json, saltando${NC}"
-fi
+echo -e "${YELLOW}[4/7] 📦 Assets (compilados en local, incluidos en repo)...${NC}"
+echo -e "${GREEN}✓ Assets ya disponibles en public/build${NC}"
 
 echo ""
 echo -e "${YELLOW}[5/7] 🔐 Ajustando permisos...${NC}"
