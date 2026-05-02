@@ -26,8 +26,10 @@
         </div>
     </div>
 
-    {{-- Upload + Search bar --}}
-    <div class="bg-white rounded-xl border border-gray-200 px-4 py-3">
+    {{-- Upload + Filtros --}}
+    <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 space-y-3">
+
+        {{-- Fila 1: Upload / badge + búsqueda + efecto --}}
         <div class="flex flex-wrap items-center gap-3">
 
             {{-- Upload button (solo si no se ha importado) --}}
@@ -52,9 +54,29 @@
 
             {{-- Badge si ya se importó --}}
             <template x-if="yaImportado">
-                <div class="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
-                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                    <span class="text-sm font-medium text-green-700">Cargue inicial completado</span>
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-lg">
+                        <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        <span class="text-sm font-medium text-green-700">Cargue inicial completado</span>
+                    </div>
+                    @if(auth()->user()->email === 'admin@asesco.com')
+                    <button @click="borrarCargue()"
+                            :disabled="borrando"
+                            class="flex items-center gap-2 px-4 py-2 bg-red-50 border border-red-200 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 hover:border-red-300 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        <template x-if="!borrando">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </template>
+                        <template x-if="borrando">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                        </template>
+                        <span x-text="borrando ? 'Borrando...' : 'Borrar cargue'"></span>
+                    </button>
+                    @endif
                 </div>
             </template>
 
@@ -83,6 +105,54 @@
                 <option value="PROMESA ROTA">Promesa Rota</option>
                 <option value="RENUENTE">Renuente</option>
             </select>
+        </div>
+
+        {{-- Fila 2: Rango de fechas + Gestor + Empresa + Limpiar --}}
+        <div class="flex flex-wrap items-center gap-3 pt-1 border-t border-gray-100">
+            {{-- Fecha inicio --}}
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-medium text-gray-500 whitespace-nowrap">Desde</label>
+                <input type="date" x-model="fechaInicio" @change="cargar(1)"
+                       class="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all cursor-pointer">
+            </div>
+            {{-- Fecha fin --}}
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-medium text-gray-500 whitespace-nowrap">Hasta</label>
+                <input type="date" x-model="fechaFin" @change="cargar(1)"
+                       class="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all cursor-pointer">
+            </div>
+
+            {{-- Divider --}}
+            <div class="w-px h-8 bg-gray-200 hidden sm:block"></div>
+
+            {{-- Filter: Gestor --}}
+            <select x-model="filtroGestor" @change="cargar(1)"
+                    class="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all cursor-pointer">
+                <option value="">Todos los gestores</option>
+                @foreach($gestores as $g)
+                    <option value="{{ $g }}">{{ $g }}</option>
+                @endforeach
+            </select>
+
+            {{-- Filter: Empresa --}}
+            <select x-model="filtroEmpresa" @change="cargar(1)"
+                    class="px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-asesco-orange/20 focus:border-asesco-orange focus:bg-white transition-all cursor-pointer">
+                <option value="">Todas las empresas</option>
+                @foreach($empresas as $e)
+                    <option value="{{ $e }}">{{ $e }}</option>
+                @endforeach
+            </select>
+
+            {{-- Limpiar filtros --}}
+            <template x-if="hayFiltros">
+                <button @click="limpiarFiltros()"
+                        class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Limpiar filtros
+                </button>
+            </template>
         </div>
     </div>
 
@@ -222,11 +292,20 @@ function cargueComentarios() {
         paginacion: {},
         buscar: '',
         filtroEfecto: '',
+        filtroGestor: '',
+        filtroEmpresa: '',
+        fechaInicio: '',
+        fechaFin: '',
         cargando: false,
         cargado: false,
         uploading: false,
         uploadResult: null,
+        borrando: false,
         yaImportado: {{ $yaImportado ? 'true' : 'false' }},
+
+        get hayFiltros() {
+            return this.buscar || this.filtroEfecto || this.filtroGestor || this.filtroEmpresa || this.fechaInicio || this.fechaFin;
+        },
 
         init() {
             this.cargar(1);
@@ -239,6 +318,10 @@ function cargueComentarios() {
                 params.set('page', page);
                 if (this.buscar) params.set('buscar', this.buscar);
                 if (this.filtroEfecto) params.set('efecto', this.filtroEfecto);
+                if (this.filtroGestor) params.set('gestor', this.filtroGestor);
+                if (this.filtroEmpresa) params.set('empresa', this.filtroEmpresa);
+                if (this.fechaInicio) params.set('fecha_inicio', this.fechaInicio);
+                if (this.fechaFin) params.set('fecha_fin', this.fechaFin);
 
                 const res = await fetch(`{{ route('cargues.comentarios.listar') }}?${params}`, {
                     headers: { 'Accept': 'application/json' },
@@ -299,6 +382,44 @@ function cargueComentarios() {
             } finally {
                 this.uploading = false;
                 event.target.value = '';
+            }
+        },
+
+        limpiarFiltros() {
+            this.buscar = '';
+            this.filtroEfecto = '';
+            this.filtroGestor = '';
+            this.filtroEmpresa = '';
+            this.fechaInicio = '';
+            this.fechaFin = '';
+            this.cargar(1);
+        },
+
+        async borrarCargue() {
+            if (!confirm('⚠️ ¿Estás seguro de que deseas eliminar TODOS los comentarios cargados?\n\nEsta acción no se puede deshacer. Podrás realizar el cargue inicial nuevamente.')) return;
+
+            this.borrando = true;
+            this.uploadResult = null;
+            try {
+                const res = await fetch('{{ route('cargues.comentarios.borrar') }}', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+                this.uploadResult = data;
+                if (data.success) {
+                    this.yaImportado = false;
+                    this.registros = [];
+                    this.paginacion = {};
+                    this.cargado = true;
+                }
+            } catch (e) {
+                this.uploadResult = { success: false, message: 'Error de conexión: ' + e.message };
+            } finally {
+                this.borrando = false;
             }
         },
 

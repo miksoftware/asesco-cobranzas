@@ -106,8 +106,10 @@ class CargueController extends Controller
         ];
 
         $yaImportado = Comentario::count() > 0;
+        $gestores  = Comentario::distinct()->orderBy('gestor')->pluck('gestor')->filter()->values();
+        $empresas  = Comentario::distinct()->orderBy('empresa')->pluck('empresa')->filter()->values();
 
-        return view('cargues.comentarios', compact('stats', 'yaImportado'));
+        return view('cargues.comentarios', compact('stats', 'yaImportado', 'gestores', 'empresas'));
     }
 
     /**
@@ -149,6 +151,20 @@ class CargueController extends Controller
     }
 
     /**
+     * Borrar todos los registros del cargue de comentarios (solo superadmin).
+     */
+    public function borrarCargueComentarios(): JsonResponse
+    {
+        $total = Comentario::count();
+        Comentario::truncate();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Se eliminaron {$total} comentarios. El cargue inicial puede realizarse nuevamente.",
+        ]);
+    }
+
+    /**
      * Listar comentarios con filtros y relación con terceros.
      */
     public function listarComentarios(Request $request): JsonResponse
@@ -176,6 +192,18 @@ class CargueController extends Controller
 
         if ($request->filled('gestor')) {
             $query->where('gestor', $request->input('gestor'));
+        }
+
+        if ($request->filled('empresa')) {
+            $query->where('empresa', $request->input('empresa'));
+        }
+
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('fecha', '>=', $request->input('fecha_inicio'));
+        }
+
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('fecha', '<=', $request->input('fecha_fin'));
         }
 
         $registros = $query->orderByDesc('fecha')

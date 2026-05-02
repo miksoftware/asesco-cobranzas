@@ -39,6 +39,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/sistemas/{system}/toggle', [EpsSystemController::class, 'toggle'])->name('sistemas.toggle');
         Route::post('/sistemas/{system}/test', [EpsSystemController::class, 'test'])->name('sistemas.test');
         Route::delete('/sistemas/{system}', [EpsSystemController::class, 'destroy'])->name('sistemas.destroy');
+
+        // Borrar cargue de comentarios (solo superadmin)
+        Route::delete('/cargues/comentarios/borrar', [CargueController::class, 'borrarCargueComentarios'])->name('cargues.comentarios.borrar');
     });
 
     // Usuarios

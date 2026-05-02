@@ -45,68 +45,33 @@ LAST_COMMIT=$(git log -1 --pretty=format:'%h - %s (%ar) por %an')
 echo -e "${BLUE}    📝 Último commit: $LAST_COMMIT${NC}"
 
 echo ""
-echo -e "${YELLOW}[1.5/7] 🐳 Reconstruyendo imagen Docker...${NC}"
-cd "$PROJECT_DIR"
-docker compose build php 2>&1 | tail -10
-docker compose stop php 2>/dev/null || true
-docker compose rm -f php 2>/dev/null || true
-docker compose up -d --no-deps php
-echo -e "${GREEN}✓ Imagen y contenedor actualizados${NC}"
-cd "$SRC_DIR"
-
-echo -e "${YELLOW}[1.8/7] ⏳ Esperando que el contenedor PHP esté listo...${NC}"
-for i in $(seq 1 15); do
-    if docker exec ${PROJECT_NAME}_php php -r 'echo "ok";' 2>/dev/null | grep -q 'ok'; then
-        echo -e "${GREEN}✓ Contenedor PHP listo${NC}"
-        break
-    fi
-    sleep 2
-done
-
-echo -e "${YELLOW}[2/7] 📦 Composer install...${NC}"
+echo -e "${YELLOW}[2/5] 📦 Composer install...${NC}"
 docker exec -w /var/www/html ${PROJECT_NAME}_php composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -5
 echo -e "${GREEN}✓ Dependencias actualizadas${NC}"
 
 echo ""
-echo -e "${YELLOW}[3/7] 🗄️  Migraciones...${NC}"
+echo -e "${YELLOW}[3/5] 🗄️  Migraciones y permisos...${NC}"
 docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan migrate --force 2>&1
-echo -e "${GREEN}✓ Migraciones ejecutadas${NC}"
+docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan db:seed --class=RolesAndPermissionsSeeder --force 2>&1
+echo -e "${GREEN}✓ Migraciones y permisos ejecutados${NC}"
 
 echo ""
-echo -e "${YELLOW}[4/7] 📦 Assets (compilados en local, incluidos en repo)...${NC}"
-echo -e "${GREEN}✓ Assets ya disponibles en public/build${NC}"
-
-echo ""
-echo -e "${YELLOW}[5/7] 🔐 Ajustando permisos...${NC}"
+echo -e "${YELLOW}[4/5] 🔐 Ajustando permisos de archivos...${NC}"
 docker exec ${PROJECT_NAME}_php chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 docker exec ${PROJECT_NAME}_php chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-docker exec ${PROJECT_NAME}_php chmod 666 /var/www/html/.env 2>/dev/null || true
 echo -e "${GREEN}✓ Permisos ajustados${NC}"
 
 echo ""
-echo -e "${YELLOW}[5.5/7] 📦 Publicando assets (Livewire, etc.)...${NC}"
-docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan vendor:publish --force --tag=livewire:assets 2>/dev/null || true
-docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan livewire:publish --assets 2>/dev/null || true
-echo -e "${GREEN}✓ Assets publicados${NC}"
-
-echo ""
-echo -e "${YELLOW}[6/7] ⚡ Limpiando y recacheando...${NC}"
+echo -e "${YELLOW}[5/5] ⚡ Limpiando cache y reiniciando...${NC}"
 docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan config:cache
 docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan route:cache
 docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan view:cache
 docker exec -w /var/www/html ${PROJECT_NAME}_php php artisan event:cache 2>/dev/null || true
-echo -e "${GREEN}✓ Cache reconstruida${NC}"
-
-echo ""
-echo -e "${YELLOW}[6.5/7] 🔄 Limpiando OPcache...${NC}"
-docker exec -w /var/www/html ${PROJECT_NAME}_php php -r "if (function_exists('opcache_reset')) { opcache_reset(); echo 'OPcache limpiado'; } else { echo 'OPcache no activo'; }" 2>/dev/null || true
-echo -e "${GREEN}✓ OPcache limpiado${NC}"
-
-echo -e "${YELLOW}[7/7] 🔄 Reiniciando servicios...${NC}"
+docker exec -w /var/www/html ${PROJECT_NAME}_php php -r "opcache_reset();" 2>/dev/null || true
 cd "$PROJECT_DIR"
 docker compose restart php nginx
-sleep 5
-echo -e "${GREEN}✓ Servicios reiniciados${NC}"
+sleep 3
+echo -e "${GREEN}✓ Cache limpia y servicios reiniciados${NC}"
 
 echo ""
 echo -e "${GREEN}=========================================="
