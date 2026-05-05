@@ -5,6 +5,7 @@ use App\Http\Controllers\CargueController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EpsSystemController;
+use App\Http\Controllers\RolController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,12 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         // Borrar cargue de comentarios (solo superadmin)
         Route::delete('/cargues/comentarios/borrar', [CargueController::class, 'borrarCargueComentarios'])->name('cargues.comentarios.borrar');
+
+        // Gestión de roles y permisos
+        Route::get('/roles', [RolController::class, 'index'])->name('roles.index');
+        Route::post('/roles', [RolController::class, 'store'])->name('roles.store');
+        Route::put('/roles/{role}', [RolController::class, 'update'])->name('roles.update');
+        Route::delete('/roles/{role}', [RolController::class, 'destroy'])->name('roles.destroy');
     });
 
     // Usuarios
