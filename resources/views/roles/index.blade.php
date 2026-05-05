@@ -83,7 +83,7 @@
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
              style="background: rgba(0,0,0,0.45);"
              @click.self="closePermissions()">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[75vh] flex flex-col"
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-95"
                  x-transition:enter-end="opacity-100 scale-100"
