@@ -84,7 +84,7 @@
         
         <div class="h-4"></div>
 
-        @if(auth()->user()->email === 'admin@asesco.com')
+        @if(auth()->id() === 1)
         <a href="{{ route('sistemas.index') }}"
            class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200
                   {{ request()->routeIs('sistemas.*') ? 'bg-gradient-to-r from-asesco-orange to-asesco-magenta text-white shadow-lg shadow-asesco-orange/20' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200' }}">

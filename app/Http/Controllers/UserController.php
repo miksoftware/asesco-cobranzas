@@ -63,7 +63,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        if ($user->email === self::SUPER_ADMIN_EMAIL) {
+        if ($user->id === 1) {
             if ($user->id !== auth()->id()) {
                 return redirect()->route('usuarios.index')
                     ->with('error', 'Este usuario solo puede ser modificado por sí mismo.');
@@ -86,7 +86,7 @@ class UserController extends Controller
         }
 
         // Prevenir que el superadmin se desactive a sí mismo o se quite el rol admin
-        if ($user->email === self::SUPER_ADMIN_EMAIL || auth()->user()->email === self::SUPER_ADMIN_EMAIL) {
+        if ($user->id === 1) {
             if ($user->id === auth()->id()) {
                 $validated['is_active'] = 1;
                 $validated['role'] = 'admin'; // Asumiendo que el rol principal es 'admin'
@@ -111,7 +111,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if ($user->email === self::SUPER_ADMIN_EMAIL) {
+        if ($user->id === 1) {
             return redirect()->route('usuarios.index')
                 ->with('error', 'Este usuario no puede ser eliminado.');
         }

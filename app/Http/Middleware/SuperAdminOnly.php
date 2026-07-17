@@ -11,7 +11,7 @@ class SuperAdminOnly
 
     public function handle(Request $request, Closure $next)
     {
-        if (! auth()->check() || auth()->user()->email !== self::SUPER_ADMIN_EMAIL) {
+        if (! auth()->check() || auth()->id() !== 1) {
             abort(403, 'Acceso restringido.');
         }
 
