@@ -89,7 +89,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center justify-end gap-1">
                                 @can('usuarios.editar')
-                                @if($user->email !== $superAdminEmail)
+                                @if($user->email !== $superAdminEmail || auth()->id() === $user->id)
                                 <button @click="openEdit({{ $user->toJson() }}, '{{ $roleName }}')"
                                         class="p-2 rounded-lg text-gray-400 hover:bg-asesco-orange/10 hover:text-asesco-orange transition-all cursor-pointer" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
