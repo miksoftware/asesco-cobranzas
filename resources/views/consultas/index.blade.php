@@ -59,7 +59,7 @@
                     <div class="absolute inset-0 rounded-full border-4 border-gray-100"></div>
                     <div class="absolute inset-0 rounded-full border-4 border-asesco-orange border-t-transparent animate-spin"></div>
                 </div>
-                <p class="text-sm font-medium text-gray-700">Consultando sistemas EPS...</p>
+                <p class="text-sm font-medium text-gray-700">Buscando...</p>
                 <p class="text-xs text-gray-400 mt-1">Esto puede tomar unos segundos</p>
             </div>
         </div>
