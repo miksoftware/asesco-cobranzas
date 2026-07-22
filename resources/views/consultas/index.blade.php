@@ -697,7 +697,7 @@
                     <template x-if="modalRecord">
                         <div>
                             <template x-for="(value, key) in modalRecord" :key="key">
-                                <template x-if="!String(key).startsWith('_') && !isObject(value) && !isArray(value) && hasValue(value)">
+                                <template x-if="!String(key).startsWith('_') && key !== 'status' && key !== 'error_message' && !isObject(value) && !isArray(value) && hasValue(value)">
                                     <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:7px 18px;border-bottom:1px solid #f1f5f9;">
                                         <p style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;flex-shrink:0;width:88px;line-height:1.3;" x-text="formatLabel(key)"></p>
                                         <p style="font-size:11px;color:#1e293b;font-weight:500;text-align:right;word-break:break-all;" x-text="formatValue(value)"></p>
@@ -711,7 +711,7 @@
                                             <p style="font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;" x-text="formatLabel(key)"></p>
                                         </div>
                                         <template x-for="(subVal, subKey) in value" :key="subKey">
-                                            <template x-if="hasValue(subVal)">
+                                            <template x-if="hasValue(subVal) && subKey !== 'status' && subKey !== 'error_message'">
                                                 <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:7px 18px;border-bottom:1px solid #f1f5f9;">
                                                     <p style="font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;flex-shrink:0;width:88px;line-height:1.3;" x-text="formatLabel(subKey)"></p>
                                                     <p style="font-size:11px;color:#1e293b;font-weight:500;text-align:right;word-break:break-all;" x-text="formatValue(subVal)"></p>
