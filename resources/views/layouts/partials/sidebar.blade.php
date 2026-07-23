@@ -5,10 +5,8 @@
        ]">
 
     {{-- Logo --}}
-    <div class="flex items-center gap-3 h-16 px-5 border-b border-white/5 shrink-0">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-magenta flex items-center justify-center shrink-0 shadow-lg shadow-asesco-orange/30">
-            <span class="text-[10px] font-bold text-white tracking-tighter">ASESCO</span>
-        </div>
+    <div class="flex items-center gap-3 h-16 px-4 border-b border-white/5 shrink-0">
+        <img src="{{ asset('images/logo_asesco.png') }}" alt="ASESCO Logo" class="h-9 w-auto max-w-[36px] object-contain shrink-0">
         <div class="overflow-hidden transition-all duration-300" :class="sidebarOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'">
             <h1 class="font-bold text-sm whitespace-nowrap leading-tight tracking-wide">ASESCO</h1>
             <p class="text-[10px] text-slate-400 whitespace-nowrap leading-tight">BPO System</p>

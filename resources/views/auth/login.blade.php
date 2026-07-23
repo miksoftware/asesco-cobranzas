@@ -41,11 +41,7 @@
 
             <!-- Logo -->
             <div class="text-center mb-8">
-                <div class="relative w-20 h-12 mx-auto mb-2 flex items-center justify-center">
-                    <div class="absolute left-1 w-12 h-12 rounded-full bg-[#E8611A] mix-blend-multiply opacity-90"></div>
-                    <div class="absolute right-1 w-12 h-12 rounded-full bg-[#d52d80] mix-blend-multiply opacity-90"></div>
-                    <span class="relative z-10 text-white font-bold text-[13px] tracking-wider mt-0.5">ASESCO</span>
-                </div>
+                <img src="{{ asset('images/logo_asesco.png') }}" alt="ASESCO BPO" class="h-16 mx-auto object-contain">
             </div>
 
             <!-- Errores -->
