@@ -40,8 +40,8 @@
         <div class="bg-white rounded-2xl p-8 shadow-2xl">
 
             <!-- Logo -->
-            <div class="text-center mb-8">
-                <img src="{{ asset('images/logo_asesco.png') }}" alt="ASESCO BPO" class="h-16 mx-auto object-contain">
+            <div class="text-center mb-6">
+                <img src="{{ asset('images/logo_asesco.png') }}" alt="ASESCO BPO" class="h-28 mx-auto object-contain max-w-full">
             </div>
 
             <!-- Errores -->
