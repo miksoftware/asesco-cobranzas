@@ -55,6 +55,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('permission:usuarios.ver')->group(function () {
         Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios.index');
     });
+
+    // Retenciones
+    Route::get('/retenciones', [\App\Http\Controllers\RetencionController::class, 'index'])->name('retenciones.index');
+
     Route::middleware('permission:usuarios.crear')->group(function () {
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
     });
