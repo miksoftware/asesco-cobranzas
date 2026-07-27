@@ -58,7 +58,14 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     // Retenciones
     Route::get('/retenciones', [\App\Http\Controllers\RetencionController::class, 'index'])->name('retenciones.index');
-
+    Route::get('/retenciones/listado', [\App\Http\Controllers\RetencionController::class, 'list'])->name('retenciones.list');
+    Route::get('/retenciones/{retencion}', [\App\Http\Controllers\RetencionController::class, 'show'])->name('retenciones.show');
+    Route::get('/retenciones/{retencion}/historial', [\App\Http\Controllers\RetencionController::class, 'historial'])->name('retenciones.historial');
+    Route::post('/retenciones/section1', [\App\Http\Controllers\RetencionController::class, 'saveSection1'])->name('retenciones.saveSection1');
+    Route::post('/retenciones/section2', [\App\Http\Controllers\RetencionController::class, 'saveSection2'])->name('retenciones.saveSection2');
+    Route::post('/retenciones/abonos', [\App\Http\Controllers\RetencionController::class, 'saveAbonos'])->name('retenciones.saveAbonos');
+    Route::post('/retenciones/gestiones', [\App\Http\Controllers\RetencionController::class, 'saveGestion'])->name('retenciones.saveGestion');
+    Route::post('/retenciones/{retencion}/unlock', [\App\Http\Controllers\RetencionController::class, 'unlockSection'])->name('retenciones.unlock');
     Route::middleware('permission:usuarios.crear')->group(function () {
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
     });

@@ -37,14 +37,43 @@
         </a>
         @endcan
 
-        <a href="{{ route('retenciones.index') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200
-                  {{ request()->routeIs('retenciones.*') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-300 hover:bg-[#20293a] hover:text-white' }}">
-            <svg class="w-[20px] h-[20px] shrink-0 {{ request()->routeIs('retenciones.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
-            </svg>
-            <span class="whitespace-nowrap transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Retenciones</span>
-        </a>
+        <div x-data="{ openRetenciones: {{ request()->routeIs('retenciones.*') ? 'true' : 'false' }} }">
+            {{-- Toggle button --}}
+            <button @click="openRetenciones = !openRetenciones"
+                    class="w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 cursor-pointer
+                           {{ request()->routeIs('retenciones.*') ? 'text-white' : 'text-slate-300 hover:bg-[#20293a] hover:text-white' }}">
+                <svg class="w-[20px] h-[20px] shrink-0 {{ request()->routeIs('retenciones.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                </svg>
+                <span class="whitespace-nowrap transition-all duration-300 flex-1 text-left" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Retenciones</span>
+                <svg class="w-4 h-4 shrink-0 transition-transform duration-200"
+                     :class="[openRetenciones ? 'rotate-180' : '', sidebarOpen ? 'opacity-100' : 'opacity-0']"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            {{-- Submenu --}}
+            <div x-show="openRetenciones && sidebarOpen"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 style="display: none;"
+                 class="mt-1 space-y-1">
+                <a href="{{ route('retenciones.index') }}"
+                   class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
+                          {{ request()->routeIs('retenciones.index') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
+                    <span class="whitespace-nowrap">Nueva Retención</span>
+                </a>
+                <a href="{{ route('retenciones.list') }}"
+                   class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
+                          {{ request()->routeIs('retenciones.list') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
+                    <span class="whitespace-nowrap">Listado Retenciones</span>
+                </a>
+            </div>
+        </div>
 
         @can('cargues.ver')
         <div x-data="{ openCargues: {{ request()->routeIs('cargues.*') ? 'true' : 'false' }} }">

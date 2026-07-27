@@ -7,6 +7,7 @@
     <title>@yield('title', 'Dashboard') — Asesco Cobranzas</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 min-h-screen" x-data="{ sidebarOpen: true, mobileSidebar: false }">
 
