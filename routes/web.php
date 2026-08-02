@@ -27,6 +27,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/consultas/comentarios/{cedula}', [ConsultaController::class, 'comentariosPorCedula'])->name('consultas.comentarios');
         Route::post('/consultas/comentarios', [ConsultaController::class, 'crearComentario'])->name('consultas.comentarios.crear');
         Route::get('/consultas/telefonos/{cedula}', [ConsultaController::class, 'telefonosPorCedula'])->name('consultas.telefonos');
+        Route::get('/consultas/retenciones/{cedula}', [ConsultaController::class, 'retencionesPorCedula'])->name('consultas.retenciones');
         Route::post('/consultas/telefonos', [ConsultaController::class, 'crearTelefono'])->name('consultas.telefonos.crear');
         Route::put('/consultas/telefonos/{tercero}', [ConsultaController::class, 'editarTelefono'])->name('consultas.telefonos.editar');
         Route::patch('/consultas/telefonos/{tercero}/notificar', [ConsultaController::class, 'toggleNotificar'])->name('consultas.telefonos.notificar');

@@ -102,6 +102,16 @@
                     </svg>
                     Teléfonos
                 </button>
+                <button @click="activeTab = 'retenciones'; cargarRetenciones()"
+                        :class="activeTab === 'retenciones'
+                            ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Retenciones
+                </button>
             </div>
 
             {{-- Tab: Localización --}}
@@ -311,6 +321,72 @@
 
                     </div>
                 </template>
+            </div>
+
+            {{-- Tab: Retenciones --}}
+            <div x-show="activeTab === 'retenciones'" style="display: none;">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Retenciones Asociadas</h3>
+                        <a :href="'/retenciones?cedula=' + searchedCedula + '&nombre=' + encodeURIComponent(personName || '')" target="_blank"
+                           class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white rounded-lg text-xs shadow-md shadow-asesco-orange/20 hover:shadow-lg transition-all cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Nueva Retención
+                        </a>
+                    </div>
+                    
+                    <template x-if="loadingRetenciones">
+                        <div class="flex flex-col items-center justify-center py-8">
+                            <div class="relative w-8 h-8 mb-2">
+                                <div class="absolute inset-0 rounded-full border-2 border-gray-100"></div>
+                                <div class="absolute inset-0 rounded-full border-2 border-asesco-orange border-t-transparent animate-spin"></div>
+                            </div>
+                            <p class="text-xs text-gray-400">Cargando...</p>
+                        </div>
+                    </template>
+
+                    <template x-if="!loadingRetenciones && retenciones.length === 0">
+                        <div class="py-8 text-center border-2 border-dashed border-gray-100 rounded-xl">
+                            <svg class="w-10 h-10 text-gray-200 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <p class="text-sm text-gray-400">No hay retenciones para esta cédula</p>
+                        </div>
+                    </template>
+
+                    <template x-if="!loadingRetenciones && retenciones.length > 0">
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Radicación</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Empresa</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Fecha Creada</th>
+                                        <th class="w-20"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="r in retenciones" :key="r.id">
+                                        <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors">
+                                            <td class="px-3 py-2 text-gray-700 font-medium" x-text="r.no_radicacion || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 truncate max-w-[150px]" x-text="r.empresa || '—'" :title="r.empresa"></td>
+                                            <td class="px-3 py-2">
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-600 border border-blue-100" x-text="r.estado_retencion || 'ACTIVO'"></span>
+                                            </td>
+                                            <td class="px-3 py-2 text-gray-500" x-text="new Date(r.created_at).toLocaleDateString('es-CO')"></td>
+                                            <td class="px-3 py-2 text-right">
+                                                <a :href="'/retenciones/' + r.id" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-semibold hover:border-asesco-orange hover:text-asesco-orange transition-colors">
+                                                    Ver retención
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+                </div>
             </div>
 
             {{-- Tab: Teléfonos --}}
@@ -763,6 +839,8 @@ function consultaPage() {
         nuevoDato: { dato: '', tipo_dato: '', fuente: '', calidad: '', cedula_tercero: '', nombre_tercero: '', notificar: false },
         editingId: null,
         editForm: {},
+        retenciones: [],
+        loadingRetenciones: false,
 
         async consultar() {
             const c = this.cedula.trim();
@@ -910,6 +988,21 @@ function consultaPage() {
             const d = new Date(fecha);
             if (isNaN(d.getTime())) return fecha;
             return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+        },
+
+        async cargarRetenciones() {
+            if (!this.searchedCedula) return;
+            this.loadingRetenciones = true;
+            try {
+                const res = await fetch(`/consultas/retenciones/${this.searchedCedula}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                this.retenciones = await res.json();
+            } catch (e) {
+                console.error('Error cargando retenciones:', e);
+            } finally {
+                this.loadingRetenciones = false;
+            }
         },
 
         async cargarTelefonos() {

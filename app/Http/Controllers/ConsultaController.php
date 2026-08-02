@@ -103,6 +103,18 @@ class ConsultaController extends Controller
     }
 
     /**
+     * Obtener retenciones de un tercero por cédula.
+     */
+    public function retencionesPorCedula(string $cedula): JsonResponse
+    {
+        $retenciones = \App\Models\Retencion::where('cedula_tt', $cedula)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($retenciones);
+    }
+
+    /**
      * Obtener comentarios de una cédula específica.
      */
     public function comentariosPorCedula(string $cedula): JsonResponse
