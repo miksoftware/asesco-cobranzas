@@ -112,6 +112,16 @@
                     </svg>
                     Retenciones
                 </button>
+                <button @click="activeTab = 'adjuntos'; cargarAdjuntos()"
+                        :class="activeTab === 'adjuntos'
+                            ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                    Adjuntos
+                </button>
             </div>
 
             {{-- Tab: Localización --}}
@@ -359,10 +369,17 @@
                             <table class="w-full text-xs">
                                 <thead>
                                     <tr class="bg-gray-50 border-b border-gray-200">
-                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Radicación</th>
-                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Empresa</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">No. Radicación</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Fecha Radicación</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Cédula TT</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Nombre de TT</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Portafolio</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Valor Retención</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Recaudo Retención</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Saldo Pendiente</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Recaudo Mes Actual</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Efecto Gestión</th>
                                         <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
-                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Fecha Creada</th>
                                         <th class="w-20"></th>
                                     </tr>
                                 </thead>
@@ -370,20 +387,150 @@
                                     <template x-for="r in retenciones" :key="r.id">
                                         <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors">
                                             <td class="px-3 py-2 text-gray-700 font-medium" x-text="r.no_radicacion || '—'"></td>
-                                            <td class="px-3 py-2 text-gray-600 truncate max-w-[150px]" x-text="r.empresa || '—'" :title="r.empresa"></td>
+                                            <td class="px-3 py-2 text-gray-600" x-text="r.fecha_radicacion || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600" x-text="r.cedula_tt || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600" x-text="r.nombre_tt || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600" x-text="r.portafolio_empresa || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-700">
+                                                <span x-text="'$' + new Intl.NumberFormat('es-CO').format(r.valor_retencion_total || 0)"></span>
+                                            </td>
+                                            <td class="px-3 py-2 text-green-600 font-medium">
+                                                <span x-text="'$' + new Intl.NumberFormat('es-CO').format(r.recaudo_total || 0)"></span>
+                                            </td>
+                                            <td class="px-3 py-2 text-red-600 font-medium">
+                                                <span x-text="'$' + new Intl.NumberFormat('es-CO').format(r.saldo_pendiente || 0)"></span>
+                                            </td>
+                                            <td class="px-3 py-2 text-green-600 font-medium">
+                                                <span x-text="'$' + new Intl.NumberFormat('es-CO').format(r.recaudo_mes_actual || 0)"></span>
+                                            </td>
+                                            <td class="px-3 py-2 text-gray-600" x-text="r.efecto_gestion_retencion || '—'"></td>
                                             <td class="px-3 py-2">
                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-600 border border-blue-100" x-text="r.estado_retencion || 'ACTIVO'"></span>
                                             </td>
-                                            <td class="px-3 py-2 text-gray-500" x-text="new Date(r.created_at).toLocaleDateString('es-CO')"></td>
                                             <td class="px-3 py-2 text-right">
                                                 <a :href="'/retenciones/' + r.id" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-semibold hover:border-asesco-orange hover:text-asesco-orange transition-colors">
-                                                    Ver retención
+                                                    Ver
                                                 </a>
                                             </td>
                                         </tr>
                                     </template>
                                 </tbody>
                             </table>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Tab: Adjuntos --}}
+            <div x-show="activeTab === 'adjuntos'" style="display: none;">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Soportes y Adjuntos</h3>
+                    </div>
+                    
+                    <template x-if="loadingAdjuntos">
+                        <div class="flex flex-col items-center justify-center py-8">
+                            <div class="relative w-8 h-8 mb-2">
+                                <div class="absolute inset-0 rounded-full border-2 border-gray-100"></div>
+                                <div class="absolute inset-0 rounded-full border-2 border-asesco-orange border-t-transparent animate-spin"></div>
+                            </div>
+                            <p class="text-xs text-gray-400">Cargando adjuntos...</p>
+                        </div>
+                    </template>
+
+                    <template x-if="!loadingAdjuntos">
+                        <div>
+                            <div class="overflow-x-auto rounded-lg border border-gray-200">
+                                <table class="w-full text-xs">
+                                    <thead>
+                                        <tr class="bg-gray-50 border-b border-gray-200">
+                                            <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
+                                            <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Comentario</th>
+                                            <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider">Usuario</th>
+                                            <th class="text-center px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider w-32">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template x-for="(a, index) in adjuntos" :key="a.isNew ? 'new-'+index : a.id">
+                                            <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors">
+                                                
+                                                {{-- Columna Fecha --}}
+                                                <td class="px-3 py-2 text-gray-500 whitespace-nowrap">
+                                                    <template x-if="!a.isNew">
+                                                        <span x-text="new Date(a.created_at).toLocaleDateString('es-CO') + ' ' + new Date(a.created_at).toLocaleTimeString('es-CO', {hour: '2-digit', minute:'2-digit'})"></span>
+                                                    </template>
+                                                    <template x-if="a.isNew">
+                                                        <span class="text-gray-400 italic">Nuevo...</span>
+                                                    </template>
+                                                </td>
+                                                
+                                                {{-- Columna Comentario --}}
+                                                <td class="px-3 py-2 text-gray-700">
+                                                    <template x-if="!a.isNew">
+                                                        <span x-text="a.comentario || '—'"></span>
+                                                    </template>
+                                                    <template x-if="a.isNew">
+                                                        <input type="text" x-model="a.comentario" class="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:border-asesco-orange" placeholder="Comentario (opcional)...">
+                                                    </template>
+                                                </td>
+
+                                                {{-- Columna Usuario --}}
+                                                <td class="px-3 py-2 text-gray-600 font-medium">
+                                                    <template x-if="!a.isNew">
+                                                        <span x-text="a.user ? a.user.name : '—'"></span>
+                                                    </template>
+                                                    <template x-if="a.isNew">
+                                                        <span class="text-gray-400 italic">Pendiente...</span>
+                                                    </template>
+                                                </td>
+
+                                                {{-- Columna Acciones --}}
+                                                <td class="px-3 py-2">
+                                                    <div class="flex items-center justify-center gap-2 relative">
+                                                        <template x-if="!a.isNew">
+                                                            <div class="flex gap-2">
+                                                                <a :href="a.archivo_path.startsWith('http') ? a.archivo_path : '/storage/' + a.archivo_path" target="_blank" class="p-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors" title="Ver Documento">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                                </a>
+                                                                <button @click="eliminarAdjunto(a.id)" class="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 transition-colors" title="Eliminar Adjunto">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                                </button>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="a.isNew">
+                                                            <div class="flex gap-1 items-center w-full relative">
+                                                                <div class="relative w-full">
+                                                                    <input type="file" @change="subirSoporteFila($event, index)" accept=".pdf,.jpg,.jpeg,.png,.zip,.rar,.doc,.docx,.xls,.xlsx" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Seleccionar y subir archivo">
+                                                                    <button type="button" class="w-full bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-100 text-[10px] font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-1">
+                                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                                        <span>Seleccionar Archivo</span>
+                                                                    </button>
+                                                                </div>
+                                                                <button @click="adjuntos.splice(index, 1)" class="p-1 rounded text-red-400 hover:text-red-600 transition-colors" title="Cancelar fila">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                                </button>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <tr x-show="adjuntos.length === 0">
+                                            <td colspan="4" class="p-4 text-center text-gray-400 text-xs italic border-dashed border-2 border-gray-100">
+                                                No hay adjuntos registrados. Haz clic en "Agregar Soporte" para empezar.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            {{-- Botón agregar fila --}}
+                            <div class="mt-2">
+                                <button @click="adjuntos.push({ isNew: true, comentario: '' })" class="flex items-center gap-1 text-xs font-semibold text-asesco-orange hover:text-asesco-coral transition-colors cursor-pointer px-2 py-1 rounded hover:bg-orange-50">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Agregar Soporte
+                                </button>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -841,6 +988,10 @@ function consultaPage() {
         editForm: {},
         retenciones: [],
         loadingRetenciones: false,
+        adjuntos: [],
+        loadingAdjuntos: false,
+        uploadingAdjunto: false,
+        nuevoAdjunto: { comentario: '' },
 
         async consultar() {
             const c = this.cedula.trim();
@@ -1119,6 +1270,81 @@ function consultaPage() {
                 }
             } catch (e) {
                 alert('Error de conexión: ' + e.message);
+            }
+        },
+
+        async cargarAdjuntos() {
+            if (!this.searchedCedula) return;
+            this.loadingAdjuntos = true;
+            try {
+                const res = await fetch(`/consultas/adjuntos/${this.searchedCedula}`);
+                if (res.ok) {
+                    this.adjuntos = await res.json();
+                }
+            } catch (e) {
+                console.error('Error cargando adjuntos:', e);
+            } finally {
+                this.loadingAdjuntos = false;
+            }
+        },
+
+        async subirSoporteFila(event, index) {
+            if (!this.searchedCedula) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const adjuntoItem = this.adjuntos[index];
+            this.uploadingAdjunto = true;
+            
+            let formData = new FormData();
+            formData.append('cedula', this.searchedCedula);
+            formData.append('comentario', adjuntoItem.comentario || '');
+            formData.append('soporte', file);
+
+            try {
+                const res = await fetch('/consultas/adjuntos', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    this.adjuntos[index] = data.adjunto;
+                } else {
+                    alert(data.message || 'Error al subir el adjunto');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al subir el archivo. Revisa que el tamaño o el formato sean válidos.');
+            } finally {
+                this.uploadingAdjunto = false;
+            }
+        },
+
+        async eliminarAdjunto(id) {
+            if (!confirm('¿Estás seguro de eliminar este adjunto?')) return;
+            
+            try {
+                const res = await fetch(`/consultas/adjuntos/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    this.adjuntos = this.adjuntos.filter(a => a.id !== id);
+                } else {
+                    alert(data.message || 'Error al eliminar');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de red al intentar eliminar.');
             }
         },
 

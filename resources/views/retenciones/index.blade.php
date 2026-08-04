@@ -20,54 +20,58 @@
             <h3 class="text-sm font-bold text-gray-700">1. Datos Generales</h3>
             <div class="flex gap-2">
                 <button x-show="!is_section1_locked" @click="saveSection1()" class="bg-asesco-orange hover:bg-asesco-coral text-white text-[11px] px-3 py-1.5 rounded shadow-sm font-bold transition-colors">
-                    Guardar Sección 1
+                    Guardar Datos
                 </button>
                 <button x-show="is_section1_locked" @click="unlockSection(1)" class="bg-gray-500 hover:bg-gray-600 text-white text-[11px] px-3 py-1.5 rounded shadow-sm font-bold transition-colors">
-                    Editar Sección 1
+                    Editar Datos
                 </button>
             </div>
         </div>
 
-        {{-- Grid compacto de 3 o 4 columnas --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-3">
+        {{-- Grid compacto de 6 columnas --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-3">
             
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">No_Radicación</label>
-                <input type="text" x-model="s1.no_radicacion" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="No Radicación">No Radicación</label>
+                <input type="text" x-model="s1.no_radicacion" disabled class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 font-bold bg-gray-100 focus:outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Portafolio Empresa</label>
-                <input type="text" x-model="s1.portafolio_empresa" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Portafolio Empresa">Portafolio Empresa</label>
+                <select x-model="s1.portafolio_empresa" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                    <option value="">Seleccione...</option>
+                    <option value="COOMULTRASAN MULTIACTIVA">COOMULTRASAN MULTIACTIVA</option>
+                    <option value="COMFABOY">COMFABOY</option>
+                </select>
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Tipo de Descuento</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo de Descuento">Tipo de Descuento</label>
                 <input type="text" x-model="s1.tipo_descuento" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Cédula TT</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Cédula TT">Cédula TT</label>
                 <input type="text" x-model="s1.cedula_tt" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
-            <div class="xl:col-span-2">
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Nombre TT</label>
+            <div>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Nombre TT">Nombre TT</label>
                 <input type="text" x-model="s1.nombre_tt" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
-            <div class="xl:col-span-2">
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Nombre Sujeto Retención</label>
+            <div>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Nombre Sujeto Retención">Nombre Sujeto Retención</label>
                 <input type="text" x-model="s1.nombre_sujeto_retencion" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Calidad Sujeto</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Calidad Sujeto">Calidad Sujeto</label>
                 <input type="text" x-model="s1.calidad_sujeto" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Gestor Encargado</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Gestor Encargado">Gestor Encargado</label>
                 <select x-model="s1.gestor_encargado_id" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white transition-all disabled:bg-gray-100 disabled:text-gray-500">
                     <option value="">Seleccione gestor...</option>
                     @foreach($gestores as $gestor)
@@ -77,7 +81,7 @@
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Etapa Gestor Encargado</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Etapa Gestor Encargado">Etapa Gestor Encargado</label>
                 <select x-model="s1.etapa_gestor_encargado" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white transition-all disabled:bg-gray-100 disabled:text-gray-500">
                     <option value="">Seleccione etapa...</option>
                     <option value="1. Radicación">1. Radicación</option>
@@ -86,7 +90,7 @@
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Gestor Radicador</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Gestor Radicador">Gestor Radicador</label>
                 <select x-model="s1.gestor_radicador_id" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white transition-all disabled:bg-gray-100 disabled:text-gray-500">
                     <option value="">Seleccione gestor...</option>
                     @foreach($gestores as $gestor)
@@ -96,7 +100,7 @@
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Tipo Negociación</label>
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo Negociación">Tipo Negociación</label>
                 <select x-model="s1.tipo_negociacion" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white transition-all disabled:bg-gray-100 disabled:text-gray-500">
                     <option value="">Seleccione tipo...</option>
                     <option value="Ninguna">Ninguna</option>
@@ -132,7 +136,7 @@
         </div>
 
         {{-- Contenido Pestañas --}}
-        <div class="p-4">
+        <div class="p-4 h-[350px] overflow-y-auto">
             
             {{-- Pestaña: DATOS GENERAL DE LA RETENCIÓN (2) --}}
             <div x-show="activeTab === 'datos2'" style="display: none;">
@@ -149,17 +153,32 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-3">
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Nit Empresa</label>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Nit Empresa">Nit Empresa</label>
                         <input type="text" x-model="s2.nit_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                     </div>
                     
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Empresa</label>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Empresa">Empresa</label>
                         <input type="text" x-model="s2.empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Tipo de Contrato</label>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Correo Empresa">Correo Empresa</label>
+                        <input type="email" x-model="s2.correo_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Nombre Contacto Empresa">Nombre Contacto Empresa</label>
+                        <input type="text" x-model="s2.nombre_contacto_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono Contacto Emp.">Teléfono Contacto Emp.</label>
+                        <input type="text" x-model="s2.telefono_contacto_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo de Contrato">Tipo de Contrato</label>
                         <select x-model="s2.tipo_contrato" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
                             <option value="">Seleccione...</option>
                             <option value="1. Termino Fijo">1. Termino Fijo</option>
@@ -173,7 +192,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Rango Salarial</label>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Rango Salarial">Rango Salarial</label>
                         <select x-model="s2.rango_salarial" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
                             <option value="">Seleccione...</option>
                             <option value="1. SMLV">1. SMLV</option>
@@ -185,52 +204,12 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Fecha Radicación</label>
-                        <input type="date" x-model="s2.fecha_radicacion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Fecha Radicación">Fecha Radicación</label>
+                        <input type="date" x-model="s2.fecha_radicacion" disabled class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none bg-gray-100 disabled:text-gray-500 font-bold">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">IND</label>
-                        <input type="text" x-model="s2.ind" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Valor de la Retención</label>
-                        <input type="number" x-model.number="s2.valor_retencion_total" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Correo Empresa</label>
-                        <input type="email" x-model="s2.correo_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Nombre Contacto Empresa</label>
-                        <input type="text" x-model="s2.nombre_contacto_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Teléfono Contacto Emp.</label>
-                        <input type="text" x-model="s2.telefono_contacto_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Teléfono Sujeto Ret.</label>
-                        <input type="text" x-model="s2.telefono_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Teléfono 2 Sujeto Ret.</label>
-                        <input type="text" x-model="s2.telefono_2_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Correo Sujeto Retención</label>
-                        <input type="email" x-model="s2.correo_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Estado Retención</label>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Estado Retención">Estado Retención</label>
                         <select x-model="s2.estado_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
                             <option value="">Seleccione...</option>
                             <option value="Solicitada">Solicitada</option>
@@ -248,15 +227,16 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Efecto Gestión Retención</label>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Efecto Gestión Retención">Efecto Gestión Retención</label>
                         <select x-model="s2.efecto_gestion_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
                             <option value="">Seleccione...</option>
-                            <option value="Indagacion">Indagacion</option>
+                            <option value="Indagación">Indagación</option>
                             <option value="Radicada">Radicada</option>
                             <option value="Aplica">Aplica</option>
-                            <option value="Puesta al dia">Puesta al dia</option>
-                            <option value="Acuerdo Pago">Acuerdo Pago</option>
-                            <option value="Pago Total">Pago Total</option>
+                            <option value="Puesta al día">Puesta al día</option>
+                            <option value="Pago Total (1C)">Pago Total (1C)</option>
+                            <option value="Pago Negociado (3C)">Pago Negociado (3C)</option>
+                            <option value="Pago Alterno (6C)">Pago Alterno (6C)</option>
                             <option value="No Aplica">No Aplica</option>
                             <option value="No Labora">No Labora</option>
                             <option value="Pendiente">Pendiente</option>
@@ -265,47 +245,47 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Recaudo Retención</label>
-                        <input type="text" x-model="s2.recaudo_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Relación Recaudo Reportado</label>
-                        <input type="text" x-model="s2.relacion_recaudo_reportado" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Valor de la Retención">Valor de la Retención</label>
+                        <input type="number" x-model.number="s2.valor_retencion_total" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs font-bold text-red-600 focus:outline-none focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-red-600">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Saldo Pendiente</label>
-                        <input type="text" :value="formatMoney(saldoPendiente)" readonly class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 bg-gray-100 font-bold focus:outline-none text-red-600">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Recaudo Retención">Recaudo Retención</label>
+                        <input type="text" :value="formatMoney(totalAbonos)" readonly class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-green-600 bg-gray-100 font-bold focus:outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Eliminada</label>
-                        <input type="text" x-model="s2.eliminada" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Saldo Pendiente">Saldo Pendiente</label>
+                        <input type="text" :value="formatMoney(saldoPendiente)" readonly class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-red-600 bg-gray-100 font-bold focus:outline-none">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Tipo de Cartera</label>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Recaudo Mes Actual">Recaudo Mes Actual</label>
+                        <input type="text" :value="formatMoney(recaudoMesActual)" readonly class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-green-600 bg-gray-100 font-bold focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono Sujeto Ret.">Teléfono Sujeto Ret.</label>
+                        <input type="text" x-model="s2.telefono_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono 2 Sujeto Ret.">Teléfono 2 Sujeto Ret.</label>
+                        <input type="text" x-model="s2.telefono_2_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Correo Sujeto Retención">Correo Sujeto Retención</label>
+                        <input type="email" x-model="s2.correo_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo de Cartera">Tipo de Cartera</label>
                         <select x-model="s2.tipo_cartera" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
                             <option value="">Seleccione...</option>
                             <option value="Vigente">Vigente</option>
                             <option value="Castigada">Castigada</option>
                         </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Días INI</label>
-                        <input type="text" x-model="s2.dias_ini" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Días ED</label>
-                        <input type="text" x-model="s2.dias_ed" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1">Recaudo</label>
-                        <input type="text" x-model="s2.recaudo" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                     </div>
                 </div>
             </div>
@@ -337,7 +317,7 @@
                 </div>
 
                 {{-- Tabla de Abonos --}}
-                <div class="overflow-x-auto overflow-y-auto max-h-[300px] custom-scrollbar border border-gray-200 rounded-lg">
+                <div class="overflow-x-auto overflow-y-auto max-h-[250px] custom-scrollbar border border-gray-200 rounded-lg">
                     <table class="w-full text-xs text-left">
                         <thead class="bg-gray-50 border-b border-gray-200 text-gray-600">
                             <tr>
@@ -345,6 +325,7 @@
                                 <th class="px-3 py-2 font-semibold">VALOR</th>
                                 <th class="px-3 py-2 font-semibold">FECHA_CONSIGNACIÓN</th>
                                 <th class="px-3 py-2 font-semibold text-center">REPORTADO_COOMULTRASAN</th>
+                                <th class="px-3 py-2 font-semibold text-center">SOPORTE</th>
                                 <th class="px-3 py-2 font-semibold text-center">APLICADO_CORE_CM</th>
                                 <th class="px-3 py-2 font-semibold">SALDO</th>
                                 <th class="px-3 py-2 text-center w-10"></th>
@@ -367,6 +348,28 @@
                                     </td>
                                     <td class="p-2 text-center">
                                         <input type="checkbox" x-model="abono.reportado" :disabled="is_abonos_locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
+                                    </td>
+                                    <td class="p-2 text-center align-middle">
+                                        <div class="flex items-center justify-center gap-1 relative">
+                                            <template x-if="!abono.soporte">
+                                                <div class="relative">
+                                                    <input type="file" @change="uploadSoporte($event, index)" :disabled="is_abonos_locked" accept=".pdf,image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10" title="Subir soporte">
+                                                    <button type="button" :disabled="is_abonos_locked" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded disabled:opacity-50 transition-colors">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <template x-if="abono.soporte">
+                                                <div class="flex gap-1">
+                                                    <a :href="abono.soporte.startsWith('http') ? abono.soporte : '/storage/' + abono.soporte" target="_blank" class="text-green-600 hover:bg-green-50 p-1.5 rounded transition-colors" title="Ver soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                    </a>
+                                                    <button type="button" x-show="!is_abonos_locked" @click="abono.soporte = null" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors cursor-pointer" title="Eliminar soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
                                     </td>
                                     <td class="p-2 text-center">
                                         <input type="checkbox" x-model="abono.aplicado" :disabled="is_abonos_locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
@@ -408,7 +411,7 @@
                         Registro de Actividades
                     </h3>
                     
-                    <div class="space-y-4 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                    <div class="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
                         <template x-for="history in histories" :key="history.id">
                             <div class="flex gap-3 text-sm">
                                 <div class="flex flex-col items-center">
@@ -552,6 +555,7 @@
 <script>
 // Parse data from PHP if viewing existing retencion
 const existingRetencion = @json($retencion ?? null);
+const nextNoRadicacion = @json($nextNoRadicacion ?? '');
 
 function retencionesData() {
     return {
@@ -566,7 +570,7 @@ function retencionesData() {
 
         // Data objects
         s1: {
-            no_radicacion: existingRetencion?.no_radicacion || '',
+            no_radicacion: existingRetencion?.no_radicacion || nextNoRadicacion,
             portafolio_empresa: existingRetencion?.portafolio_empresa || '',
             tipo_descuento: existingRetencion?.tipo_descuento || '',
             cedula_tt: existingRetencion?.cedula_tt || new URLSearchParams(window.location.search).get('cedula') || '',
@@ -583,8 +587,7 @@ function retencionesData() {
             empresa: existingRetencion?.empresa || '',
             tipo_contrato: existingRetencion?.tipo_contrato || '',
             rango_salarial: existingRetencion?.rango_salarial || '',
-            fecha_radicacion: existingRetencion?.fecha_radicacion || '',
-            ind: existingRetencion?.ind || '',
+            fecha_radicacion: existingRetencion?.fecha_radicacion || new Date().toISOString().split('T')[0],
             valor_retencion_total: existingRetencion?.valor_retencion_total || null,
             correo_empresa: existingRetencion?.correo_empresa || '',
             nombre_contacto_empresa: existingRetencion?.nombre_contacto_empresa || '',
@@ -594,13 +597,7 @@ function retencionesData() {
             correo_sujeto_retencion: existingRetencion?.correo_sujeto_retencion || '',
             estado_retencion: existingRetencion?.estado_retencion || '',
             efecto_gestion_retencion: existingRetencion?.efecto_gestion_retencion || '',
-            recaudo_retencion: existingRetencion?.recaudo_retencion || '',
-            relacion_recaudo_reportado: existingRetencion?.relacion_recaudo_reportado || '',
-            eliminada: existingRetencion?.eliminada || '',
             tipo_cartera: existingRetencion?.tipo_cartera || '',
-            dias_ini: existingRetencion?.dias_ini || '',
-            dias_ed: existingRetencion?.dias_ed || '',
-            recaudo: existingRetencion?.recaudo || '',
         },
 
         // Relaciones
@@ -618,16 +615,35 @@ function retencionesData() {
         get totalAbonos() {
             return this.abonos.reduce((sum, abono) => sum + (parseFloat(abono.valor) || 0), 0);
         },
+        get recaudoMesActual() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            return this.abonos.reduce((sum, abono) => {
+                if (!abono.fecha_descuento) return sum;
+                const [year, month] = abono.fecha_descuento.split('-');
+                if (parseInt(month, 10) - 1 === currentMonth && parseInt(year, 10) === currentYear) {
+                    return sum + (parseFloat(abono.valor) || 0);
+                }
+                return sum;
+            }, 0);
+        },
         get saldoPendiente() {
             return (parseFloat(this.s2.valor_retencion_total) || 0) - this.totalAbonos;
         },
         get parsedOldValues() {
             if (!this.selectedHistory || !this.selectedHistory.valor_anterior) return null;
-            try { return JSON.parse(this.selectedHistory.valor_anterior); } catch(e) { return this.selectedHistory.valor_anterior; }
+            try { 
+                const parsed = JSON.parse(this.selectedHistory.valor_anterior); 
+                return (typeof parsed === 'object' && parsed !== null) ? parsed : { "Detalle": parsed };
+            } catch(e) { return { "Detalle": this.selectedHistory.valor_anterior }; }
         },
         get parsedNewValues() {
             if (!this.selectedHistory || !this.selectedHistory.valor_nuevo) return null;
-            try { return JSON.parse(this.selectedHistory.valor_nuevo); } catch(e) { return this.selectedHistory.valor_nuevo; }
+            try { 
+                const parsed = JSON.parse(this.selectedHistory.valor_nuevo); 
+                return (typeof parsed === 'object' && parsed !== null) ? parsed : { "Detalle": parsed };
+            } catch(e) { return { "Detalle": this.selectedHistory.valor_nuevo }; }
         },
 
         // Methods
@@ -644,7 +660,8 @@ function retencionesData() {
                 valor: null, 
                 fecha_consignacion: '', 
                 reportado: false, 
-                aplicado: false 
+                aplicado: false,
+                soporte: null
             });
         },
         removeAbono(index) {
@@ -711,6 +728,7 @@ function retencionesData() {
                 const isNew = !this.retencion_id;
                 if (isNew) {
                     this.retencion_id = res.retencion_id;
+                    this.s1.no_radicacion = res.no_radicacion;
                     window.history.pushState(null, '', `/retenciones/${this.retencion_id}`);
                 }
                 this.is_section1_locked = true;
@@ -735,6 +753,39 @@ function retencionesData() {
             if (res.success) {
                 this.is_abonos_locked = true;
                 this.showSuccessAndReload('Abonos guardados con éxito.');
+            }
+        },
+
+        async uploadSoporte(event, index) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                return this.showError('El archivo no debe pesar más de 5MB');
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            this.loading = true;
+            try {
+                const response = await fetch('{{ route('retenciones.uploadAbonoSoporte') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Error al subir el archivo');
+                
+                this.abonos[index].soporte = result.path;
+            } catch (error) {
+                this.showError(error.message);
+            } finally {
+                this.loading = false;
+                event.target.value = ''; // Reset file input
             }
         },
 

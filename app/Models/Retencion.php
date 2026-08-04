@@ -27,6 +27,12 @@ class Retencion extends Model
         'is_abonos_locked' => 'boolean',
     ];
 
+    protected $appends = [
+        'recaudo_total',
+        'saldo_pendiente',
+        'recaudo_mes_actual',
+    ];
+
     public function abonos()
     {
         return $this->hasMany(RetencionAbono::class);
@@ -50,5 +56,26 @@ class Retencion extends Model
     public function gestorRadicador()
     {
         return $this->belongsTo(User::class, 'gestor_radicador_id');
+    }
+
+    public function getRecaudoTotalAttribute()
+    {
+        return $this->abonos()->sum('valor');
+    }
+
+    public function getSaldoPendienteAttribute()
+    {
+        return floatval($this->valor_retencion_total) - $this->recaudo_total;
+    }
+
+    public function getRecaudoMesActualAttribute()
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        return $this->abonos()
+            ->whereMonth('fecha_descuento', $currentMonth)
+            ->whereYear('fecha_descuento', $currentYear)
+            ->sum('valor');
     }
 }

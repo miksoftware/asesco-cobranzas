@@ -13,6 +13,7 @@ class RetencionAbono extends Model
         'fecha_consignacion',
         'reportado',
         'aplicado',
+        'soporte',
     ];
 
     protected $casts = [

@@ -16,7 +16,12 @@ class RetencionController extends Controller
     {
         $gestores = User::select('id', 'name')->get();
         // Carga una retención vacía por defecto
-        return view('retenciones.index', compact('gestores'));
+        
+        $lastRetencion = Retencion::orderBy('id', 'desc')->first();
+        $lastNo = $lastRetencion ? (int) str_replace('RLA-', '', $lastRetencion->no_radicacion) : 0;
+        $nextNoRadicacion = 'RLA-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
+        
+        return view('retenciones.index', compact('gestores', 'nextNoRadicacion'));
     }
 
     public function list(Request $request)
@@ -92,7 +97,7 @@ class RetencionController extends Controller
 
     public function saveSection1(Request $request)
     {
-        $data = $request->except(['_token', 'retencion_id']);
+        $data = $request->except(['_token', 'retencion_id', 'no_radicacion']);
         
         if ($request->retencion_id) {
             $retencion = Retencion::findOrFail($request->retencion_id);
@@ -101,6 +106,10 @@ class RetencionController extends Controller
             $retencion->update(['is_section1_locked' => true]);
             $this->logChanges($retencion->id, 'Datos Generales', $oldData, $data);
         } else {
+            $lastRetencion = Retencion::orderBy('id', 'desc')->first();
+            $lastNo = $lastRetencion ? (int) str_replace('RLA-', '', $lastRetencion->no_radicacion) : 0;
+            $data['no_radicacion'] = 'RLA-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
+
             $retencion = Retencion::create(array_merge($data, ['is_section1_locked' => true]));
             $this->logChanges($retencion->id, 'Datos Generales', [], $data);
         }
@@ -108,6 +117,7 @@ class RetencionController extends Controller
         return response()->json([
             'success' => true,
             'retencion_id' => $retencion->id,
+            'no_radicacion' => $retencion->no_radicacion,
             'message' => 'Sección 1 guardada correctamente.'
         ]);
     }
@@ -162,6 +172,7 @@ class RetencionController extends Controller
                     'fecha_consignacion' => $abonoData['fecha_consignacion'] ?? null,
                     'reportado' => $abonoData['reportado'] ?? false,
                     'aplicado' => $abonoData['aplicado'] ?? false,
+                    'soporte' => $abonoData['soporte'] ?? null,
                 ]);
             }
         }
@@ -172,6 +183,24 @@ class RetencionController extends Controller
             'success' => true,
             'message' => 'Abonos guardados correctamente.'
         ]);
+    }
+
+    public function uploadAbonoSoporte(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('soportes', 'public');
+            return response()->json([
+                'success' => true,
+                'path' => $path,
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No se subió ningún archivo'], 400);
     }
 
     public function saveGestion(Request $request)

@@ -297,4 +297,67 @@ class ConsultaController extends Controller
             'tercero' => $tercero,
         ]);
     }
+    /**
+     * Obtener adjuntos de un tercero por cédula.
+     */
+    public function adjuntosPorCedula(string $cedula): JsonResponse
+    {
+        $adjuntos = \App\Models\GestionAdjunto::where('cedula', $cedula)
+            ->with('user:id,name')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json($adjuntos);
+    }
+
+    /**
+     * Subir adjunto para Gestiones
+     */
+    public function uploadAdjunto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'cedula' => 'required|string',
+            'comentario' => 'nullable|string|max:1000',
+            'soporte' => 'required|file|mimes:pdf,jpg,jpeg,png,zip,rar,doc,docx,xls,xlsx|max:5120', // 5MB Max
+        ]);
+
+        $filePath = null;
+        if ($request->hasFile('soporte')) {
+            $file = $request->file('soporte');
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('soportes_gestiones', $fileName, 'public');
+        }
+
+        $adjunto = \App\Models\GestionAdjunto::create([
+            'cedula' => $request->cedula,
+            'comentario' => $request->comentario,
+            'archivo_path' => $filePath,
+            'user_id' => auth()->id(),
+        ]);
+
+        $adjunto->load('user:id,name');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Adjunto subido correctamente.',
+            'adjunto' => $adjunto
+        ]);
+    }
+
+    /**
+     * Eliminar adjunto
+     */
+    public function deleteAdjunto(\App\Models\GestionAdjunto $adjunto): JsonResponse
+    {
+        if ($adjunto->archivo_path) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($adjunto->archivo_path);
+        }
+
+        $adjunto->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Adjunto eliminado correctamente.'
+        ]);
+    }
 }

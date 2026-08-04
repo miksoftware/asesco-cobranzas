@@ -31,6 +31,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/consultas/telefonos', [ConsultaController::class, 'crearTelefono'])->name('consultas.telefonos.crear');
         Route::put('/consultas/telefonos/{tercero}', [ConsultaController::class, 'editarTelefono'])->name('consultas.telefonos.editar');
         Route::patch('/consultas/telefonos/{tercero}/notificar', [ConsultaController::class, 'toggleNotificar'])->name('consultas.telefonos.notificar');
+        Route::get('/consultas/adjuntos/{cedula}', [ConsultaController::class, 'adjuntosPorCedula'])->name('consultas.adjuntos.list');
+        Route::post('/consultas/adjuntos', [ConsultaController::class, 'uploadAdjunto'])->name('consultas.adjuntos.upload');
+        Route::delete('/consultas/adjuntos/{adjunto}', [ConsultaController::class, 'deleteAdjunto'])->name('consultas.adjuntos.delete');
     });
 
     // Sistemas EPS (solo admin@asesco.com)
@@ -65,6 +68,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/retenciones/section1', [\App\Http\Controllers\RetencionController::class, 'saveSection1'])->name('retenciones.saveSection1');
     Route::post('/retenciones/section2', [\App\Http\Controllers\RetencionController::class, 'saveSection2'])->name('retenciones.saveSection2');
     Route::post('/retenciones/abonos', [\App\Http\Controllers\RetencionController::class, 'saveAbonos'])->name('retenciones.saveAbonos');
+    Route::post('/retenciones/abonos/soporte', [\App\Http\Controllers\RetencionController::class, 'uploadAbonoSoporte'])->name('retenciones.uploadAbonoSoporte');
     Route::post('/retenciones/gestiones', [\App\Http\Controllers\RetencionController::class, 'saveGestion'])->name('retenciones.saveGestion');
     Route::post('/retenciones/{retencion}/unlock', [\App\Http\Controllers\RetencionController::class, 'unlockSection'])->name('retenciones.unlock');
     Route::middleware('permission:usuarios.crear')->group(function () {

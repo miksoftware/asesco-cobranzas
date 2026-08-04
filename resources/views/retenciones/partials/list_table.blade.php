@@ -5,8 +5,13 @@
                 <th class="px-4 py-3">No. Radicación</th>
                 <th class="px-4 py-3">Fecha Radicación</th>
                 <th class="px-4 py-3">Cédula TT</th>
-                <th class="px-4 py-3">Nombre Sujeto</th>
-                <th class="px-4 py-3">Empresa</th>
+                <th class="px-4 py-3">Nombre de TT</th>
+                <th class="px-4 py-3">Portafolio</th>
+                <th class="px-4 py-3">Valor Retención</th>
+                <th class="px-4 py-3">Recaudo Retención</th>
+                <th class="px-4 py-3">Saldo Pendiente</th>
+                <th class="px-4 py-3">Recaudo Mes Actual</th>
+                <th class="px-4 py-3">Efecto Gestión</th>
                 <th class="px-4 py-3 text-center">Estado</th>
                 <th class="px-4 py-3 text-center">Acciones</th>
             </tr>
@@ -17,8 +22,13 @@
                 <td class="px-4 py-3 font-medium text-gray-900">{{ $retencion->no_radicacion ?? 'N/A' }}</td>
                 <td class="px-4 py-3">{{ $retencion->fecha_radicacion ?? 'N/A' }}</td>
                 <td class="px-4 py-3">{{ $retencion->cedula_tt ?? 'N/A' }}</td>
-                <td class="px-4 py-3">{{ $retencion->nombre_sujeto_retencion ?? 'N/A' }}</td>
-                <td class="px-4 py-3">{{ $retencion->empresa ?? 'N/A' }}</td>
+                <td class="px-4 py-3">{{ $retencion->nombre_tt ?? 'N/A' }}</td>
+                <td class="px-4 py-3">{{ $retencion->portafolio_empresa ?? 'N/A' }}</td>
+                <td class="px-4 py-3">${{ number_format($retencion->valor_retencion_total, 0, ',', '.') }}</td>
+                <td class="px-4 py-3 text-green-600 font-medium">${{ number_format($retencion->recaudo_total, 0, ',', '.') }}</td>
+                <td class="px-4 py-3 text-red-600 font-medium">${{ number_format($retencion->saldo_pendiente, 0, ',', '.') }}</td>
+                <td class="px-4 py-3 text-green-600 font-medium">${{ number_format($retencion->recaudo_mes_actual, 0, ',', '.') }}</td>
+                <td class="px-4 py-3">{{ $retencion->efecto_gestion_retencion ?? 'N/A' }}</td>
                 <td class="px-4 py-3 text-center">
                     @if($retencion->estado_retencion)
                         <span class="px-2.5 py-1 text-[10px] font-bold rounded-full bg-blue-100 text-blue-700">
