@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
@@ -41,6 +42,7 @@ class UserController extends Controller
             'email'    => 'required|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role'     => 'required|exists:roles,name',
+            'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         if (strtolower($validated['email']) === self::SUPER_ADMIN_EMAIL) {
@@ -48,11 +50,17 @@ class UserController extends Controller
                 ->with('error', 'No se puede crear un usuario con ese correo.');
         }
 
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        }
+
         $user = User::create([
-            'name'      => $validated['name'],
-            'email'     => $validated['email'],
-            'password'  => Hash::make($validated['password']),
-            'is_active' => true,
+            'name'        => $validated['name'],
+            'email'       => $validated['email'],
+            'password'    => Hash::make($validated['password']),
+            'is_active'   => true,
+            'avatar_path' => $avatarPath,
         ]);
 
         $user->assignRole($validated['role']);
@@ -71,11 +79,13 @@ class UserController extends Controller
         }
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'password' => 'nullable|string|min:6|confirmed',
-            'role'     => 'required|exists:roles,name',
-            'is_active'=> 'required|boolean',
+            'name'          => 'required|string|max:255',
+            'email'         => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'password'      => 'nullable|string|min:6|confirmed',
+            'role'          => 'required|exists:roles,name',
+            'is_active'     => 'required|boolean',
+            'avatar'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'remove_avatar' => 'nullable|boolean',
         ]);
 
         if (strtolower($validated['email']) === self::SUPER_ADMIN_EMAIL) {
@@ -93,10 +103,26 @@ class UserController extends Controller
             }
         }
 
+        $avatarPath = $user->avatar_path;
+        if ($request->boolean('remove_avatar')) {
+            if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
+                Storage::disk('public')->delete($user->avatar_path);
+            }
+            $avatarPath = null;
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
+                Storage::disk('public')->delete($user->avatar_path);
+            }
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+        }
+
         $user->update([
-            'name'      => $validated['name'],
-            'email'     => $validated['email'],
-            'is_active' => $validated['is_active'],
+            'name'        => $validated['name'],
+            'email'       => $validated['email'],
+            'is_active'   => $validated['is_active'],
+            'avatar_path' => $avatarPath,
         ]);
 
         if (! empty($validated['password'])) {
@@ -119,6 +145,10 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return redirect()->route('usuarios.index')
                 ->with('error', 'No puedes eliminar tu propia cuenta.');
+        }
+
+        if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
+            Storage::disk('public')->delete($user->avatar_path);
         }
 
         $user->delete();

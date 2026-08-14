@@ -16,6 +16,7 @@ class Tercero extends Model
         'empresa',
         'dato',
         'tipo_dato',
+        'tipo_cartera',
         'notificar',
         'fuente',
         'modified_by',

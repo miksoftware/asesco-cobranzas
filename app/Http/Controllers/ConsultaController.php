@@ -360,4 +360,174 @@ class ConsultaController extends Controller
             'message' => 'Adjunto eliminado correctamente.'
         ]);
     }
+
+    /**
+     * Obtener pagos (Retención + Directos) por cédula ordenados del más reciente al más antiguo.
+     */
+    public function pagosPorCedula(string $cedula): JsonResponse
+    {
+        // 1. Abonos de Retenciones para esta cédula
+        $retencionAbonos = \App\Models\RetencionAbono::whereHas('retencion', function ($q) use ($cedula) {
+                $q->where('cedula_tt', $cedula);
+            })
+            ->with('retencion:id,no_radicacion,cedula_tt')
+            ->get()
+            ->map(function ($abono) {
+                $noRadicacion = $abono->retencion->no_radicacion ?? $abono->retencion_id;
+                $fDescuento = $abono->fecha_descuento ? substr((string)$abono->fecha_descuento, 0, 10) : null;
+                $fConsignacion = $abono->fecha_consignacion ? substr((string)$abono->fecha_consignacion, 0, 10) : null;
+
+                return [
+                    'id'                => 'ret_' . $abono->id,
+                    'db_id'             => $abono->id,
+                    'cedula'            => $abono->retencion->cedula_tt ?? '',
+                    'fecha_descuento'   => $fDescuento,
+                    'valor'             => (float) $abono->valor,
+                    'fecha_consignacion'=> $fConsignacion,
+                    'reportado'         => (bool) $abono->reportado,
+                    'aplicado'          => (bool) $abono->aplicado,
+                    'soporte'           => $abono->soporte,
+                    'es_retencion'      => true,
+                    'locked'            => true,
+                    'origen'            => "Retención #{$noRadicacion}",
+                    'no_radicacion'     => $noRadicacion,
+                ];
+            });
+
+        // 2. Pagos directos creados en Gestiones para esta cédula
+        $gestionPagos = \App\Models\GestionPago::where('cedula', $cedula)
+            ->get()
+            ->map(function ($pago) {
+                $fDescuento = $pago->fecha_descuento ? substr((string)$pago->fecha_descuento, 0, 10) : null;
+                $fConsignacion = $pago->fecha_consignacion ? substr((string)$pago->fecha_consignacion, 0, 10) : null;
+
+                return [
+                    'id'                => 'dir_' . $pago->id,
+                    'db_id'             => $pago->id,
+                    'cedula'            => $pago->cedula,
+                    'fecha_descuento'   => $fDescuento,
+                    'valor'             => (float) $pago->valor,
+                    'fecha_consignacion'=> $fConsignacion,
+                    'reportado'         => (bool) $pago->reportado,
+                    'aplicado'          => (bool) $pago->aplicado,
+                    'soporte'           => $pago->soporte,
+                    'es_retencion'      => false,
+                    'locked'            => true,
+                    'origen'            => 'Pago Directo',
+                    'no_radicacion'     => null,
+                ];
+            });
+
+        // Combinar y ordenar de más reciente a más viejo por fecha_descuento
+        $combined = $retencionAbonos->concat($gestionPagos)->sortByDesc(function ($item) {
+            return $item['fecha_descuento'] ?? '0000-00-00';
+        })->values();
+
+        return response()->json($combined);
+    }
+
+    /**
+     * Guardar o actualizar un pago directo en Gestiones.
+     */
+    public function savePago(Request $request): JsonResponse
+    {
+        $request->validate([
+            'id'                 => 'nullable',
+            'db_id'              => 'nullable',
+            'cedula'             => 'required|string',
+            'fecha_descuento'    => 'nullable|date',
+            'valor'              => 'nullable|numeric',
+            'fecha_consignacion' => 'nullable|date',
+            'reportado'          => 'boolean',
+            'aplicado'           => 'boolean',
+            'soporte'            => 'nullable|string',
+        ]);
+
+        $pago = null;
+        if ($request->filled('db_id')) {
+            $pago = \App\Models\GestionPago::where('id', $request->db_id)->where('cedula', $request->cedula)->first();
+        } elseif ($request->filled('id') && str_starts_with((string)$request->id, 'dir_')) {
+            $dbId = (int) str_replace('dir_', '', $request->id);
+            $pago = \App\Models\GestionPago::where('id', $dbId)->where('cedula', $request->cedula)->first();
+        }
+
+        if ($pago) {
+            $pago->update([
+                'fecha_descuento'   => $request->fecha_descuento,
+                'valor'             => $request->valor,
+                'fecha_consignacion'=> $request->fecha_consignacion,
+                'reportado'         => $request->boolean('reportado'),
+                'aplicado'          => $request->boolean('aplicado'),
+                'soporte'           => $request->soporte,
+            ]);
+        } else {
+            $pago = \App\Models\GestionPago::create([
+                'cedula'            => $request->cedula,
+                'fecha_descuento'   => $request->fecha_descuento,
+                'valor'             => $request->valor,
+                'fecha_consignacion'=> $request->fecha_consignacion,
+                'reportado'         => $request->boolean('reportado'),
+                'aplicado'          => $request->boolean('aplicado'),
+                'soporte'           => $request->soporte,
+                'user_id'           => auth()->id(),
+            ]);
+        }
+
+        $fDescuento = $pago->fecha_descuento ? substr((string)$pago->fecha_descuento, 0, 10) : null;
+        $fConsignacion = $pago->fecha_consignacion ? substr((string)$pago->fecha_consignacion, 0, 10) : null;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pago guardado correctamente.',
+            'pago'    => [
+                'id'                => 'dir_' . $pago->id,
+                'db_id'             => $pago->id,
+                'cedula'            => $pago->cedula,
+                'fecha_descuento'   => $fDescuento,
+                'valor'             => (float) $pago->valor,
+                'fecha_consignacion'=> $fConsignacion,
+                'reportado'         => (bool) $pago->reportado,
+                'aplicado'          => (bool) $pago->aplicado,
+                'soporte'           => $pago->soporte,
+                'es_retencion'      => false,
+                'origen'            => 'Pago Directo',
+            ]
+        ]);
+    }
+
+    /**
+     * Subir soporte para pago directo en Gestiones.
+     */
+    public function uploadPagoSoporte(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        $file = $request->file('file');
+        $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('soportes_pagos', $fileName, 'public');
+
+        return response()->json([
+            'success' => true,
+            'path'    => $path,
+        ]);
+    }
+
+    /**
+     * Eliminar un pago directo de Gestiones.
+     */
+    public function deletePago(\App\Models\GestionPago $pago): JsonResponse
+    {
+        if ($pago->soporte) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($pago->soporte);
+        }
+
+        $pago->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pago eliminado correctamente.'
+        ]);
+    }
 }

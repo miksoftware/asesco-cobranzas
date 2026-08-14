@@ -25,9 +25,13 @@
     {{-- Right side: user info + logout button --}}
     <div class="flex items-center gap-3">
         <div class="flex items-center gap-3 px-3 py-1.5">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-xs font-bold shadow-sm shrink-0">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-            </div>
+            @if(auth()->user()->avatar_url)
+                <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-full object-cover shadow-sm border border-gray-100 shrink-0">
+            @else
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-xs font-bold shadow-sm shrink-0">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+            @endif
             <div class="hidden sm:block text-right">
                 <p class="text-sm font-medium text-gray-700 leading-tight">{{ auth()->user()->name }}</p>
                 <p class="text-[11px] text-gray-400 leading-tight">{{ ucfirst(auth()->user()->roles->first()?->name ?? 'Sin rol') }}</p>

@@ -131,7 +131,7 @@
                     :class="activeTab === 'historial' ? 'bg-asesco-orange text-white shadow-sm' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
                     class="px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap flex items-center gap-1">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                HISTORIAL DE RETENCIÓN
+                HISTORIAL DE MODIFICACIONES
             </button>
         </div>
 
@@ -403,7 +403,7 @@
 
             </div>
 
-            {{-- Pestaña: HISTORIAL DE RETENCIÓN --}}
+            {{-- Pestaña: HISTORIAL DE MODIFICACIONES --}}
             <div x-show="activeTab === 'historial'" style="display: none;" class="pt-2">
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                     <h3 class="text-xs font-bold text-gray-700 mb-4 flex items-center gap-2">

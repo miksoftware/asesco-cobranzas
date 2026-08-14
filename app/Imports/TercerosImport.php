@@ -14,6 +14,14 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
     protected int $nuevos = 0;
     protected int $duplicados = 0;
     protected int $errores = 0;
+    protected ?string $defaultTipoCartera = null;
+
+    public function __construct(?string $defaultTipoCartera = null)
+    {
+        if ($defaultTipoCartera) {
+            $this->defaultTipoCartera = $this->normalizeTipoCartera($defaultTipoCartera);
+        }
+    }
 
     public function collection(Collection $rows): void
     {
@@ -25,9 +33,10 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
             $empresa       = $this->cleanText($row['empresa'] ?? null);
             $dato          = $this->clean($row['dato'] ?? null);
             $tipoDato      = $this->normalizeTipoDato($row['tipo_de_dato'] ?? $row['tipo_dato'] ?? null);
+            $tipoCartera   = $this->normalizeTipoCartera($row['tipo_cartera'] ?? $row['tipo_de_cartera'] ?? $row['cartera'] ?? null) ?? $this->defaultTipoCartera;
 
             // Validar campos obligatorios
-            if (!$referencia || !$cedula || !$nombre || !$calidad || !$empresa || !$dato || !$tipoDato) {
+            if (!$referencia || !$cedula || !$nombre || !$calidad || !$empresa || !$dato || !$tipoDato || !$tipoCartera) {
                 $this->errores++;
                 continue;
             }
@@ -38,6 +47,7 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
                 ->where('empresa', $empresa)
                 ->where('dato', $dato)
                 ->where('tipo_dato', $tipoDato)
+                ->where('tipo_cartera', $tipoCartera)
                 ->exists();
 
             if ($exists) {
@@ -53,6 +63,7 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
                 'empresa'         => $empresa,
                 'dato'            => $dato,
                 'tipo_dato'       => $tipoDato,
+                'tipo_cartera'    => $tipoCartera,
                 'user_id'         => Auth::id(),
             ]);
 
@@ -92,7 +103,9 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
     {
         if ($value === null) return null;
         $value = mb_strtoupper(trim((string) $value));
-        return in_array($value, ['TT', 'CD']) ? $value : null;
+        if (in_array($value, ['TT', 'TITULAR'])) return 'TT';
+        if (in_array($value, ['CD', 'CODEUDOR'])) return 'CD';
+        return null;
     }
 
     private function normalizeTipoDato(?string $value): ?string
@@ -100,7 +113,6 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
         if ($value === null) return null;
         $value = mb_strtolower(trim((string) $value));
 
-        // Normalizar variantes comunes
         $map = [
             'celular'  => 'celular',
             'cel'      => 'celular',
@@ -115,5 +127,14 @@ class TercerosImport implements ToCollection, WithHeadingRow, WithChunkReading
         ];
 
         return $map[$value] ?? $value;
+    }
+
+    public function normalizeTipoCartera(?string $value): ?string
+    {
+        if ($value === null) return null;
+        $value = mb_strtolower(trim((string) $value));
+        if (in_array($value, ['vigente', 'v'])) return 'Vigente';
+        if (in_array($value, ['castigada', 'c'])) return 'Castigada';
+        return null;
     }
 }

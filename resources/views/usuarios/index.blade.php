@@ -57,9 +57,13 @@
                     <tr class="border-b border-gray-50 hover:bg-asesco-orange/[0.02] transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </div>
+                                @if($user->avatar_url)
+                                    <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="w-9 h-9 rounded-full object-cover shrink-0 shadow-sm border border-gray-100">
+                                @else
+                                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                @endif
                                 <span class="text-sm font-semibold text-gray-800">{{ $user->name }}</span>
                             </div>
                         </td>
@@ -138,7 +142,7 @@
     {{-- Modal Crear/Editar --}}
     <div x-show="showModal" x-transition.opacity class="fixed inset-0 z-[60] flex items-center justify-center p-4" style="display:none;">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all" @click.stop
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all overflow-hidden" @click.stop
              x-show="showModal" x-transition:enter="ease-out duration-200" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
 
             {{-- Modal header --}}
@@ -155,9 +159,39 @@
             </div>
 
             {{-- Modal body --}}
-            <form :action="isEditing ? '{{ url('usuarios') }}/' + form.id : '{{ route('usuarios.store') }}'" method="POST" class="p-6 space-y-5">
+            <form :action="isEditing ? '{{ url('usuarios') }}/' + form.id : '{{ route('usuarios.store') }}'" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
                 @csrf
                 <template x-if="isEditing"><input type="hidden" name="_method" value="PUT"></template>
+
+                {{-- Photo Avatar Upload section --}}
+                <div class="flex items-center gap-4 p-3 bg-gray-50/80 rounded-xl border border-gray-200">
+                    <div class="relative w-16 h-16 shrink-0">
+                        <template x-if="avatarPreview">
+                            <img :src="avatarPreview" class="w-16 h-16 rounded-full object-cover shadow-sm border border-gray-200">
+                        </template>
+                        <template x-if="!avatarPreview">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-asesco-orange to-asesco-coral flex items-center justify-center text-white text-lg font-bold shadow-sm">
+                                <span x-text="form.name ? form.name.substring(0, 1).toUpperCase() : 'U'"></span>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Foto de Perfil</label>
+                        <div class="flex items-center gap-2">
+                            <label class="px-3 py-1.5 bg-white border border-gray-300 hover:border-asesco-orange hover:text-asesco-orange text-gray-700 text-xs font-medium rounded-lg cursor-pointer transition-all shadow-xs">
+                                <span>Seleccionar imagen</span>
+                                <input type="file" name="avatar" accept="image/png, image/jpeg, image/jpg, image/webp" @change="previewImage($event)" class="hidden">
+                            </label>
+                            <template x-if="avatarPreview">
+                                <button type="button" @click="clearAvatar()" class="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 transition-colors cursor-pointer">
+                                    Quitar foto
+                                </button>
+                            </template>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1">Formatos: PNG, JPG, WEBP (máx 2MB)</p>
+                        <input type="hidden" name="remove_avatar" :value="removeAvatar ? '1' : '0'">
+                    </div>
+                </div>
 
                 <div>
                     <label for="name" class="block text-sm font-medium text-gray-700 mb-1.5">Nombre completo</label>
@@ -242,20 +276,37 @@ function usuariosPage() {
     return {
         showModal: {{ $errors->any() ? 'true' : 'false' }},
         isEditing: false,
+        avatarPreview: null,
+        removeAvatar: false,
         form: { id: null, name: '', email: '', password: '', password_confirmation: '', role: '', is_active: '1' },
         openCreate() {
             this.isEditing = false;
+            this.avatarPreview = null;
+            this.removeAvatar = false;
             this.form = { id: null, name: '', email: '', password: '', password_confirmation: '', role: '', is_active: '1' };
             this.showModal = true;
         },
         openEdit(user, roleName) {
             this.isEditing = true;
+            this.avatarPreview = user.avatar_url || null;
+            this.removeAvatar = false;
             this.form = {
                 id: user.id, name: user.name, email: user.email,
                 password: '', password_confirmation: '',
                 role: roleName, is_active: user.is_active ? '1' : '0',
             };
             this.showModal = true;
+        },
+        previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.removeAvatar = false;
+                this.avatarPreview = URL.createObjectURL(file);
+            }
+        },
+        clearAvatar() {
+            this.avatarPreview = null;
+            this.removeAvatar = true;
         }
     };
 }

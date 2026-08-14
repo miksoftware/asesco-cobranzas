@@ -34,6 +34,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/consultas/adjuntos/{cedula}', [ConsultaController::class, 'adjuntosPorCedula'])->name('consultas.adjuntos.list');
         Route::post('/consultas/adjuntos', [ConsultaController::class, 'uploadAdjunto'])->name('consultas.adjuntos.upload');
         Route::delete('/consultas/adjuntos/{adjunto}', [ConsultaController::class, 'deleteAdjunto'])->name('consultas.adjuntos.delete');
+        Route::get('/consultas/pagos/{cedula}', [ConsultaController::class, 'pagosPorCedula'])->name('consultas.pagos.list');
+        Route::post('/consultas/pagos', [ConsultaController::class, 'savePago'])->name('consultas.pagos.store');
+        Route::post('/consultas/pagos/soporte', [ConsultaController::class, 'uploadPagoSoporte'])->name('consultas.pagos.soporte');
+        Route::delete('/consultas/pagos/{pago}', [ConsultaController::class, 'deletePago'])->name('consultas.pagos.delete');
     });
 
     // Sistemas EPS (solo admin@asesco.com)
@@ -85,10 +89,12 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('permission:cargues.ver')->group(function () {
         Route::get('/cargues/telefonos', [CargueController::class, 'telefonos'])->name('cargues.telefonos');
         Route::get('/cargues/telefonos/listar', [CargueController::class, 'listar'])->name('cargues.telefonos.listar');
+        Route::get('/cargues/telefonos/plantilla', [CargueController::class, 'descargarPlantilla'])->name('cargues.telefonos.plantilla');
         Route::get('/cargues/comentarios', [CargueController::class, 'comentarios'])->name('cargues.comentarios');
         Route::get('/cargues/comentarios/listar', [CargueController::class, 'listarComentarios'])->name('cargues.comentarios.listar');
     });
     Route::middleware('permission:cargues.importar')->group(function () {
+        Route::post('/cargues/telefonos/validar', [CargueController::class, 'validarTerceros'])->name('cargues.telefonos.validar');
         Route::post('/cargues/telefonos/importar', [CargueController::class, 'importar'])->name('cargues.telefonos.importar');
         Route::post('/cargues/comentarios/importar', [CargueController::class, 'importarComentarios'])->name('cargues.comentarios.importar');
     });

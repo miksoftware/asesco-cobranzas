@@ -71,17 +71,6 @@
 
             {{-- Pill-style tab bar --}}
             <div class="flex items-center gap-1.5 px-4 py-3 bg-gray-50/80 border-b border-gray-200">
-                <button @click="activeTab = 'localizacion'"
-                        :class="activeTab === 'localizacion'
-                            ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
-                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
-                        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Actualización
-                </button>
                 <button @click="activeTab = 'comentarios'; cargarComentarios()"
                         :class="activeTab === 'comentarios'
                             ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
@@ -102,6 +91,27 @@
                     </svg>
                     Teléfonos
                 </button>
+                <button @click="activeTab = 'localizacion'"
+                        :class="activeTab === 'localizacion'
+                            ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    Actualización
+                </button>
+                <button @click="activeTab = 'pagos'; cargarPagos()"
+                        :class="activeTab === 'pagos'
+                            ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                    </svg>
+                    Pagos
+                </button>
                 <button @click="activeTab = 'retenciones'; cargarRetenciones()"
                         :class="activeTab === 'retenciones'
                             ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
@@ -120,7 +130,7 @@
                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                     </svg>
-                    Adjuntos
+                    Otros adjuntos
                 </button>
             </div>
 
@@ -331,6 +341,156 @@
 
                     </div>
                 </template>
+            </div>
+
+            {{-- Tab: PAGOS --}}
+            <div x-show="activeTab === 'pagos'" style="display: none;" class="p-5 space-y-4">
+                
+                {{-- Header with Total Pagos and Add Button --}}
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50 border border-gray-200 p-4 rounded-xl">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-asesco-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Relación de Pagos / Descuentos por Nómina
+                        </h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Incluye abonos por Retenciones y Pagos Directos ordenados del más reciente al más antiguo</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                        {{-- Total Retenciones --}}
+                        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg shadow-2xs">
+                            <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider">Total Pago Retenciones:</span>
+                            <span class="text-xs font-extrabold text-amber-700 font-mono" x-text="formatMoney(totalPagosRetenciones)">$0</span>
+                        </div>
+
+                        {{-- Total Directos --}}
+                        <div class="flex items-center gap-2 bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg shadow-2xs">
+                            <span class="text-[10px] font-bold text-blue-800 uppercase tracking-wider">Total Pagos Directos:</span>
+                            <span class="text-xs font-extrabold text-blue-700 font-mono" x-text="formatMoney(totalPagosDirectos)">$0</span>
+                        </div>
+
+                        {{-- Total Pagos General --}}
+                        <div class="flex items-center gap-2 bg-green-100/90 border border-green-300 px-3 py-1.5 rounded-lg shadow-2xs">
+                            <span class="text-[10px] font-bold text-green-900 uppercase tracking-wider">Total Pagos:</span>
+                            <span class="text-sm font-extrabold text-green-700 font-mono" x-text="formatMoney(totalPagos)">$0</span>
+                        </div>
+
+                        <button @click="addPago()" class="flex items-center gap-1.5 px-3.5 py-1.5 bg-asesco-orange hover:bg-asesco-coral text-white text-xs font-bold rounded-lg shadow-sm hover:shadow transition-all cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            Agregar Pago
+                        </button>
+                    </div>
+                </div>
+
+                {{-- Loader --}}
+                <div x-show="loadingPagos" class="p-8 text-center">
+                    <div class="w-8 h-8 mx-auto border-2 border-asesco-orange border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-xs text-gray-400 mt-2">Cargando pagos...</p>
+                </div>
+
+                {{-- Table --}}
+                <div x-show="!loadingPagos" class="overflow-x-auto border border-gray-200 rounded-xl shadow-xs">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-bold uppercase text-[10px] tracking-wider">
+                            <tr>
+                                <th class="px-3 py-2.5">FECHA_DESCUENTO</th>
+                                <th class="px-3 py-2.5">VALOR</th>
+                                <th class="px-3 py-2.5">FECHA_CONSIGNACIÓN</th>
+                                <th class="px-3 py-2.5 text-center">REPORTADO_COOMULTRASAN</th>
+                                <th class="px-3 py-2.5 text-center">SOPORTE</th>
+                                <th class="px-3 py-2.5 text-center">APLICADO_CORE_CM</th>
+                                <th class="px-3 py-2.5">ORIGEN</th>
+                                <th class="px-3 py-2.5 text-center w-24">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                            <template x-for="(pago, index) in pagos" :key="pago.id || index">
+                                <tr class="hover:bg-gray-50/80 transition-colors" :class="pago.es_retencion ? 'bg-amber-50/30' : ''">
+                                    <td class="p-2">
+                                        <input type="date" x-model="pago.fecha_descuento" @change="sortPagos()" :disabled="pago.es_retencion || pago.locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="relative">
+                                            <span class="absolute left-2 top-1.5 text-gray-500 font-semibold">$</span>
+                                            <input type="number" x-model.number="pago.valor" :disabled="pago.es_retencion || pago.locked" class="w-full pl-6 pr-2 py-1.5 rounded border border-gray-300 text-xs font-medium focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <input type="date" x-model="pago.fecha_consignacion" :disabled="pago.es_retencion || pago.locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
+                                    </td>
+                                    <td class="p-2 text-center">
+                                        <input type="checkbox" x-model="pago.reportado" :disabled="pago.es_retencion || pago.locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
+                                    </td>
+                                    <td class="p-2 text-center align-middle">
+                                        <div class="flex items-center justify-center gap-1 relative">
+                                            <template x-if="!pago.soporte && !pago.es_retencion && !pago.locked">
+                                                <div class="relative">
+                                                    <input type="file" @change="uploadPagoSoporteFile($event, pago)" accept=".pdf,image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Subir soporte">
+                                                    <button type="button" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded transition-colors" title="Subir soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <template x-if="pago.soporte">
+                                                <div class="flex items-center gap-1">
+                                                    <a :href="pago.soporte.startsWith('http') ? pago.soporte : '/storage/' + pago.soporte" target="_blank" class="text-green-600 hover:bg-green-50 p-1.5 rounded transition-colors" title="Ver soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                    </a>
+                                                    <button type="button" x-show="!pago.es_retencion && !pago.locked" @click="pago.soporte = null" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors cursor-pointer" title="Eliminar soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                            <template x-if="!pago.soporte && (pago.es_retencion || pago.locked)">
+                                                <span class="text-gray-300 italic text-[10px]">Sin soporte</span>
+                                            </template>
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-center">
+                                        <input type="checkbox" x-model="pago.aplicado" :disabled="pago.es_retencion || pago.locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
+                                    </td>
+                                    <td class="p-2 whitespace-nowrap">
+                                        <template x-if="pago.es_retencion">
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200" x-text="pago.origen"></span>
+                                        </template>
+                                        <template x-if="!pago.es_retencion">
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Pago Directo</span>
+                                        </template>
+                                    </td>
+                                    <td class="p-2 text-center whitespace-nowrap">
+                                        <template x-if="!pago.es_retencion">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <template x-if="pago.locked">
+                                                    <button type="button" @click="pago.locked = false" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer" title="Editar pago">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                    </button>
+                                                </template>
+                                                <template x-if="!pago.locked">
+                                                    <button type="button" @click="savePagoSingle(pago)" class="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors cursor-pointer" title="Guardar pago">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                    </button>
+                                                </template>
+                                                <button type="button" @click="deletePagoSingle(pago, index)" class="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors cursor-pointer" title="Eliminar pago">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-if="pago.es_retencion">
+                                            <span class="text-[10px] text-gray-400 italic">No editable</span>
+                                        </template>
+                                    </td>
+                                </tr>
+                            </template>
+                            <tr x-show="pagos.length === 0">
+                                <td colspan="8" class="p-6 text-center text-gray-400 text-xs italic">
+                                    No hay pagos registrados para esta cédula. Haz clic en "Agregar Pago" para registrar uno.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {{-- Tab: Retenciones --}}
@@ -971,7 +1131,7 @@ function consultaPage() {
         searchedCedula: '',
         personName: null,
         personEmpresa: null,
-        activeTab: 'localizacion',
+        activeTab: 'comentarios',
         modal: false,
         modalRecord: null,
         systemCount: {{ $systemCount }},
@@ -992,6 +1152,8 @@ function consultaPage() {
         loadingAdjuntos: false,
         uploadingAdjunto: false,
         nuevoAdjunto: { comentario: '' },
+        pagos: [],
+        loadingPagos: false,
 
         async consultar() {
             const c = this.cedula.trim();
@@ -1002,8 +1164,10 @@ function consultaPage() {
             this.flatRecords = [];
             this.personName = null;
             this.personEmpresa = null;
-            this.activeTab = 'localizacion';
+            this.activeTab = 'comentarios';
             this.searchedCedula = c;
+            this.cargarComentarios();
+            this.cargarPagos();
 
             try {
                 const res = await fetch('{{ route("consultas.consultar") }}', {
@@ -1433,6 +1597,234 @@ function consultaPage() {
                 if (dtMatch) return dtMatch[1];
             }
             return value;
+        },
+
+        formatMoney(value) {
+            if (value === null || value === undefined || isNaN(value)) return '$0';
+            return '$' + Number(value).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        },
+
+        get totalPagosRetenciones() {
+            return (this.pagos || [])
+                .filter(p => p.es_retencion)
+                .reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
+        },
+
+        get totalPagosDirectos() {
+            return (this.pagos || [])
+                .filter(p => !p.es_retencion)
+                .reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
+        },
+
+        get totalPagos() {
+            return (this.pagos || []).reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
+        },
+
+        sortPagos() {
+            if (!this.pagos) return;
+            this.pagos.sort((a, b) => {
+                const dateA = a.fecha_descuento || '0000-00-00';
+                const dateB = b.fecha_descuento || '0000-00-00';
+                return dateB.localeCompare(dateA);
+            });
+        },
+
+        async cargarPagos() {
+            if (!this.searchedCedula) return;
+            this.loadingPagos = true;
+            try {
+                const res = await fetch(`/consultas/pagos/${this.searchedCedula}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                if (res.ok) {
+                    this.pagos = await res.json();
+                    this.sortPagos();
+                }
+            } catch (e) {
+                console.error('Error cargando pagos:', e);
+            } finally {
+                this.loadingPagos = false;
+            }
+        },
+
+        addPago() {
+            if (!this.searchedCedula) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Atención',
+                    text: 'Primero realiza una consulta por cédula.',
+                    confirmButtonColor: '#E8611A',
+                });
+                return;
+            }
+            const today = new Date().toISOString().substring(0, 10);
+            this.pagos.unshift({
+                id: 'temp_' + Date.now(),
+                db_id: null,
+                cedula: this.searchedCedula,
+                fecha_descuento: today,
+                valor: 0,
+                fecha_consignacion: null,
+                reportado: false,
+                aplicado: false,
+                soporte: null,
+                es_retencion: false,
+                locked: false,
+                origen: 'Pago Directo',
+            });
+            this.sortPagos();
+        },
+
+        async savePagoSingle(pago) {
+            if (!pago.cedula) return;
+            try {
+                const res = await fetch('{{ route("consultas.pagos.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify(pago),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    pago.locked = true;
+                    if (data.pago && data.pago.db_id) {
+                        pago.db_id = data.pago.db_id;
+                        pago.id = data.pago.id;
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: data.message || 'Pago guardado correctamente.',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        customClass: { popup: 'rounded-2xl shadow-2xl' }
+                    });
+                    this.sortPagos();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: err.message || 'Error al guardar el pago.',
+                        confirmButtonColor: '#E8611A',
+                        customClass: { popup: 'rounded-2xl shadow-xl' }
+                    });
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: e.message,
+                    confirmButtonColor: '#E8611A',
+                });
+            }
+        },
+
+        async uploadPagoSoporteFile(event, pago) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('{{ route("consultas.pagos.soporte") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    pago.soporte = data.path;
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Soporte cargado!',
+                        text: 'El archivo de soporte se ha subido correctamente.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        customClass: { popup: 'rounded-2xl shadow-xl' }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se pudo subir el archivo de soporte.',
+                        confirmButtonColor: '#E8611A',
+                    });
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: e.message,
+                    confirmButtonColor: '#E8611A',
+                });
+            }
+        },
+
+        async deletePagoSingle(pago, index) {
+            if (!pago.db_id) {
+                this.pagos.splice(index, 1);
+                return;
+            }
+
+            const confirmResult = await Swal.fire({
+                icon: 'warning',
+                title: '¿Eliminar pago?',
+                text: 'Esta acción no se puede deshacer.',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                customClass: { popup: 'rounded-2xl shadow-xl' }
+            });
+
+            if (!confirmResult.isConfirmed) return;
+
+            try {
+                const res = await fetch(`/consultas/pagos/${pago.db_id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+                if (res.ok) {
+                    this.pagos.splice(index, 1);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminado',
+                        text: 'El pago ha sido eliminado correctamente.',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true,
+                        customClass: { popup: 'rounded-2xl shadow-2xl' }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error al eliminar el pago.',
+                        confirmButtonColor: '#E8611A',
+                    });
+                }
+            } catch (e) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de conexión',
+                    text: e.message,
+                    confirmButtonColor: '#E8611A',
+                });
+            }
         }
     };
 }

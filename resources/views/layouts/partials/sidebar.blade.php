@@ -156,9 +156,13 @@
     {{-- User footer --}}
     <div class="p-4 shrink-0 mt-auto border-t border-white/5">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[#E8611A] flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-md">
-                {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-            </div>
+            @if(auth()->user()->avatar_url)
+                <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="w-10 h-10 rounded-full object-cover shrink-0 shadow-md">
+            @else
+                <div class="w-10 h-10 rounded-full bg-[#E8611A] flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-md">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                </div>
+            @endif
             <div class="overflow-hidden transition-all duration-300 min-w-0" :class="sidebarOpen ? 'opacity-100 flex-1' : 'opacity-0 w-0'">
                 <p class="text-[14px] font-medium truncate leading-tight text-white">{{ auth()->user()->name }}</p>
                 <p class="text-[12px] text-slate-400 truncate leading-tight mt-0.5">{{ auth()->user()->email ?? 'admin@asesco.com' }}</p>
