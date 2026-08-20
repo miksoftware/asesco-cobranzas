@@ -9,6 +9,7 @@
     {{-- ─── Cabecera + botón crear ─────────────────────────────── --}}
     <div class="flex items-center justify-between">
         <p class="text-sm text-gray-400">Haz clic en un rol para gestionar sus permisos.</p>
+        @can('roles.crear')
         <button @click="showCreate = true"
                 class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white text-sm font-semibold rounded-xl shadow-md shadow-asesco-orange/20 hover:shadow-lg hover:shadow-asesco-orange/30 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -16,6 +17,7 @@
             </svg>
             Nuevo Rol
         </button>
+        @endcan
     </div>
 
     {{-- ─── Grid de cards de roles ──────────────────────────────── --}}
@@ -121,6 +123,7 @@
                         {{-- Roles editables: borrar + guardar --}}
                         <template x-if="selectedRole.name !== 'admin'">
                             <div class="flex items-center gap-2">
+                                @can('roles.eliminar')
                                 <button @click="deleteRole(selectedRole)"
                                         :disabled="deleting"
                                         class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:border-red-300 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
@@ -129,6 +132,9 @@
                                     </svg>
                                     <span x-text="deleting ? 'Eliminando...' : 'Eliminar'"></span>
                                 </button>
+                                @endcan
+
+                                @can('roles.editar')
                                 <button @click="savePermissions()"
                                         :disabled="saving"
                                         class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
@@ -145,6 +151,7 @@
                                     </template>
                                     <span x-text="saving ? 'Guardando...' : 'Guardar cambios'"></span>
                                 </button>
+                                @endcan
                             </div>
                         </template>
 
@@ -183,7 +190,7 @@
                         <div class="rounded-xl border border-gray-100 overflow-hidden">
                             <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                                 <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider" x-text="group.name"></h4>
-                                <template x-if="selectedRole.name !== 'admin'">
+                                <template x-if="selectedRole.name !== 'admin' && canEdit">
                                     <button @click="toggleGroup(group.permissions)"
                                             class="text-[10px] font-semibold text-asesco-orange hover:text-asesco-coral transition-colors cursor-pointer"
                                             x-text="groupAllSelected(group.permissions) ? 'Quitar todos' : 'Seleccionar todos'">
@@ -193,15 +200,15 @@
                             <div class="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 <template x-for="perm in group.permissions" :key="perm">
                                     <label class="flex items-center gap-2.5 rounded-lg p-1.5 -m-1.5 transition-colors"
-                                           :class="selectedRole.name === 'admin'
+                                           :class="(selectedRole.name === 'admin' || !canEdit)
                                                ? 'cursor-default'
                                                : 'cursor-pointer hover:bg-gray-50'"
-                                           @click.prevent="selectedRole.name !== 'admin' && togglePermission(perm)">
+                                           @click.prevent="(selectedRole.name !== 'admin' && canEdit) && togglePermission(perm)">
                                         <div class="rounded flex items-center justify-center shrink-0 border-2 transition-all duration-150"
                                              style="width:18px;height:18px;"
                                              :class="hasPermission(perm)
                                                  ? 'bg-asesco-orange border-asesco-orange'
-                                                 : (selectedRole.name !== 'admin'
+                                                 : ((selectedRole.name !== 'admin' && canEdit)
                                                      ? 'bg-white border-gray-300 hover:border-asesco-orange/50'
                                                      : 'bg-gray-100 border-gray-200')">
                                             <template x-if="hasPermission(perm)">
@@ -287,6 +294,7 @@ function rolesPage() {
         roles: @json($rolesJson),
         permissionGroups: @json($permissionGroupsAlpine),
         permissionLabels: @json($permissionLabels),
+        canEdit: {{ auth()->user()->can('roles.editar') ? 'true' : 'false' }},
 
         selectedRole: null,
         editingPermissions: [],
@@ -320,7 +328,7 @@ function rolesPage() {
         },
 
         togglePermission(permName) {
-            if (this.selectedRole && this.selectedRole.name === 'admin') return;
+            if (!this.canEdit || (this.selectedRole && this.selectedRole.name === 'admin')) return;
             const idx = this.editingPermissions.indexOf(permName);
             if (idx > -1) {
                 this.editingPermissions.splice(idx, 1);
@@ -337,6 +345,7 @@ function rolesPage() {
         },
 
         toggleGroup(perms) {
+            if (!this.canEdit || (this.selectedRole && this.selectedRole.name === 'admin')) return;
             if (this.groupAllSelected(perms)) {
                 this.editingPermissions = this.editingPermissions.filter(p => !perms.includes(p));
             } else {

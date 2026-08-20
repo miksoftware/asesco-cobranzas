@@ -41,22 +41,38 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('/consultas/pagos/{pago}', [ConsultaController::class, 'deletePago'])->name('consultas.pagos.delete');
     });
 
-    // Sistemas EPS (solo admin@asesco.com)
-    Route::middleware('superadmin')->group(function () {
+    // Sistemas EPS
+    Route::middleware('permission:sistemas.ver')->group(function () {
         Route::get('/sistemas', [EpsSystemController::class, 'index'])->name('sistemas.index');
+        Route::post('/sistemas/{system}/test', [EpsSystemController::class, 'test'])->name('sistemas.test');
+    });
+    Route::middleware('permission:sistemas.crear')->group(function () {
         Route::post('/sistemas', [EpsSystemController::class, 'store'])->name('sistemas.store');
+    });
+    Route::middleware('permission:sistemas.editar')->group(function () {
         Route::put('/sistemas/{system}', [EpsSystemController::class, 'update'])->name('sistemas.update');
         Route::post('/sistemas/{system}/toggle', [EpsSystemController::class, 'toggle'])->name('sistemas.toggle');
-        Route::post('/sistemas/{system}/test', [EpsSystemController::class, 'test'])->name('sistemas.test');
+    });
+    Route::middleware('permission:sistemas.eliminar')->group(function () {
         Route::delete('/sistemas/{system}', [EpsSystemController::class, 'destroy'])->name('sistemas.destroy');
+    });
 
-        // Borrar cargue de comentarios (solo superadmin)
+    // Borrar cargue de comentarios (solo superadmin)
+    Route::middleware('superadmin')->group(function () {
         Route::delete('/cargues/comentarios/borrar', [CargueController::class, 'borrarCargueComentarios'])->name('cargues.comentarios.borrar');
+    });
 
-        // Gestión de roles y permisos
+    // Gestión de roles y permisos
+    Route::middleware('permission:roles.ver')->group(function () {
         Route::get('/roles', [RolController::class, 'index'])->name('roles.index');
+    });
+    Route::middleware('permission:roles.crear')->group(function () {
         Route::post('/roles', [RolController::class, 'store'])->name('roles.store');
+    });
+    Route::middleware('permission:roles.editar')->group(function () {
         Route::put('/roles/{role}', [RolController::class, 'update'])->name('roles.update');
+    });
+    Route::middleware('permission:roles.eliminar')->group(function () {
         Route::delete('/roles/{role}', [RolController::class, 'destroy'])->name('roles.destroy');
     });
 

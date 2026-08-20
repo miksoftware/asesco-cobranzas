@@ -18,6 +18,12 @@ class RolController extends Controller
             'usuarios.editar',
             'usuarios.eliminar',
         ],
+        'Roles y Permisos' => [
+            'roles.ver',
+            'roles.crear',
+            'roles.editar',
+            'roles.eliminar',
+        ],
         'Gestiones' => [
             'consultas.ver',
             'consultas.crear',
@@ -46,6 +52,10 @@ class RolController extends Controller
         'usuarios.crear'     => 'Crear',
         'usuarios.editar'    => 'Editar',
         'usuarios.eliminar'  => 'Eliminar',
+        'roles.ver'          => 'Ver',
+        'roles.crear'        => 'Crear',
+        'roles.editar'       => 'Editar',
+        'roles.eliminar'     => 'Eliminar',
         'consultas.ver'      => 'Ver',
         'consultas.crear'    => 'Registrar gestión',
         'consultas.exportar' => 'Exportar',

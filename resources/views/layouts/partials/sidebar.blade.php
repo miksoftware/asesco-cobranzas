@@ -126,11 +126,11 @@
         </div>
         @endcan
 
-        @canany(['sistemas.ver', 'usuarios.ver'])
+        @canany(['sistemas.ver', 'roles.ver', 'usuarios.ver'])
         
         <div class="h-4"></div>
 
-        @if(auth()->id() === 1)
+        @can('sistemas.ver')
         <a href="{{ route('sistemas.index') }}"
            class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200
                   {{ request()->routeIs('sistemas.*') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-300 hover:bg-[#20293a] hover:text-white' }}">
@@ -139,7 +139,9 @@
             </svg>
             <span class="whitespace-nowrap transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Configuración</span>
         </a>
+        @endcan
 
+        @can('roles.ver')
         <a href="{{ route('roles.index') }}"
            class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200
                   {{ request()->routeIs('roles.*') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-300 hover:bg-[#20293a] hover:text-white' }}">
@@ -148,7 +150,7 @@
             </svg>
             <span class="whitespace-nowrap transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Roles y Permisos</span>
         </a>
-        @endif
+        @endcan
 
         @can('usuarios.ver')
         <a href="{{ route('usuarios.index') }}"
