@@ -115,7 +115,7 @@
     </div>
 
     {{-- Sección 2: Pestañas (Tabs) --}}
-    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden min-h-[350px]" x-show="retencion_id">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden" x-show="retencion_id">
         {{-- Pestañas Header --}}
         <div class="flex items-center gap-1.5 px-4 py-2 bg-gray-50 border-b border-gray-200 overflow-x-auto">
             <button @click="activeTab = 'datos2'"
@@ -137,7 +137,7 @@
         </div>
 
         {{-- Contenido Pestañas --}}
-        <div class="p-4 h-[350px] overflow-y-auto">
+        <div class="p-4">
             
             {{-- Pestaña: DATOS GENERAL DE LA RETENCIÓN (2) --}}
             <div x-show="activeTab === 'datos2'" style="display: none;">
@@ -321,9 +321,9 @@
                 </div>
 
                 {{-- Tabla de Abonos --}}
-                <div class="overflow-x-auto overflow-y-auto max-h-[250px] custom-scrollbar border border-gray-200 rounded-lg">
+                <div class="overflow-x-auto overflow-y-auto max-h-[125px] custom-scrollbar border border-gray-200 rounded-lg">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 sticky top-0 z-10">
                             <tr>
                                 <th class="px-3 py-2 font-semibold">FECHA_DESCUENTO</th>
                                 <th class="px-3 py-2 font-semibold">VALOR</th>
@@ -369,7 +369,7 @@
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                     </a>
                                                     <button type="button" x-show="!is_abonos_locked" @click="abono.soporte = null" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors cursor-pointer" title="Eliminar soporte">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     </button>
                                                 </div>
                                             </template>
@@ -408,21 +408,21 @@
             </div>
 
             {{-- Pestaña: HISTORIAL DE MODIFICACIONES --}}
-            <div x-show="activeTab === 'historial'" style="display: none;" class="pt-2">
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <h3 class="text-xs font-bold text-gray-700 mb-4 flex items-center gap-2">
+            <div x-show="activeTab === 'historial'" style="display: none;" class="pt-1">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">
                         <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Registro de Actividades
                     </h3>
                     
-                    <div class="space-y-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
+                    <div class="space-y-3 max-h-[125px] overflow-y-auto custom-scrollbar pr-2">
                         <template x-for="history in histories" :key="history.id">
                             <div class="flex gap-3 text-sm">
                                 <div class="flex flex-col items-center">
                                     <div class="w-2 h-2 rounded-full bg-asesco-orange mt-1.5"></div>
                                     <div class="w-px h-full bg-gray-300 my-1"></div>
                                 </div>
-                                <div class="flex-1 pb-4">
+                                <div class="flex-1 pb-3">
                                     <div class="flex items-center justify-between">
                                         <p class="text-xs text-gray-800">
                                             <span class="font-bold text-gray-900" x-text="history.user ? history.user.name : 'Sistema'"></span> 
@@ -433,15 +433,15 @@
                                     </div>
                                     <p class="text-[11px] text-gray-500 mt-0.5 font-medium" x-text="history.campo"></p>
                                     
-                                    <div class="mt-2" x-show="history.accion === 'EDITADO' || history.valor_anterior || history.valor_nuevo">
-                                        <button @click="openHistoryModal(history)" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded border border-blue-100 transition-colors">
+                                    <div class="mt-1" x-show="history.accion === 'EDITADO' || history.valor_anterior || history.valor_nuevo">
+                                        <button @click="openHistoryModal(history)" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 transition-colors">
                                             Ver detalle
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </template>
-                        <div x-show="histories.length === 0" class="text-center text-gray-400 text-xs italic py-4">
+                        <div x-show="histories.length === 0" class="text-center text-gray-400 text-xs italic py-2">
                             No hay historial registrado para esta retención.
                         </div>
                     </div>

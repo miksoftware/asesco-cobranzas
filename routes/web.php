@@ -87,13 +87,13 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
     // Empresas
-    Route::middleware('permission:empresas.ver')->group(function () {
-        Route::get('/empresas', [EmpresaController::class, 'index'])->name('empresas.index');
-        Route::get('/empresas/{empresa}', [EmpresaController::class, 'show'])->name('empresas.show');
-    });
     Route::middleware('permission:empresas.crear')->group(function () {
         Route::get('/empresas/crear', [EmpresaController::class, 'create'])->name('empresas.create');
         Route::post('/empresas', [EmpresaController::class, 'store'])->name('empresas.store');
+    });
+    Route::middleware('permission:empresas.ver')->group(function () {
+        Route::get('/empresas', [EmpresaController::class, 'index'])->name('empresas.index');
+        Route::get('/empresas/{empresa}', [EmpresaController::class, 'show'])->name('empresas.show');
     });
     Route::middleware('permission:empresas.editar')->group(function () {
         Route::get('/empresas/{empresa}/editar', [EmpresaController::class, 'edit'])->name('empresas.edit');
