@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Empresa;
 use App\Models\Retencion;
 use App\Models\RetencionAbono;
 use App\Models\RetencionGestion;
@@ -15,13 +16,14 @@ class RetencionController extends Controller
     public function index()
     {
         $gestores = User::select('id', 'name')->get();
+        $empresas = Empresa::where('is_active', true)->orderBy('nombre')->get(['id', 'nombre']);
         // Carga una retención vacía por defecto
         
         $lastRetencion = Retencion::orderBy('id', 'desc')->first();
         $lastNo = $lastRetencion ? (int) str_replace('RLA-', '', $lastRetencion->no_radicacion) : 0;
         $nextNoRadicacion = 'RLA-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
         
-        return view('retenciones.index', compact('gestores', 'nextNoRadicacion'));
+        return view('retenciones.index', compact('gestores', 'nextNoRadicacion', 'empresas'));
     }
 
     public function list(Request $request)
@@ -56,8 +58,9 @@ class RetencionController extends Controller
     public function show(Retencion $retencion)
     {
         $gestores = User::select('id', 'name')->get();
+        $empresas = Empresa::where('is_active', true)->orderBy('nombre')->get(['id', 'nombre']);
         $retencion->load(['abonos', 'gestiones.user', 'histories.user']);
-        return view('retenciones.index', compact('gestores', 'retencion'));
+        return view('retenciones.index', compact('gestores', 'retencion', 'empresas'));
     }
 
     private function logChanges($retencionId, $seccion, $oldData, $newData)

@@ -40,8 +40,9 @@
                 <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Portafolio Empresa">Portafolio Empresa</label>
                 <select x-model="s1.portafolio_empresa" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white transition-all disabled:bg-gray-100 disabled:text-gray-500">
                     <option value="">Seleccione...</option>
-                    <option value="COOMULTRASAN MULTIACTIVA">COOMULTRASAN MULTIACTIVA</option>
-                    <option value="COMFABOY">COMFABOY</option>
+                    @foreach($empresas ?? [] as $empresa)
+                        <option value="{{ $empresa->nombre }}">{{ $empresa->nombre }}</option>
+                    @endforeach
                 </select>
             </div>
 

@@ -25,6 +25,15 @@
             <span class="whitespace-nowrap transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Dashboard</span>
         </a>
 
+        <a href="{{ route('empresas.index') }}"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200
+                  {{ request()->routeIs('empresas.*') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-300 hover:bg-[#20293a] hover:text-white' }}">
+            <svg class="w-[20px] h-[20px] shrink-0 {{ request()->routeIs('empresas.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>
+            </svg>
+            <span class="whitespace-nowrap transition-all duration-300" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Empresas</span>
+        </a>
+
         @can('consultas.ver')
         <a href="{{ route('consultas.index') }}"
            class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200

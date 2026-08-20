@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CargueController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\EpsSystemController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\UserController;
@@ -84,6 +85,20 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::middleware('permission:usuarios.eliminar')->group(function () {
         Route::delete('/usuarios/{user}', [UserController::class, 'destroy'])->name('usuarios.destroy');
     });
+
+    // Empresas
+    Route::get('/empresas', [EmpresaController::class, 'index'])->name('empresas.index');
+    Route::get('/empresas/crear', [EmpresaController::class, 'create'])->name('empresas.create');
+    Route::post('/empresas', [EmpresaController::class, 'store'])->name('empresas.store');
+    Route::get('/empresas/{empresa}', [EmpresaController::class, 'show'])->name('empresas.show');
+    Route::get('/empresas/{empresa}/editar', [EmpresaController::class, 'edit'])->name('empresas.edit');
+    Route::patch('/empresas/{empresa}/nombre', [EmpresaController::class, 'updateNombre'])->name('empresas.updateNombre');
+    Route::post('/empresas/{empresa}/tarifas', [EmpresaController::class, 'saveTarifas'])->name('empresas.saveTarifas');
+    Route::post('/empresas/{empresa}/canales', [EmpresaController::class, 'saveCanales'])->name('empresas.saveCanales');
+    Route::post('/empresas/{empresa}/lineamientos', [EmpresaController::class, 'saveLineamientos'])->name('empresas.saveLineamientos');
+    Route::delete('/empresas/{empresa}', [EmpresaController::class, 'destroy'])->name('empresas.destroy');
+    Route::post('/empresas/{empresa}/toggle', [EmpresaController::class, 'toggle'])->name('empresas.toggle');
+    Route::post('/empresas/{empresa}/lineamientos/{lineamiento}/activar', [EmpresaController::class, 'activarLineamiento'])->name('empresas.lineamientos.activar');
 
     // Cargues
     Route::middleware('permission:cargues.ver')->group(function () {
