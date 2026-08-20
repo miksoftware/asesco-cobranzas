@@ -34,6 +34,12 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'cargues.ver']);
         Permission::firstOrCreate(['name' => 'cargues.importar']);
 
+        // Permisos de empresas
+        Permission::firstOrCreate(['name' => 'empresas.ver']);
+        Permission::firstOrCreate(['name' => 'empresas.crear']);
+        Permission::firstOrCreate(['name' => 'empresas.editar']);
+        Permission::firstOrCreate(['name' => 'empresas.eliminar']);
+
         // Roles
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $admin->syncPermissions(Permission::all());
@@ -47,6 +53,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'sistemas.ver',
             'cargues.ver',
             'cargues.importar',
+            'empresas.ver',
+            'empresas.crear',
+            'empresas.editar',
         ]);
 
         $operador = Role::firstOrCreate(['name' => 'operador']);
@@ -54,6 +63,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'consultas.ver',
             'consultas.crear',
             'cargues.ver',
+            'empresas.ver',
         ]);
     }
 }

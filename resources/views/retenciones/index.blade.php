@@ -152,7 +152,8 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-x-4 gap-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-3">
+                    {{-- Fila 1: Datos de la Empresa y Contrato --}}
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Nit Empresa">Nit Empresa</label>
                         <input type="text" x-model="s2.nit_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
@@ -192,6 +193,7 @@
                         </select>
                     </div>
 
+                    {{-- Fila 2: Condiciones y Estado de Retención --}}
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Rango Salarial">Rango Salarial</label>
                         <select x-model="s2.rango_salarial" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
@@ -246,6 +248,31 @@
                     </div>
 
                     <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono Sujeto Ret.">Teléfono Sujeto Ret.</label>
+                        <input type="text" x-model="s2.telefono_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono 2 Sujeto Ret.">Teléfono 2 Sujeto Ret.</label>
+                        <input type="text" x-model="s2.telefono_2_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    {{-- Fila 3: Contacto Sujeto, Cartera y Valores --}}
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Correo Sujeto Retención">Correo Sujeto Retención</label>
+                        <input type="email" x-model="s2.correo_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo de Cartera">Tipo de Cartera</label>
+                        <select x-model="s2.tipo_cartera" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
+                            <option value="">Seleccione...</option>
+                            <option value="Vigente">Vigente</option>
+                            <option value="Castigada">Castigada</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Valor de la Retención">Valor de la Retención</label>
                         <input type="number" x-model.number="s2.valor_retencion_total" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs font-bold text-red-600 focus:outline-none focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-red-600">
                     </div>
@@ -263,30 +290,6 @@
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Recaudo Mes Actual">Recaudo Mes Actual</label>
                         <input type="text" :value="formatMoney(recaudoMesActual)" readonly class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-green-600 bg-gray-100 font-bold focus:outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono Sujeto Ret.">Teléfono Sujeto Ret.</label>
-                        <input type="text" x-model="s2.telefono_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono 2 Sujeto Ret.">Teléfono 2 Sujeto Ret.</label>
-                        <input type="text" x-model="s2.telefono_2_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Correo Sujeto Retención">Correo Sujeto Retención</label>
-                        <input type="email" x-model="s2.correo_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo de Cartera">Tipo de Cartera</label>
-                        <select x-model="s2.tipo_cartera" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
-                            <option value="">Seleccione...</option>
-                            <option value="Vigente">Vigente</option>
-                            <option value="Castigada">Castigada</option>
-                        </select>
                     </div>
                 </div>
             </div>

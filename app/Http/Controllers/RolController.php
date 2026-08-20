@@ -33,6 +33,12 @@ class RolController extends Controller
             'cargues.ver',
             'cargues.importar',
         ],
+        'Empresas' => [
+            'empresas.ver',
+            'empresas.crear',
+            'empresas.editar',
+            'empresas.eliminar',
+        ],
     ];
 
     private array $permissionLabels = [
@@ -49,15 +55,29 @@ class RolController extends Controller
         'sistemas.eliminar'  => 'Eliminar',
         'cargues.ver'        => 'Ver',
         'cargues.importar'   => 'Importar',
+        'empresas.ver'       => 'Ver',
+        'empresas.crear'     => 'Crear',
+        'empresas.editar'    => 'Editar',
+        'empresas.eliminar'  => 'Eliminar',
     ];
 
     public function index()
     {
+        // Asegurar que todos los permisos declarados existan en base de datos
+        $allDeclaredPerms = collect($this->permissionGroups)->flatten()->unique();
+        foreach ($allDeclaredPerms as $permName) {
+            Permission::firstOrCreate(['name' => $permName]);
+        }
+
+        // Sincronizar automáticamente el rol admin con TODOS los permisos existentes
+        $adminRole = Role::firstOrCreate(['name' => self::ADMIN_ROLE]);
+        $adminRole->syncPermissions(Permission::all());
+
         $roles = Role::with('permissions')->orderBy('name')->get()
             ->map(fn($r) => [
                 'id'          => $r->id,
                 'name'        => $r->name,
-                'permissions' => $r->permissions->pluck('name')->values(),
+                'permissions' => $r->name === self::ADMIN_ROLE ? Permission::pluck('name')->values() : $r->permissions->pluck('name')->values(),
                 'users_count' => $r->users()->count(),
             ]);
 

@@ -313,10 +313,14 @@ function rolesPage() {
         },
 
         hasPermission(permName) {
+            if (this.selectedRole && this.selectedRole.name === 'admin') {
+                return true;
+            }
             return this.editingPermissions.includes(permName);
         },
 
         togglePermission(permName) {
+            if (this.selectedRole && this.selectedRole.name === 'admin') return;
             const idx = this.editingPermissions.indexOf(permName);
             if (idx > -1) {
                 this.editingPermissions.splice(idx, 1);
@@ -326,6 +330,9 @@ function rolesPage() {
         },
 
         groupAllSelected(perms) {
+            if (this.selectedRole && this.selectedRole.name === 'admin') {
+                return true;
+            }
             return perms.every(p => this.editingPermissions.includes(p));
         },
 

@@ -87,18 +87,26 @@ Route::middleware(['auth', 'active'])->group(function () {
     });
 
     // Empresas
-    Route::get('/empresas', [EmpresaController::class, 'index'])->name('empresas.index');
-    Route::get('/empresas/crear', [EmpresaController::class, 'create'])->name('empresas.create');
-    Route::post('/empresas', [EmpresaController::class, 'store'])->name('empresas.store');
-    Route::get('/empresas/{empresa}', [EmpresaController::class, 'show'])->name('empresas.show');
-    Route::get('/empresas/{empresa}/editar', [EmpresaController::class, 'edit'])->name('empresas.edit');
-    Route::patch('/empresas/{empresa}/nombre', [EmpresaController::class, 'updateNombre'])->name('empresas.updateNombre');
-    Route::post('/empresas/{empresa}/tarifas', [EmpresaController::class, 'saveTarifas'])->name('empresas.saveTarifas');
-    Route::post('/empresas/{empresa}/canales', [EmpresaController::class, 'saveCanales'])->name('empresas.saveCanales');
-    Route::post('/empresas/{empresa}/lineamientos', [EmpresaController::class, 'saveLineamientos'])->name('empresas.saveLineamientos');
-    Route::delete('/empresas/{empresa}', [EmpresaController::class, 'destroy'])->name('empresas.destroy');
-    Route::post('/empresas/{empresa}/toggle', [EmpresaController::class, 'toggle'])->name('empresas.toggle');
-    Route::post('/empresas/{empresa}/lineamientos/{lineamiento}/activar', [EmpresaController::class, 'activarLineamiento'])->name('empresas.lineamientos.activar');
+    Route::middleware('permission:empresas.ver')->group(function () {
+        Route::get('/empresas', [EmpresaController::class, 'index'])->name('empresas.index');
+        Route::get('/empresas/{empresa}', [EmpresaController::class, 'show'])->name('empresas.show');
+    });
+    Route::middleware('permission:empresas.crear')->group(function () {
+        Route::get('/empresas/crear', [EmpresaController::class, 'create'])->name('empresas.create');
+        Route::post('/empresas', [EmpresaController::class, 'store'])->name('empresas.store');
+    });
+    Route::middleware('permission:empresas.editar')->group(function () {
+        Route::get('/empresas/{empresa}/editar', [EmpresaController::class, 'edit'])->name('empresas.edit');
+        Route::patch('/empresas/{empresa}/nombre', [EmpresaController::class, 'updateNombre'])->name('empresas.updateNombre');
+        Route::post('/empresas/{empresa}/tarifas', [EmpresaController::class, 'saveTarifas'])->name('empresas.saveTarifas');
+        Route::post('/empresas/{empresa}/canales', [EmpresaController::class, 'saveCanales'])->name('empresas.saveCanales');
+        Route::post('/empresas/{empresa}/lineamientos', [EmpresaController::class, 'saveLineamientos'])->name('empresas.saveLineamientos');
+        Route::post('/empresas/{empresa}/toggle', [EmpresaController::class, 'toggle'])->name('empresas.toggle');
+        Route::post('/empresas/{empresa}/lineamientos/{lineamiento}/activar', [EmpresaController::class, 'activarLineamiento'])->name('empresas.lineamientos.activar');
+    });
+    Route::middleware('permission:empresas.eliminar')->group(function () {
+        Route::delete('/empresas/{empresa}', [EmpresaController::class, 'destroy'])->name('empresas.destroy');
+    });
 
     // Cargues
     Route::middleware('permission:cargues.ver')->group(function () {
