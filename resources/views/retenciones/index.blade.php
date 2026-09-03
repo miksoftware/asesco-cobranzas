@@ -137,7 +137,7 @@
         </div>
 
         {{-- Contenido Pestañas --}}
-        <div class="p-4">
+        <div class="p-4 min-h-[280px]">
             
             {{-- Pestaña: DATOS GENERAL DE LA RETENCIÓN (2) --}}
             <div x-show="activeTab === 'datos2'" style="display: none;">
@@ -248,33 +248,30 @@
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono Sujeto Ret.">Teléfono Sujeto Ret.</label>
-                        <input type="text" x-model="s2.telefono_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Fecha Despacho">Fecha Despacho</label>
+                        <input type="date" x-model="s2.fecha_despacho" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Teléfono 2 Sujeto Ret.">Teléfono 2 Sujeto Ret.</label>
-                        <input type="text" x-model="s2.telefono_2_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Número Oficio">Número Oficio</label>
+                        <input type="text" x-model="s2.numero_oficio" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                     </div>
 
-                    {{-- Fila 3: Contacto Sujeto, Cartera y Valores --}}
+                    {{-- Fila 3: Cifras Financieras --}}
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Correo Sujeto Retención">Correo Sujeto Retención</label>
-                        <input type="email" x-model="s2.correo_sujeto_retencion" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Tipo de Cartera">Tipo de Cartera</label>
-                        <select x-model="s2.tipo_cartera" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
-                            <option value="">Seleccione...</option>
-                            <option value="Vigente">Vigente</option>
-                            <option value="Castigada">Castigada</option>
-                        </select>
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Cuota Mensual">Cuota Mensual</label>
+                        <div class="relative">
+                            <span class="absolute left-2 top-1.5 text-gray-500">$</span>
+                            <input type="number" x-model.number="s2.cuota_mensual" :disabled="is_section2_locked" class="w-full pl-6 pr-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Valor de la Retención">Valor de la Retención</label>
-                        <input type="number" x-model.number="s2.valor_retencion_total" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs font-bold text-red-600 focus:outline-none focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-red-600">
+                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Valor Total Retención">Valor Total Retención</label>
+                        <div class="relative">
+                            <span class="absolute left-2 top-1.5 text-gray-500">$</span>
+                            <input type="number" x-model.number="s2.valor_retencion_total" :disabled="is_section2_locked" class="w-full pl-6 pr-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                        </div>
                     </div>
 
                     <div>
@@ -295,9 +292,9 @@
             </div>
 
             {{-- Pestaña: RELACIÓN DE DESCUENTOS POR NÓMINA (3) --}}
-            <div x-show="activeTab === 'nomina'" style="display: none;" class="space-y-4 pt-2">
+            <div x-show="activeTab === 'nomina'" style="display: none;" class="flex flex-col justify-between pt-1 space-y-2 min-h-[250px]">
                 
-                <div class="flex justify-between mb-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-1">
                     <div class="flex gap-2">
                         <button x-show="!is_abonos_locked" @click="saveAbonos()" class="bg-asesco-orange hover:bg-asesco-coral text-white text-[11px] px-3 py-1.5 rounded shadow-sm font-bold transition-colors">
                             Guardar Abonos
@@ -321,7 +318,7 @@
                 </div>
 
                 {{-- Tabla de Abonos --}}
-                <div class="overflow-x-auto overflow-y-auto max-h-[125px] custom-scrollbar border border-gray-200 rounded-lg">
+                <div class="overflow-x-auto overflow-y-auto flex-1 min-h-[140px] max-h-[190px] custom-scrollbar border border-gray-200 rounded-lg">
                     <table class="w-full text-xs text-left">
                         <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 sticky top-0 z-10">
                             <tr>
@@ -389,7 +386,7 @@
                                 </tr>
                             </template>
                             <tr x-show="abonos.length === 0">
-                                <td colspan="7" class="p-4 text-center text-gray-400 text-xs italic">
+                                <td colspan="8" class="p-6 text-center text-gray-400 text-xs italic">
                                     No hay abonos registrados. Haz clic en "Agregar Abono" para empezar.
                                 </td>
                             </tr>
@@ -398,7 +395,7 @@
                 </div>
                 
                 {{-- Botón agregar fila --}}
-                <div class="mt-2" x-show="!is_abonos_locked">
+                <div class="pt-1" x-show="!is_abonos_locked">
                     <button @click="addAbono()" class="flex items-center gap-1 text-xs font-semibold text-asesco-orange hover:text-asesco-coral transition-colors cursor-pointer px-2 py-1 rounded hover:bg-orange-50">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Agregar Abono
@@ -408,41 +405,43 @@
             </div>
 
             {{-- Pestaña: HISTORIAL DE MODIFICACIONES --}}
-            <div x-show="activeTab === 'historial'" style="display: none;" class="pt-1">
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                    <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Registro de Actividades
-                    </h3>
-                    
-                    <div class="space-y-3 max-h-[125px] overflow-y-auto custom-scrollbar pr-2">
-                        <template x-for="history in histories" :key="history.id">
-                            <div class="flex gap-3 text-sm">
-                                <div class="flex flex-col items-center">
-                                    <div class="w-2 h-2 rounded-full bg-asesco-orange mt-1.5"></div>
-                                    <div class="w-px h-full bg-gray-300 my-1"></div>
-                                </div>
-                                <div class="flex-1 pb-3">
-                                    <div class="flex items-center justify-between">
-                                        <p class="text-xs text-gray-800">
-                                            <span class="font-bold text-gray-900" x-text="history.user ? history.user.name : 'Sistema'"></span> 
-                                            ha <span class="font-semibold text-asesco-orange" x-text="history.accion.toLowerCase()"></span> 
-                                            en la sección <span class="font-semibold" x-text="history.seccion"></span>
-                                        </p>
-                                        <span class="text-[10px] text-gray-500" x-text="new Date(history.created_at).toLocaleString()"></span>
+            <div x-show="activeTab === 'historial'" style="display: none;" class="flex flex-col pt-1 min-h-[250px]">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Registro de Actividades
+                        </h3>
+                        
+                        <div class="space-y-3 max-h-[180px] overflow-y-auto custom-scrollbar pr-2">
+                            <template x-for="history in histories" :key="history.id">
+                                <div class="flex gap-3 text-sm">
+                                    <div class="flex flex-col items-center">
+                                        <div class="w-2 h-2 rounded-full bg-asesco-orange mt-1.5"></div>
+                                        <div class="w-px h-full bg-gray-300 my-1"></div>
                                     </div>
-                                    <p class="text-[11px] text-gray-500 mt-0.5 font-medium" x-text="history.campo"></p>
-                                    
-                                    <div class="mt-1" x-show="history.accion === 'EDITADO' || history.valor_anterior || history.valor_nuevo">
-                                        <button @click="openHistoryModal(history)" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 transition-colors">
-                                            Ver detalle
-                                        </button>
+                                    <div class="flex-1 pb-3">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-xs text-gray-800">
+                                                <span class="font-bold text-gray-900" x-text="history.user ? history.user.name : 'Sistema'"></span> 
+                                                ha <span class="font-semibold text-asesco-orange" x-text="history.accion.toLowerCase()"></span> 
+                                                en la sección <span class="font-semibold" x-text="history.seccion"></span>
+                                            </p>
+                                            <span class="text-[10px] text-gray-500" x-text="new Date(history.created_at).toLocaleString()"></span>
+                                        </div>
+                                        <p class="text-[11px] text-gray-500 mt-0.5 font-medium" x-text="history.campo"></p>
+                                        
+                                        <div class="mt-1" x-show="history.accion === 'EDITADO' || history.valor_anterior || history.valor_nuevo">
+                                            <button @click="openHistoryModal(history)" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 transition-colors">
+                                                Ver detalle
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
+                            </template>
+                            <div x-show="histories.length === 0" class="flex-1 flex items-center justify-center text-center text-gray-400 text-xs italic py-10">
+                                No hay historial registrado para esta retención.
                             </div>
-                        </template>
-                        <div x-show="histories.length === 0" class="text-center text-gray-400 text-xs italic py-2">
-                            No hay historial registrado para esta retención.
                         </div>
                     </div>
                 </div>

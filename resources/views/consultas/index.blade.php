@@ -122,6 +122,16 @@
                     </svg>
                     Retenciones
                 </button>
+                <button @click="activeTab = 'juridico'; cargarJuridicos()"
+                        :class="activeTab === 'juridico'
+                            ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
+                            : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/60'"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5" />
+                    </svg>
+                    Jurídico
+                </button>
                 <button @click="activeTab = 'adjuntos'; cargarAdjuntos()"
                         :class="activeTab === 'adjuntos'
                             ? 'bg-gradient-to-r from-asesco-orange to-asesco-coral text-white shadow-md shadow-asesco-orange/20'
@@ -371,6 +381,12 @@
                             <span class="text-xs font-extrabold text-blue-700 font-mono" x-text="formatMoney(totalPagosDirectos)">$0</span>
                         </div>
 
+                        {{-- Total Jurídicos --}}
+                        <div class="flex items-center gap-2 bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-lg shadow-2xs">
+                            <span class="text-[10px] font-bold text-purple-800 uppercase tracking-wider">Total Pagos Jurídicos:</span>
+                            <span class="text-xs font-extrabold text-purple-700 font-mono" x-text="formatMoney(totalPagosJuridicos)">$0</span>
+                        </div>
+
                         {{-- Total Pagos General --}}
                         <div class="flex items-center gap-2 bg-green-100/90 border border-green-300 px-3 py-1.5 rounded-lg shadow-2xs">
                             <span class="text-[10px] font-bold text-green-900 uppercase tracking-wider">Total Pagos:</span>
@@ -407,25 +423,29 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-gray-700">
                             <template x-for="(pago, index) in pagos" :key="pago.id || index">
-                                <tr class="hover:bg-gray-50/80 transition-colors" :class="pago.es_retencion ? 'bg-amber-50/30' : ''">
+                                <tr class="hover:bg-gray-50/80 transition-colors" 
+                                    :class="{
+                                        'bg-amber-50/30': pago.tipo === 'retencion' || pago.es_retencion,
+                                        'bg-purple-50/30': pago.tipo === 'juridico' || pago.es_juridico,
+                                    }">
                                     <td class="p-2">
-                                        <input type="date" x-model="pago.fecha_descuento" @change="sortPagos()" :disabled="pago.es_retencion || pago.locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
+                                        <input type="date" x-model="pago.fecha_descuento" @change="sortPagos()" :disabled="pago.es_retencion || pago.es_juridico || pago.locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
                                     </td>
                                     <td class="p-2">
                                         <div class="relative">
                                             <span class="absolute left-2 top-1.5 text-gray-500 font-semibold">$</span>
-                                            <input type="number" x-model.number="pago.valor" :disabled="pago.es_retencion || pago.locked" class="w-full pl-6 pr-2 py-1.5 rounded border border-gray-300 text-xs font-medium focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
+                                            <input type="number" x-model.number="pago.valor" :disabled="pago.es_retencion || pago.es_juridico || pago.locked" class="w-full pl-6 pr-2 py-1.5 rounded border border-gray-300 text-xs font-medium focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
                                         </div>
                                     </td>
                                     <td class="p-2">
-                                        <input type="date" x-model="pago.fecha_consignacion" :disabled="pago.es_retencion || pago.locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
+                                        <input type="date" x-model="pago.fecha_consignacion" :disabled="pago.es_retencion || pago.es_juridico || pago.locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100/80 disabled:text-gray-500">
                                     </td>
                                     <td class="p-2 text-center">
-                                        <input type="checkbox" x-model="pago.reportado" :disabled="pago.es_retencion || pago.locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
+                                        <input type="checkbox" x-model="pago.reportado" :disabled="pago.es_retencion || pago.es_juridico || pago.locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
                                     </td>
                                     <td class="p-2 text-center align-middle">
                                         <div class="flex items-center justify-center gap-1 relative">
-                                            <template x-if="!pago.soporte && !pago.es_retencion && !pago.locked">
+                                            <template x-if="!pago.soporte && !pago.es_retencion && !pago.es_juridico && !pago.locked">
                                                 <div class="relative">
                                                     <input type="file" @change="uploadPagoSoporteFile($event, pago)" accept=".pdf,image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Subir soporte">
                                                     <button type="button" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded transition-colors" title="Subir soporte">
@@ -438,29 +458,32 @@
                                                     <a :href="pago.soporte.startsWith('http') ? pago.soporte : '/storage/' + pago.soporte" target="_blank" class="text-green-600 hover:bg-green-50 p-1.5 rounded transition-colors" title="Ver soporte">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                                     </a>
-                                                    <button type="button" x-show="!pago.es_retencion && !pago.locked" @click="pago.soporte = null" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors cursor-pointer" title="Eliminar soporte">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    <button type="button" x-show="!pago.es_retencion && !pago.es_juridico && !pago.locked" @click="pago.soporte = null" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors cursor-pointer" title="Eliminar soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     </button>
                                                 </div>
                                             </template>
-                                            <template x-if="!pago.soporte && (pago.es_retencion || pago.locked)">
+                                            <template x-if="!pago.soporte && (pago.es_retencion || pago.es_juridico || pago.locked)">
                                                 <span class="text-gray-300 italic text-[10px]">Sin soporte</span>
                                             </template>
                                         </div>
                                     </td>
                                     <td class="p-2 text-center">
-                                        <input type="checkbox" x-model="pago.aplicado" :disabled="pago.es_retencion || pago.locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
+                                        <input type="checkbox" x-model="pago.aplicado" :disabled="pago.es_retencion || pago.es_juridico || pago.locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
                                     </td>
                                     <td class="p-2 whitespace-nowrap">
-                                        <template x-if="pago.es_retencion">
+                                        <template x-if="pago.tipo === 'retencion' || pago.es_retencion">
                                             <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200" x-text="pago.origen"></span>
                                         </template>
-                                        <template x-if="!pago.es_retencion">
+                                        <template x-if="pago.tipo === 'juridico' || pago.es_juridico">
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-purple-100 text-purple-800 border border-purple-200" x-text="pago.origen"></span>
+                                        </template>
+                                        <template x-if="pago.tipo === 'directo' || (!pago.es_retencion && !pago.es_juridico)">
                                             <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200">Pago Directo</span>
                                         </template>
                                     </td>
                                     <td class="p-2 text-center whitespace-nowrap">
-                                        <template x-if="!pago.es_retencion">
+                                        <template x-if="pago.tipo === 'directo' || (!pago.es_retencion && !pago.es_juridico)">
                                             <div class="flex items-center justify-center gap-1">
                                                 <template x-if="pago.locked">
                                                     <button type="button" @click="pago.locked = false" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors cursor-pointer" title="Editar pago">
@@ -477,8 +500,18 @@
                                                 </button>
                                             </div>
                                         </template>
-                                        <template x-if="pago.es_retencion">
+                                        <template x-if="pago.tipo === 'retencion' || pago.es_retencion">
                                             <span class="text-[10px] text-gray-400 italic">No editable</span>
+                                        </template>
+                                        <template x-if="pago.tipo === 'juridico' || pago.es_juridico">
+                                            <div class="flex items-center justify-center gap-1">
+                                                <span class="text-[10px] text-gray-400 italic">No editable</span>
+                                                <template x-if="pago.cobro_juridico_id">
+                                                    <a :href="'/cobros-juridicos/' + pago.cobro_juridico_id" target="_blank" class="p-1 text-purple-600 hover:bg-purple-50 rounded transition-colors" title="Ver Cobro Jurídico">
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                    </a>
+                                                </template>
+                                            </div>
                                         </template>
                                     </td>
                                 </tr>
@@ -569,6 +602,88 @@
                                             </td>
                                             <td class="px-3 py-2 text-right">
                                                 <a :href="'/retenciones/' + r.id" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-semibold hover:border-asesco-orange hover:text-asesco-orange transition-colors">
+                                                    Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            {{-- Tab: Jurídico --}}
+            <div x-show="activeTab === 'juridico'" style="display: none;">
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-semibold text-gray-700">Cobros Jurídicos Asociados</h3>
+                        <a :href="'/cobros-juridicos?cedula=' + searchedCedula + '&nombre=' + encodeURIComponent(personName || '')" target="_blank"
+                           class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-asesco-orange to-asesco-coral text-white rounded-lg text-xs shadow-md shadow-asesco-orange/20 hover:shadow-lg transition-all cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Nuevo Jurídico
+                        </a>
+                    </div>
+                    
+                    <template x-if="loadingJuridicos">
+                        <div class="flex flex-col items-center justify-center py-8">
+                            <div class="relative w-8 h-8 mb-2">
+                                <div class="absolute inset-0 rounded-full border-2 border-gray-100"></div>
+                                <div class="absolute inset-0 rounded-full border-2 border-asesco-orange border-t-transparent animate-spin"></div>
+                            </div>
+                            <p class="text-xs text-gray-400">Cargando cobros jurídicos...</p>
+                        </div>
+                    </template>
+
+                    <template x-if="!loadingJuridicos && juridicos.length === 0">
+                        <div class="py-8 text-center border-2 border-dashed border-gray-100 rounded-xl">
+                            <svg class="w-10 h-10 text-gray-200 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5"/>
+                            </svg>
+                            <p class="text-sm text-gray-400">No hay procesos de cobro jurídico para esta cédula</p>
+                        </div>
+                    </template>
+
+                    <template x-if="!loadingJuridicos && juridicos.length > 0">
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">No. Radicado</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Cédula TT</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Demandado 1</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Demandado 2</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Juzgado Conocimiento</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Fecha Etapa</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Etapa Procesal</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Fecha Actividad</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Actividad</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Estado</th>
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider min-w-[180px]">Anotación Abogado</th>
+                                        <th class="w-16"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="j in juridicos" :key="j.id">
+                                        <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors">
+                                            <td class="px-3 py-2 text-gray-700 font-bold whitespace-nowrap" x-text="j.no_radicado || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 font-mono whitespace-nowrap" x-text="j.cedula || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 font-medium whitespace-nowrap" x-text="j.demandado_1 || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 font-medium whitespace-nowrap" x-text="j.demandado_2 || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 whitespace-nowrap" x-text="j.juzgado_conocimiento || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 whitespace-nowrap" x-text="j.fecha_etapa || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 whitespace-nowrap" x-text="j.etapa_procesal || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600 whitespace-nowrap" x-text="j.fecha_actividad || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-600" x-text="j.actividad || '—'"></td>
+                                            <td class="px-3 py-2 whitespace-nowrap">
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-100" x-text="j.estado_proceso || 'ACTIVO'"></span>
+                                            </td>
+                                            <td class="px-3 py-2 text-gray-600 max-w-[240px]">
+                                                <div class="truncate text-xs text-gray-600 cursor-default" :title="j.anotacion_abogado || ''" x-text="j.anotacion_abogado || '—'"></div>
+                                            </td>
+                                            <td class="px-3 py-2 text-right whitespace-nowrap">
+                                                <a :href="'/cobros-juridicos/' + j.id" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 bg-white border border-gray-200 text-gray-600 rounded text-[10px] font-semibold hover:border-asesco-orange hover:text-asesco-orange transition-colors">
                                                     Ver
                                                 </a>
                                             </td>
@@ -1148,6 +1263,8 @@ function consultaPage() {
         editForm: {},
         retenciones: [],
         loadingRetenciones: false,
+        juridicos: [],
+        loadingJuridicos: false,
         adjuntos: [],
         loadingAdjuntos: false,
         uploadingAdjunto: false,
@@ -1168,6 +1285,8 @@ function consultaPage() {
             this.searchedCedula = c;
             this.cargarComentarios();
             this.cargarPagos();
+            this.cargarRetenciones();
+            this.cargarJuridicos();
 
             try {
                 const res = await fetch('{{ route("consultas.consultar") }}', {
@@ -1317,6 +1436,21 @@ function consultaPage() {
                 console.error('Error cargando retenciones:', e);
             } finally {
                 this.loadingRetenciones = false;
+            }
+        },
+
+        async cargarJuridicos() {
+            if (!this.searchedCedula) return;
+            this.loadingJuridicos = true;
+            try {
+                const res = await fetch(`/consultas/juridicos/${this.searchedCedula}`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                this.juridicos = await res.json();
+            } catch (e) {
+                console.error('Error cargando cobros jurídicos:', e);
+            } finally {
+                this.loadingJuridicos = false;
             }
         },
 
@@ -1606,13 +1740,19 @@ function consultaPage() {
 
         get totalPagosRetenciones() {
             return (this.pagos || [])
-                .filter(p => p.es_retencion)
+                .filter(p => p.tipo === 'retencion' || p.es_retencion)
                 .reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
         },
 
         get totalPagosDirectos() {
             return (this.pagos || [])
-                .filter(p => !p.es_retencion)
+                .filter(p => p.tipo === 'directo' || (!p.es_retencion && !p.es_juridico))
+                .reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
+        },
+
+        get totalPagosJuridicos() {
+            return (this.pagos || [])
+                .filter(p => p.tipo === 'juridico' || p.es_juridico)
                 .reduce((sum, p) => sum + (parseFloat(p.valor) || 0), 0);
         },
 

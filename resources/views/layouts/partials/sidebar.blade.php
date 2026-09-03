@@ -86,6 +86,44 @@
             </div>
         </div>
 
+        <div x-data="{ openCobros: {{ request()->routeIs('cobros-juridicos.*') ? 'true' : 'false' }} }">
+            {{-- Toggle button --}}
+            <button @click="openCobros = !openCobros"
+                    class="w-full group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 cursor-pointer
+                           {{ request()->routeIs('cobros-juridicos.*') ? 'text-white' : 'text-slate-300 hover:bg-[#20293a] hover:text-white' }}">
+                <svg class="w-[20px] h-[20px] shrink-0 {{ request()->routeIs('cobros-juridicos.*') ? 'text-white' : 'text-slate-400 group-hover:text-slate-300' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-16.5 0c-.99.203-1.99.377-3 .52m0 0l3 9m-3-9l3 9m0 0h12m0 0l3-9m-3 9l3-9m-15 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+                <span class="whitespace-nowrap transition-all duration-300 flex-1 text-left" :class="sidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'">Cobro Jurídico</span>
+                <svg class="w-4 h-4 shrink-0 transition-transform duration-200"
+                     :class="[openCobros ? 'rotate-180' : '', sidebarOpen ? 'opacity-100' : 'opacity-0']"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            {{-- Submenu --}}
+            <div x-show="openCobros && sidebarOpen"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 -translate-y-1"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 -translate-y-1"
+                 style="display: none;"
+                 class="mt-1 space-y-1">
+                <a href="{{ route('cobros-juridicos.index') }}"
+                   class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
+                          {{ request()->routeIs('cobros-juridicos.index') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
+                    <span class="whitespace-nowrap">Nuevo Cobro Jurídico</span>
+                </a>
+                <a href="{{ route('cobros-juridicos.list') }}"
+                   class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
+                          {{ request()->routeIs('cobros-juridicos.list') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
+                    <span class="whitespace-nowrap">Listado Cobros Jurídicos</span>
+                </a>
+            </div>
+        </div>
+
         @can('cargues.ver')
         <div x-data="{ openCargues: {{ request()->routeIs('cargues.*') ? 'true' : 'false' }} }">
             {{-- Toggle button --}}

@@ -115,6 +115,38 @@ class ConsultaController extends Controller
     }
 
     /**
+     * Obtener cobros jurídicos de un tercero por cédula.
+     */
+    public function juridicosPorCedula(string $cedula): JsonResponse
+    {
+        $juridicos = \App\Models\CobroJuridico::where(function ($q) use ($cedula) {
+                $q->where('cedula', $cedula)
+                  ->orWhere('demandado_1', 'like', "%{$cedula}%")
+                  ->orWhere('demandado_2', 'like', "%{$cedula}%")
+                  ->orWhere('demandado_3', 'like', "%{$cedula}%")
+                  ->orWhere('demandado_4', 'like', "%{$cedula}%");
+            })
+            ->with(['gestiones' => function($q) {
+                $q->orderBy('created_at', 'desc');
+            }])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($j) {
+                $latestGestion = $j->gestiones->first();
+                if ($latestGestion) {
+                    if ($latestGestion->fecha_etapa) $j->fecha_etapa = substr((string)$latestGestion->fecha_etapa, 0, 10);
+                    if ($latestGestion->etapa_procesal) $j->etapa_procesal = $latestGestion->etapa_procesal;
+                    if ($latestGestion->fecha_actividad) $j->fecha_actividad = substr((string)$latestGestion->fecha_actividad, 0, 10);
+                    if ($latestGestion->actividad) $j->actividad = $latestGestion->actividad;
+                }
+                unset($j->gestiones);
+                return $j;
+            });
+
+        return response()->json($juridicos);
+    }
+
+    /**
      * Obtener comentarios de una cédula específica.
      */
     public function comentariosPorCedula(string $cedula): JsonResponse
@@ -387,7 +419,9 @@ class ConsultaController extends Controller
                     'reportado'         => (bool) $abono->reportado,
                     'aplicado'          => (bool) $abono->aplicado,
                     'soporte'           => $abono->soporte,
+                    'tipo'              => 'retencion',
                     'es_retencion'      => true,
+                    'es_juridico'       => false,
                     'locked'            => true,
                     'origen'            => "Retención #{$noRadicacion}",
                     'no_radicacion'     => $noRadicacion,
@@ -411,17 +445,59 @@ class ConsultaController extends Controller
                     'reportado'         => (bool) $pago->reportado,
                     'aplicado'          => (bool) $pago->aplicado,
                     'soporte'           => $pago->soporte,
+                    'tipo'              => 'directo',
                     'es_retencion'      => false,
+                    'es_juridico'       => false,
                     'locked'            => true,
                     'origen'            => 'Pago Directo',
                     'no_radicacion'     => null,
                 ];
             });
 
-        // Combinar y ordenar de más reciente a más viejo por fecha_descuento
-        $combined = $retencionAbonos->concat($gestionPagos)->sortByDesc(function ($item) {
-            return $item['fecha_descuento'] ?? '0000-00-00';
-        })->values();
+        // 3. Pagos de Cobros Jurídicos (Títulos / Depósitos Judiciales) para esta cédula
+        $juridicoDepositos = \App\Models\CobroJuridicoDeposito::whereHas('cobroJuridico', function ($q) use ($cedula) {
+                $q->where(function ($sub) use ($cedula) {
+                    $sub->where('cedula', $cedula)
+                        ->orWhere('demandado_1', 'like', "%{$cedula}%")
+                        ->orWhere('demandado_2', 'like', "%{$cedula}%")
+                        ->orWhere('demandado_3', 'like', "%{$cedula}%")
+                        ->orWhere('demandado_4', 'like', "%{$cedula}%");
+                });
+            })
+            ->with('cobroJuridico:id,no_radicado,cedula,demandado_1')
+            ->get()
+            ->map(function ($deposito) {
+                $noRadicado = $deposito->cobroJuridico->no_radicado ?? $deposito->cobro_juridico_id;
+                $fDescuento = $deposito->fecha_descuento ? substr((string)$deposito->fecha_descuento, 0, 10) : null;
+                $fConsignacion = $deposito->fecha_consignacion ? substr((string)$deposito->fecha_consignacion, 0, 10) : null;
+
+                return [
+                    'id'                 => 'jur_' . $deposito->id,
+                    'db_id'              => $deposito->id,
+                    'cobro_juridico_id'  => $deposito->cobro_juridico_id,
+                    'cedula'             => $deposito->cobroJuridico->cedula ?? '',
+                    'fecha_descuento'    => $fDescuento,
+                    'valor'              => (float) $deposito->valor,
+                    'fecha_consignacion' => $fConsignacion,
+                    'reportado'          => (bool) $deposito->reportado,
+                    'aplicado'           => (bool) $deposito->aplicado,
+                    'soporte'            => $deposito->soporte,
+                    'tipo'               => 'juridico',
+                    'es_retencion'       => false,
+                    'es_juridico'        => true,
+                    'locked'             => true,
+                    'origen'             => "Jurídico #{$noRadicado}",
+                    'no_radicacion'      => $noRadicado,
+                ];
+            });
+
+        // Combinar los 3 tipos de pagos y ordenar de más reciente a más viejo por fecha_descuento
+        $combined = $retencionAbonos
+            ->concat($gestionPagos)
+            ->concat($juridicoDepositos)
+            ->sortByDesc(function ($item) {
+                return $item['fecha_descuento'] ?? '0000-00-00';
+            })->values();
 
         return response()->json($combined);
     }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CargueController;
+use App\Http\Controllers\CobroJuridicoController;
 use App\Http\Controllers\ConsultaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpresaController;
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::post('/consultas/comentarios', [ConsultaController::class, 'crearComentario'])->name('consultas.comentarios.crear');
         Route::get('/consultas/telefonos/{cedula}', [ConsultaController::class, 'telefonosPorCedula'])->name('consultas.telefonos');
         Route::get('/consultas/retenciones/{cedula}', [ConsultaController::class, 'retencionesPorCedula'])->name('consultas.retenciones');
+        Route::get('/consultas/juridicos/{cedula}', [ConsultaController::class, 'juridicosPorCedula'])->name('consultas.juridicos');
         Route::post('/consultas/telefonos', [ConsultaController::class, 'crearTelefono'])->name('consultas.telefonos.crear');
         Route::put('/consultas/telefonos/{tercero}', [ConsultaController::class, 'editarTelefono'])->name('consultas.telefonos.editar');
         Route::patch('/consultas/telefonos/{tercero}/notificar', [ConsultaController::class, 'toggleNotificar'])->name('consultas.telefonos.notificar');
@@ -92,6 +94,18 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/retenciones/abonos/soporte', [\App\Http\Controllers\RetencionController::class, 'uploadAbonoSoporte'])->name('retenciones.uploadAbonoSoporte');
     Route::post('/retenciones/gestiones', [\App\Http\Controllers\RetencionController::class, 'saveGestion'])->name('retenciones.saveGestion');
     Route::post('/retenciones/{retencion}/unlock', [\App\Http\Controllers\RetencionController::class, 'unlockSection'])->name('retenciones.unlock');
+
+    // Cobro Jurídico
+    Route::get('/cobros-juridicos', [CobroJuridicoController::class, 'index'])->name('cobros-juridicos.index');
+    Route::get('/cobros-juridicos/listado', [CobroJuridicoController::class, 'list'])->name('cobros-juridicos.list');
+    Route::get('/cobros-juridicos/{cobroJuridico}', [CobroJuridicoController::class, 'show'])->name('cobros-juridicos.show');
+    Route::get('/cobros-juridicos/{cobroJuridico}/historial', [CobroJuridicoController::class, 'historial'])->name('cobros-juridicos.historial');
+    Route::post('/cobros-juridicos/section1', [CobroJuridicoController::class, 'saveSection1'])->name('cobros-juridicos.saveSection1');
+    Route::post('/cobros-juridicos/section2', [CobroJuridicoController::class, 'saveSection2'])->name('cobros-juridicos.saveSection2');
+    Route::post('/cobros-juridicos/depositos', [CobroJuridicoController::class, 'saveDepositos'])->name('cobros-juridicos.saveDepositos');
+    Route::post('/cobros-juridicos/depositos/soporte', [CobroJuridicoController::class, 'uploadDepositoSoporte'])->name('cobros-juridicos.uploadDepositoSoporte');
+    Route::post('/cobros-juridicos/gestiones', [CobroJuridicoController::class, 'saveGestion'])->name('cobros-juridicos.saveGestion');
+    Route::post('/cobros-juridicos/{cobroJuridico}/unlock', [CobroJuridicoController::class, 'unlockSection'])->name('cobros-juridicos.unlock');
     Route::middleware('permission:usuarios.crear')->group(function () {
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');
     });
