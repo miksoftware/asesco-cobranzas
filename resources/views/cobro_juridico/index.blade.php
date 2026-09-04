@@ -270,10 +270,13 @@
                                                 </div>
                                             </template>
                                             <template x-if="deposito.soporte">
-                                                <div class="flex gap-1">
-                                                    <a :href="deposito.soporte.startsWith('http') ? deposito.soporte : '/storage/' + deposito.soporte" target="_blank" class="text-green-600 hover:bg-green-50 p-1.5 rounded transition-colors" title="Ver soporte">
+                                                <div class="flex items-center gap-1">
+                                                    <button type="button" @click="openSoporteModal(deposito.soporte)" class="text-green-600 hover:bg-green-50 p-1.5 rounded transition-colors cursor-pointer" title="Ver soporte">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                                    </a>
+                                                    </button>
+                                                    <button type="button" @click="downloadSoporte(getSoporteUrl(deposito.soporte), getSoporteFileName(deposito.soporte))" class="text-blue-600 hover:bg-blue-50 p-1.5 rounded transition-colors cursor-pointer" title="Descargar soporte">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                    </button>
                                                     <button type="button" x-show="!is_depositos_locked" @click="deposito.soporte = null" class="text-red-500 hover:bg-red-50 p-1.5 rounded transition-colors cursor-pointer" title="Eliminar soporte">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                                                     </button>
@@ -546,6 +549,89 @@
         </div>
     </div>
 
+    {{-- Modal Vista Previa de Soporte --}}
+    <div x-show="soporteModalOpen" 
+         x-transition.opacity 
+         style="display: none;" 
+         class="fixed inset-0 z-[70] flex items-center justify-center bg-gray-900/70 backdrop-blur-sm p-4"
+         @keydown.escape.window="closeSoporteModal()">
+        
+        {{-- Modal Content --}}
+        <div x-show="soporteModalOpen" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+             @click.away="closeSoporteModal()"
+             class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[92vh] border border-gray-100">
+             
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/80">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-orange-100 text-asesco-orange rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-800">Vista Previa de Soporte</h3>
+                        <p class="text-xs text-gray-500 font-mono truncate max-w-md" x-text="soporteModalFileName"></p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    {{-- Botón Descargar en Header --}}
+                    <button type="button" 
+                            @click="downloadSoporte(soporteModalUrl, soporteModalFileName)" 
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm cursor-pointer"
+                            title="Descargar archivo">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        <span>Descargar</span>
+                    </button>
+                    
+                    {{-- Botón Cerrar --}}
+                    <button @click="closeSoporteModal()" class="text-gray-400 hover:text-gray-600 transition-colors bg-white hover:bg-gray-100 rounded-full p-1.5 cursor-pointer border border-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Body --}}
+            <div class="p-4 overflow-hidden flex-1 bg-gray-900/5 flex items-center justify-center min-h-[450px]">
+                <template x-if="soporteModalType === 'image'">
+                    <div class="w-full h-full flex items-center justify-center overflow-auto max-h-[70vh] p-2">
+                        <img :src="soporteModalUrl" class="max-h-[68vh] max-w-full object-contain rounded-lg shadow-md" alt="Vista previa del soporte">
+                    </div>
+                </template>
+                <template x-if="soporteModalType === 'pdf'">
+                    <iframe :src="soporteModalUrl" class="w-full h-[70vh] rounded-lg border border-gray-200 bg-white shadow-inner" frameborder="0"></iframe>
+                </template>
+            </div>
+            
+            {{-- Footer --}}
+            <div class="px-6 py-3 bg-white border-t border-gray-100 flex items-center justify-between">
+                <span class="text-xs text-gray-500 italic">Previsualización de documento adjunto</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="closeSoporteModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer">
+                        Cerrar
+                    </button>
+                    <button type="button" 
+                            @click="downloadSoporte(soporteModalUrl, soporteModalFileName)" 
+                            class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        <span>Descargar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
@@ -691,6 +777,12 @@ function cobroJuridicoData() {
         // Modal History
         historyModalOpen: false,
         selectedHistory: null,
+
+        // Modal Soporte
+        soporteModalOpen: false,
+        soporteModalUrl: '',
+        soporteModalFileName: '',
+        soporteModalType: 'pdf',
 
         // Computed
         get totalDepositos() {
@@ -929,6 +1021,56 @@ function cobroJuridicoData() {
                 }
             } catch (e) {
                 console.error('Error cargando historial:', e);
+            }
+        },
+
+        // Métodos de soporte (Visualización y Descarga)
+        getSoporteUrl(path) {
+            if (!path) return '';
+            return path.startsWith('http') ? path : '/storage/' + path;
+        },
+        getSoporteFileName(path) {
+            if (!path) return 'soporte';
+            const parts = path.split('/');
+            return parts[parts.length - 1] || 'soporte';
+        },
+        openSoporteModal(path) {
+            if (!path) return;
+            const url = this.getSoporteUrl(path);
+            this.soporteModalUrl = url;
+            this.soporteModalFileName = this.getSoporteFileName(path);
+            const lower = path.toLowerCase();
+            const isImage = /\.(jpe?g|png|webp|gif|svg|bmp)($|\?)/i.test(lower);
+            this.soporteModalType = isImage ? 'image' : 'pdf';
+            this.soporteModalOpen = true;
+        },
+        closeSoporteModal() {
+            this.soporteModalOpen = false;
+            this.soporteModalUrl = '';
+            this.soporteModalFileName = '';
+        },
+        async downloadSoporte(url, filename) {
+            if (!url) return;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Error al obtener el archivo');
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename || url.split('/').pop().split('?')[0] || 'soporte';
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(link);
+            } catch (e) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', filename || 'soporte');
+                link.setAttribute('target', '_blank');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
     }
