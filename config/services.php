@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'rama_judicial' => [
+        'url' => env('RAMA_JUDICIAL_API_URL', 'http://172.30.10.250:8010'),
+    ],
+
 ];

@@ -9,6 +9,8 @@ use App\Models\CobroJuridicoHistory;
 use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CobroJuridicoController extends Controller
 {
@@ -342,6 +344,79 @@ class CobroJuridicoController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sección desbloqueada para edición.'
+        ]);
+    }
+
+    /**
+     * Consultar historial de procesos judiciales asociados a una cédula en el sistema Rama Judicial.
+     */
+    public function consultaJudicial(Request $request, $cedula)
+    {
+        $cedula = trim($cedula);
+        if (empty($cedula)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Debe proporcionar un número de cédula válido.',
+                'cedula' => '',
+                'total_procesos' => 0,
+                'data' => []
+            ], 400);
+        }
+
+        $baseUrl = rtrim(config('services.rama_judicial.url', env('RAMA_JUDICIAL_API_URL', 'http://172.30.10.250:8010')), '/');
+        $primaryUrl = "{$baseUrl}/api/procesos/cedula/" . urlencode($cedula);
+
+        try {
+            $response = Http::timeout(7)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->get($primaryUrl);
+
+            if ($response->successful()) {
+                return response()->json($response->json());
+            }
+
+            if ($response->status() === 404) {
+                $body = $response->json();
+                if (is_array($body) && isset($body['status']) && $body['status'] === 'not_found') {
+                    return response()->json($body);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning("Consulta Rama Judicial primaria ({$primaryUrl}) falló: " . $e->getMessage());
+        }
+
+        // Fallback para desarrollo local si la ruta aún no está en el servidor remoto
+        if (app()->environment('local')) {
+            $fallbackBase = rtrim(env('RAMA_JUDICIAL_FALLBACK_URL', 'http://127.0.0.1:8000'), '/');
+            if ($fallbackBase !== $baseUrl) {
+                try {
+                    $fallbackUrl = "{$fallbackBase}/api/procesos/cedula/" . urlencode($cedula);
+                    $fbResponse = Http::timeout(4)
+                        ->withHeaders(['Accept' => 'application/json'])
+                        ->get($fallbackUrl);
+
+                    if ($fbResponse->successful()) {
+                        return response()->json($fbResponse->json());
+                    }
+
+                    if ($fbResponse->status() === 404) {
+                        $fbBody = $fbResponse->json();
+                        if (is_array($fbBody) && isset($fbBody['status'])) {
+                            return response()->json($fbBody);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::info("Fallback local Rama Judicial falló: " . $e->getMessage());
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 'not_found',
+            'message' => "No se encontraron procesos judiciales asociados a la cédula '{$cedula}'.",
+            'cedula' => $cedula,
+            'total_procesos' => 0,
+            'data' => []
         ]);
     }
 }
