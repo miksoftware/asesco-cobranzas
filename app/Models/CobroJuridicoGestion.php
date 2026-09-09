@@ -13,6 +13,7 @@ class CobroJuridicoGestion extends Model
         'etapa_procesal',
         'fecha_actividad',
         'actividad',
+        'soporte',
         'fecha_gestion',
         'gestion',
         'detalle',

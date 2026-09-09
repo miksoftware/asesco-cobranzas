@@ -27,11 +27,6 @@
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </form>
-
-        <a href="{{ route('cobros-juridicos.index') }}" class="bg-asesco-orange hover:bg-asesco-coral text-white text-[11px] px-4 py-1.5 rounded shadow-sm font-bold transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Nuevo Cobro Jurídico
-        </a>
     </div>
 
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden relative min-h-[200px]">

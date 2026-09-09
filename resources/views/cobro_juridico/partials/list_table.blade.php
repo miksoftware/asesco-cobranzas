@@ -2,6 +2,7 @@
     <table class="w-full text-left text-[11px] leading-tight">
         <thead class="bg-gray-50/90 border-b border-gray-200 text-gray-600 font-bold text-[10px] uppercase tracking-wider">
             <tr>
+                <th class="px-2 py-2.5 whitespace-nowrap">No. Consecutivo</th>
                 <th class="px-2 py-2.5 whitespace-nowrap">No. Radicado</th>
                 <th class="px-2 py-2.5 whitespace-nowrap">Cédula TT</th>
                 <th class="px-2 py-2.5">Demandado 1</th>
@@ -19,7 +20,8 @@
         <tbody class="divide-y divide-gray-100 text-gray-700">
             @forelse($cobros as $cobro)
             <tr class="hover:bg-gray-50/80 transition-colors">
-                <td class="px-2 py-2 font-bold text-gray-900 whitespace-nowrap">{{ $cobro->no_radicado ?? 'N/A' }}</td>
+                <td class="px-2 py-2 font-bold text-gray-900 whitespace-nowrap">{{ $cobro->no_consecutivo ?? 'N/A' }}</td>
+                <td class="px-2 py-2 font-medium text-gray-800 whitespace-nowrap">{{ $cobro->no_radicado ?? '—' }}</td>
                 <td class="px-2 py-2 font-mono text-gray-600 whitespace-nowrap">{{ $cobro->cedula ?? 'N/A' }}</td>
                 <td class="px-2 py-2 break-words max-w-[140px] font-medium text-gray-800">{{ $cobro->demandado_1 ?? 'N/A' }}</td>
                 <td class="px-2 py-2 break-words max-w-[140px] font-medium text-gray-800">{{ $cobro->demandado_2 ?? 'N/A' }}</td>
@@ -48,7 +50,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="12" class="px-4 py-8 text-center text-gray-500 italic">
+                <td colspan="13" class="px-4 py-8 text-center text-gray-500 italic">
                     No se han registrado cobros jurídicos aún.
                 </td>
             </tr>

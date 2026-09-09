@@ -73,11 +73,6 @@
                  x-transition:leave-end="opacity-0 -translate-y-1"
                  style="display: none;"
                  class="mt-1 space-y-1">
-                <a href="{{ route('retenciones.index') }}"
-                   class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
-                          {{ request()->routeIs('retenciones.index') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
-                    <span class="whitespace-nowrap">Nueva Retención</span>
-                </a>
                 <a href="{{ route('retenciones.list') }}"
                    class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
                           {{ request()->routeIs('retenciones.list') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
@@ -111,11 +106,6 @@
                  x-transition:leave-end="opacity-0 -translate-y-1"
                  style="display: none;"
                  class="mt-1 space-y-1">
-                <a href="{{ route('cobros-juridicos.index') }}"
-                   class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
-                          {{ request()->routeIs('cobros-juridicos.index') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">
-                    <span class="whitespace-nowrap">Nuevo Cobro Jurídico</span>
-                </a>
                 <a href="{{ route('cobros-juridicos.list') }}"
                    class="flex items-center gap-3 pl-11 pr-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200
                           {{ request()->routeIs('cobros-juridicos.list') ? 'bg-gradient-to-r from-[#E8611A]/20 to-[#C94477]/10 text-white shadow-[inset_3px_0_0_0_#E8611A]' : 'text-slate-400 hover:bg-[#20293a] hover:text-white' }}">

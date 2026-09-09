@@ -8,13 +8,14 @@ class CobroJuridico extends Model
 {
     protected $fillable = [
         // Sección 1: Datos Generales del Proceso
+        'no_consecutivo',
+        'no_radicado',
+        'cedula',
         'estado_proceso',
         'departamento',
         'municipio',
         'especialidad',
         'juzgado_conocimiento',
-        'no_radicado',
-        'cedula',
 
         // Sección 2 - Pestaña 1: Datos Generales
         'demandado_1',

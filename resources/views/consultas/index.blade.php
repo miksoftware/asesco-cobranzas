@@ -653,6 +653,7 @@
                             <table class="w-full text-xs">
                                 <thead>
                                     <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">No. Consecutivo</th>
                                         <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">No. Radicado</th>
                                         <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Cédula TT</th>
                                         <th class="text-left px-3 py-2 font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Demandado 1</th>
@@ -670,7 +671,8 @@
                                 <tbody>
                                     <template x-for="j in juridicos" :key="j.id">
                                         <tr class="border-b border-gray-100 hover:bg-orange-50/30 transition-colors">
-                                            <td class="px-3 py-2 text-gray-700 font-bold whitespace-nowrap" x-text="j.no_radicado || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-900 font-bold whitespace-nowrap" x-text="j.no_consecutivo || '—'"></td>
+                                            <td class="px-3 py-2 text-gray-700 whitespace-nowrap" x-text="j.no_radicado || '—'"></td>
                                             <td class="px-3 py-2 text-gray-600 font-mono whitespace-nowrap" x-text="j.cedula || '—'"></td>
                                             <td class="px-3 py-2 text-gray-600 font-medium whitespace-nowrap" x-text="j.demandado_1 || '—'"></td>
                                             <td class="px-3 py-2 text-gray-600 font-medium whitespace-nowrap" x-text="j.demandado_2 || '—'"></td>

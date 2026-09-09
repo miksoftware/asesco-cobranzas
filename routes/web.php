@@ -105,6 +105,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/cobros-juridicos/depositos', [CobroJuridicoController::class, 'saveDepositos'])->name('cobros-juridicos.saveDepositos');
     Route::post('/cobros-juridicos/depositos/soporte', [CobroJuridicoController::class, 'uploadDepositoSoporte'])->name('cobros-juridicos.uploadDepositoSoporte');
     Route::post('/cobros-juridicos/gestiones', [CobroJuridicoController::class, 'saveGestion'])->name('cobros-juridicos.saveGestion');
+    Route::post('/cobros-juridicos/gestiones/soporte', [CobroJuridicoController::class, 'uploadGestionSoporte'])->name('cobros-juridicos.uploadGestionSoporte');
     Route::post('/cobros-juridicos/{cobroJuridico}/unlock', [CobroJuridicoController::class, 'unlockSection'])->name('cobros-juridicos.unlock');
     Route::middleware('permission:usuarios.crear')->group(function () {
         Route::post('/usuarios', [UserController::class, 'store'])->name('usuarios.store');

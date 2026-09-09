@@ -6,6 +6,7 @@ use App\Models\CobroJuridico;
 use App\Models\CobroJuridicoDeposito;
 use App\Models\CobroJuridicoGestion;
 use App\Models\CobroJuridicoHistory;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,11 +15,17 @@ class CobroJuridicoController extends Controller
     public function index(Request $request)
     {
         $lastRecord = CobroJuridico::orderBy('id', 'desc')->first();
-        $lastNo = $lastRecord && $lastRecord->no_radicado ? (int) preg_replace('/[^0-9]/', '', $lastRecord->no_radicado) : 0;
-        $nextNoRadicado = 'CJ-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
+        $lastNo = $lastRecord && $lastRecord->no_consecutivo ? (int) preg_replace('/[^0-9]/', '', $lastRecord->no_consecutivo) : 0;
+        $nextNoConsecutivo = 'CJ-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
         $cedula = $request->query('cedula', '');
+        $departamentos = Department::where('is_active', true)
+            ->with(['municipios' => function($q) {
+                $q->where('is_active', true)->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get();
         
-        return view('cobro_juridico.index', compact('nextNoRadicado', 'cedula'));
+        return view('cobro_juridico.index', compact('nextNoConsecutivo', 'cedula', 'departamentos'));
     }
 
     public function list(Request $request)
@@ -28,7 +35,8 @@ class CobroJuridicoController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
-                $q->where('no_radicado', 'like', "%{$search}%")
+                $q->where('no_consecutivo', 'like', "%{$search}%")
+                  ->orWhere('no_radicado', 'like', "%{$search}%")
                   ->orWhere('cedula', 'like', "%{$search}%")
                   ->orWhere('demandado_1', 'like', "%{$search}%")
                   ->orWhere('demandado_2', 'like', "%{$search}%")
@@ -61,10 +69,16 @@ class CobroJuridicoController extends Controller
     public function show(CobroJuridico $cobroJuridico)
     {
         $cobroJuridico->load(['depositos', 'gestiones.user', 'histories.user']);
-        $nextNoRadicado = $cobroJuridico->no_radicado;
+        $nextNoConsecutivo = $cobroJuridico->no_consecutivo;
         $cedula = $cobroJuridico->cedula ?? '';
+        $departamentos = Department::where('is_active', true)
+            ->with(['municipios' => function($q) {
+                $q->where('is_active', true)->orderBy('name');
+            }])
+            ->orderBy('name')
+            ->get();
         
-        return view('cobro_juridico.index', compact('cobroJuridico', 'nextNoRadicado', 'cedula'));
+        return view('cobro_juridico.index', compact('cobroJuridico', 'nextNoConsecutivo', 'cedula', 'departamentos'));
     }
 
     private function logChanges($cobroJuridicoId, $seccion, $oldData, $newData)
@@ -112,10 +126,10 @@ class CobroJuridicoController extends Controller
             $cobro->update(['is_section1_locked' => true]);
             $this->logChanges($cobro->id, 'Datos Generales del Proceso', $oldData, $data);
         } else {
-            if (empty($data['no_radicado'])) {
+            if (empty($data['no_consecutivo'])) {
                 $lastRecord = CobroJuridico::orderBy('id', 'desc')->first();
-                $lastNo = $lastRecord && $lastRecord->no_radicado ? (int) preg_replace('/[^0-9]/', '', $lastRecord->no_radicado) : 0;
-                $data['no_radicado'] = 'CJ-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
+                $lastNo = $lastRecord && $lastRecord->no_consecutivo ? (int) preg_replace('/[^0-9]/', '', $lastRecord->no_consecutivo) : 0;
+                $data['no_consecutivo'] = 'CJ-' . str_pad($lastNo + 1, 6, '0', STR_PAD_LEFT);
             }
 
             $cobro = CobroJuridico::create(array_merge($data, ['is_section1_locked' => true]));
@@ -125,6 +139,7 @@ class CobroJuridicoController extends Controller
         return response()->json([
             'success' => true,
             'cobro_juridico_id' => $cobro->id,
+            'no_consecutivo' => $cobro->no_consecutivo,
             'no_radicado' => $cobro->no_radicado,
             'message' => 'Datos Generales del Proceso guardados correctamente.'
         ]);
@@ -221,6 +236,24 @@ class CobroJuridicoController extends Controller
         return response()->json(['success' => false, 'message' => 'No se subió ningún archivo'], 400);
     }
 
+    public function uploadGestionSoporte(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('soportes_gestiones_judiciales', 'public');
+            return response()->json([
+                'success' => true,
+                'path' => $path,
+                'url' => asset('storage/' . $path)
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'No se subió ningún archivo'], 400);
+    }
+
     public function saveGestion(Request $request)
     {
         $request->validate([
@@ -230,6 +263,7 @@ class CobroJuridicoController extends Controller
             'etapa_procesal'    => 'nullable|string',
             'fecha_actividad'   => 'nullable|date',
             'actividad'         => 'nullable|string',
+            'soporte'           => 'nullable|string',
         ]);
 
         $cobro = CobroJuridico::findOrFail($request->cobro_juridico_id);
@@ -241,6 +275,7 @@ class CobroJuridicoController extends Controller
             'etapa_procesal'    => $request->etapa_procesal,
             'fecha_actividad'   => $request->fecha_actividad,
             'actividad'         => $request->actividad,
+            'soporte'           => $request->soporte,
             'fecha_gestion'     => now(),
             'gestion'           => $request->gestion,
             'detalle'           => $request->gestion,

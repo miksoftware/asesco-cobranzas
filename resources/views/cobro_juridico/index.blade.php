@@ -16,10 +16,21 @@
 
     {{-- Sección 1: Datos Generales del Proceso --}}
     <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm relative">
-        <div class="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-asesco-orange font-bold text-xs">1</span>
-                <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Datos Generales del Proceso</h3>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 border-b border-gray-100 pb-2.5">
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-asesco-orange font-bold text-xs">1</span>
+                    <h3 class="text-sm font-bold text-gray-700 uppercase tracking-wide">Datos Generales del Proceso</h3>
+                </div>
+                
+                {{-- Cédula en el encabezado de forma moderna --}}
+                <div class="flex items-center gap-2 bg-gradient-to-r from-orange-50 via-amber-50/50 to-orange-50 border border-orange-200/90 px-3 py-1 rounded-full shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-asesco-orange shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                    </svg>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Cédula:</span>
+                    <span class="text-xs font-black text-gray-900 font-mono tracking-tight" x-text="s1.cedula || '—'"></span>
+                </div>
             </div>
             <div class="flex gap-2">
                 <button x-show="!is_section1_locked" @click="saveSection1()" class="bg-asesco-orange hover:bg-asesco-coral text-white text-[11px] px-3 py-1.5 rounded shadow-sm font-bold transition-colors cursor-pointer">
@@ -35,28 +46,160 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-x-3 gap-y-3">
             
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="No. Radicado">No. Radicado</label>
-                <input type="text" x-model="s1.no_radicado" :disabled="is_section1_locked" placeholder="No. Radicado" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 font-bold bg-gray-50 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="No. Consecutivo">No. Consecutivo</label>
+                <input type="text" :value="s1.no_consecutivo" disabled placeholder="CJ-000001" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-700 font-bold bg-gray-100 cursor-not-allowed">
             </div>
 
             <div>
-                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Cédula de TT">Cédula de TT</label>
-                <input type="text" x-model="s1.cedula" :disabled="is_section1_locked" placeholder="Cédula de TT" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 font-semibold focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="No. de Radicado">No. de Radicado</label>
+                <input type="text" x-model="s1.no_radicado" :disabled="is_section1_locked" placeholder="No. de Radicado" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 font-medium bg-white focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
             </div>
 
             <div>
                 <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Estado Proceso">Estado Proceso</label>
-                <input type="text" x-model="s1.estado_proceso" :disabled="is_section1_locked" placeholder="Estado del proceso" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <select x-model="s1.estado_proceso" :disabled="is_section1_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 bg-white focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500 cursor-pointer disabled:cursor-not-allowed">
+                    <option value="">Seleccione estado...</option>
+                    <option value="ACTIVO">ACTIVO</option>
+                    <option value="SUSPENDIDO">SUSPENDIDO</option>
+                    <option value="INADMITIDO">INADMITIDO</option>
+                    <option value="RECHAZADO">RECHAZADO</option>
+                    <option value="TERMINADO">TERMINADO</option>
+                    <option value="INACTIVO">INACTIVO</option>
+                    <option value="DESISTIMIENTO">DESISTIMIENTO</option>
+                    <option value="INSOLVENCIA">INSOLVENCIA</option>
+                    <option value="SIN PROCESO">SIN PROCESO</option>
+                    <template x-if="s1.estado_proceso && !estadosProceso.includes(s1.estado_proceso)">
+                        <option :value="s1.estado_proceso" x-text="s1.estado_proceso" selected></option>
+                    </template>
+                </select>
             </div>
 
-            <div>
+            {{-- Departamento Select con buscador estilo DIAN --}}
+            <div class="relative" @click.outside="deptOpen = false">
                 <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Departamento">Departamento</label>
-                <input type="text" x-model="s1.departamento" :disabled="is_section1_locked" placeholder="Departamento" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <button type="button" 
+                        @click="if (!is_section1_locked) { deptOpen = !deptOpen; munOpen = false; if (deptOpen) { deptSearch = ''; $nextTick(() => $refs.deptSearchInput?.focus()); } }" 
+                        :disabled="is_section1_locked"
+                        class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-left bg-white flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500 cursor-pointer disabled:cursor-not-allowed">
+                    <span class="truncate" :class="s1.departamento ? 'text-gray-800 font-medium' : 'text-gray-400'" x-text="s1.departamento || 'Seleccione departamento...'"></span>
+                    <div class="flex items-center ml-1 shrink-0">
+                        <span x-show="s1.departamento && !is_section1_locked" @click.stop="selectDepartamento({name: '', dian_code: ''})" class="text-gray-400 hover:text-red-500 mr-1 text-xs cursor-pointer p-0.5 leading-none" title="Limpiar">×</span>
+                        <svg class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" :class="deptOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </button>
+
+                {{-- Dropdown popover con buscador --}}
+                <div x-show="deptOpen" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute z-50 left-0 mt-1 w-64 md:w-72 bg-white rounded-lg border border-gray-200 shadow-xl overflow-hidden"
+                     style="display: none;">
+                    
+                    {{-- Buscador con icono de lupa --}}
+                    <div class="p-2 border-b border-gray-100 bg-gray-50/70">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                            <input type="text" 
+                                   x-ref="deptSearchInput" 
+                                   x-model="deptSearch" 
+                                   placeholder="Buscar por código o nombre..." 
+                                   class="w-full pl-8 pr-2 py-1.5 rounded border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white">
+                        </div>
+                    </div>
+
+                    {{-- Lista scrollable con opciones estilo DIAN --}}
+                    <div class="max-h-48 overflow-y-auto py-1 text-xs">
+                        <template x-for="dept in filteredDepartamentos" :key="dept.id">
+                            <button type="button"
+                                    @click="selectDepartamento(dept)" 
+                                    class="w-full text-left px-3 py-1.5 hover:bg-orange-50 flex items-center justify-between group transition-colors cursor-pointer"
+                                    :class="s1.departamento === dept.name ? 'bg-orange-50/70 font-semibold text-asesco-orange' : 'text-gray-700'">
+                                <span class="truncate">
+                                    <span class="font-mono text-gray-500 group-hover:text-asesco-orange font-bold mr-1.5" x-text="dept.dian_code"></span>
+                                    <span x-text="dept.name"></span>
+                                </span>
+                                <span x-show="s1.departamento === dept.name" class="text-asesco-orange text-xs font-bold ml-1.5">✓</span>
+                            </button>
+                        </template>
+                        <div x-show="filteredDepartamentos.length === 0" class="px-3 py-3 text-center text-gray-400 italic text-[11px]">
+                            No se encontraron departamentos
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div>
+            {{-- Municipio Select con buscador dependiente de Departamento --}}
+            <div class="relative" @click.outside="munOpen = false">
                 <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Municipio">Municipio</label>
-                <input type="text" x-model="s1.municipio" :disabled="is_section1_locked" placeholder="Municipio" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-500">
+                <button type="button" 
+                        @click="if (!is_section1_locked && selectedDepartment) { munOpen = !munOpen; deptOpen = false; if (munOpen) { munSearch = ''; $nextTick(() => $refs.munSearchInput?.focus()); } }" 
+                        :disabled="is_section1_locked || !selectedDepartment"
+                        class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-left bg-white flex items-center justify-between focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange transition-all disabled:bg-gray-100 disabled:text-gray-400 cursor-pointer disabled:cursor-not-allowed">
+                    <span class="truncate" :class="s1.municipio ? 'text-gray-800 font-medium' : 'text-gray-400'" x-text="s1.municipio || (selectedDepartment ? 'Seleccione municipio...' : 'Primero seleccione dpto.')"></span>
+                    <div class="flex items-center ml-1 shrink-0">
+                        <span x-show="s1.municipio && !is_section1_locked" @click.stop="selectMunicipio({name: '', dian_code: ''})" class="text-gray-400 hover:text-red-500 mr-1 text-xs cursor-pointer p-0.5 leading-none" title="Limpiar">×</span>
+                        <svg class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" :class="munOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </button>
+
+                {{-- Dropdown popover con buscador --}}
+                <div x-show="munOpen" 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute z-50 left-0 mt-1 w-64 md:w-72 bg-white rounded-lg border border-gray-200 shadow-xl overflow-hidden"
+                     style="display: none;">
+                    
+                    {{-- Buscador con icono de lupa --}}
+                    <div class="p-2 border-b border-gray-100 bg-gray-50/70">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </div>
+                            <input type="text" 
+                                   x-ref="munSearchInput" 
+                                   x-model="munSearch" 
+                                   placeholder="Buscar por código o nombre..." 
+                                   class="w-full pl-8 pr-2 py-1.5 rounded border border-gray-200 text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-asesco-orange focus:border-asesco-orange bg-white">
+                        </div>
+                    </div>
+
+                    {{-- Lista scrollable con opciones estilo DIAN --}}
+                    <div class="max-h-48 overflow-y-auto py-1 text-xs">
+                        <template x-for="mun in filteredMunicipios" :key="mun.id">
+                            <button type="button"
+                                    @click="selectMunicipio(mun)" 
+                                    class="w-full text-left px-3 py-1.5 hover:bg-orange-50 flex items-center justify-between group transition-colors cursor-pointer"
+                                    :class="s1.municipio === mun.name ? 'bg-orange-50/70 font-semibold text-asesco-orange' : 'text-gray-700'">
+                                <span class="truncate">
+                                    <span class="font-mono text-gray-500 group-hover:text-asesco-orange font-bold mr-1.5" x-text="mun.dian_code"></span>
+                                    <span x-text="mun.name"></span>
+                                </span>
+                                <span x-show="s1.municipio === mun.name" class="text-asesco-orange text-xs font-bold ml-1.5">✓</span>
+                            </button>
+                        </template>
+                        <div x-show="filteredMunicipios.length === 0" class="px-3 py-3 text-center text-gray-400 italic text-[11px]">
+                            No se encontraron municipios
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -384,6 +527,7 @@
                         <th class="px-3 py-2">Etapa Procesal</th>
                         <th class="px-3 py-2">Fecha Actividad</th>
                         <th class="px-3 py-2">Actividad</th>
+                        <th class="px-3 py-2 text-center">Soporte</th>
                         <th class="px-3 py-2 min-w-[260px]">Gestión</th>
                     </tr>
                 </thead>
@@ -404,6 +548,21 @@
                             <td class="px-3 py-2 font-medium text-gray-800" x-text="g.etapa_procesal || '—'"></td>
                             <td class="px-3 py-2 text-gray-600" x-text="g.fecha_actividad || '—'"></td>
                             <td class="px-3 py-2 text-gray-800" x-text="g.actividad || '—'"></td>
+                            <td class="px-3 py-2 text-center align-middle">
+                                <template x-if="g.soporte">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button type="button" @click="openSoporteModal(g.soporte)" class="text-green-600 hover:bg-green-100 p-1 rounded transition-colors cursor-pointer" title="Ver soporte">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        </button>
+                                        <button type="button" @click="downloadSoporte(getSoporteUrl(g.soporte), getSoporteFileName(g.soporte))" class="text-blue-600 hover:bg-blue-100 p-1 rounded transition-colors cursor-pointer" title="Descargar soporte">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="!g.soporte">
+                                    <span class="text-gray-400 font-mono">—</span>
+                                </template>
+                            </td>
                             <td class="px-3 py-2 max-w-xs xl:max-w-md">
                                 <div class="truncate cursor-help hover:text-green-800 transition-colors"
                                      :title="g.gestion || g.detalle"
@@ -413,7 +572,7 @@
                         </tr>
                     </template>
                     <tr x-show="gestiones.length === 0">
-                        <td colspan="8" class="px-4 py-8 text-center text-gray-400 text-xs italic">
+                        <td colspan="9" class="px-4 py-8 text-center text-gray-400 text-xs italic">
                             No hay gestiones registradas aún.
                         </td>
                     </tr>
@@ -428,7 +587,7 @@
                 Registrar Nueva Gestión
             </h4>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 items-end">
                 <div>
                     <label class="block text-[10.5px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Fecha Etapa">Fecha Etapa</label>
                     <input type="date" x-model="nueva_gestion.fecha_etapa" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 bg-white focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500">
@@ -460,8 +619,47 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10.5px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Fecha Gestión">Fecha Gestión (Automática)</label>
-                    <input type="text" :value="new Date().toLocaleDateString('es-CO')" disabled class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-500 bg-gray-100 font-bold cursor-not-allowed">
+                    <label class="block text-[10.5px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Soporte (PDF o Imagen)">Soporte</label>
+                    <div class="relative h-[31px]">
+                        <template x-if="!nueva_gestion.soporte">
+                            <div class="relative w-full h-full">
+                                <input type="file" 
+                                       @change="uploadGestionSoporte($event)" 
+                                       accept=".pdf,image/*" 
+                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                       title="Subir soporte (PDF o Imagen)">
+                                <div class="w-full h-full flex items-center justify-center gap-1.5 px-2 rounded border border-dashed border-gray-300 bg-white hover:bg-green-50/50 hover:border-green-500 text-gray-600 hover:text-green-700 text-xs cursor-pointer transition-colors shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                    </svg>
+                                    <span class="truncate font-medium text-[11px]">Adjuntar soporte</span>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="nueva_gestion.soporte">
+                            <div class="w-full h-full flex items-center justify-between px-2 rounded border border-green-300 bg-green-50 text-xs text-green-800 shadow-sm">
+                                <div class="flex items-center gap-1 min-w-0 flex-1 mr-1" :title="getSoporteFileName(nueva_gestion.soporte)">
+                                    <svg class="w-3.5 h-3.5 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                    <span class="truncate text-[11px] font-medium" x-text="getSoporteFileName(nueva_gestion.soporte)"></span>
+                                </div>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <button type="button" @click="openSoporteModal(nueva_gestion.soporte)" class="text-green-700 hover:text-green-900 p-1 rounded hover:bg-green-100 transition-colors cursor-pointer" title="Ver soporte">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </button>
+                                    <button type="button" @click="nueva_gestion.soporte = null" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors cursor-pointer" title="Quitar soporte">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
 
@@ -637,8 +835,9 @@
 @push('scripts')
 <script>
 const existingCobro = @json($cobroJuridico ?? null);
-const nextNoRadicado = @json($nextNoRadicado ?? '');
+const nextNoConsecutivo = @json($nextNoConsecutivo ?? '');
 const initialCedula = @json($cedula ?? '');
+const initialDepartamentos = @json($departamentos ?? []);
 
 function cobroJuridicoData() {
     const initialGestiones = existingCobro?.gestiones || [];
@@ -652,6 +851,13 @@ function cobroJuridicoData() {
         activeTab: 'datos2',
         cobro_juridico_id: existingCobro ? existingCobro.id : null,
         
+        // Departamentos y Municipios
+        departamentosList: initialDepartamentos,
+        deptOpen: false,
+        deptSearch: '',
+        munOpen: false,
+        munSearch: '',
+
         // Secciones locks
         is_section1_locked: existingCobro ? existingCobro.is_section1_locked : false,
         is_section2_locked: existingCobro ? existingCobro.is_section2_locked : false,
@@ -659,7 +865,8 @@ function cobroJuridicoData() {
 
         // Sección 1: Datos Generales del Proceso (7 campos)
         s1: {
-            no_radicado: existingCobro?.no_radicado || nextNoRadicado,
+            no_consecutivo: existingCobro?.no_consecutivo || nextNoConsecutivo,
+            no_radicado: existingCobro?.no_radicado || '',
             cedula: cedulaParam,
             estado_proceso: existingCobro?.estado_proceso || '',
             departamento: existingCobro?.departamento || '',
@@ -696,8 +903,22 @@ function cobroJuridicoData() {
             etapa_procesal: '',
             fecha_actividad: '',
             actividad: '',
+            soporte: null,
             gestion: '',
         },
+
+        // Catálogo de Estado del Proceso
+        estadosProceso: [
+            'ACTIVO',
+            'SUSPENDIDO',
+            'INADMITIDO',
+            'RECHAZADO',
+            'TERMINADO',
+            'INACTIVO',
+            'DESISTIMIENTO',
+            'INSOLVENCIA',
+            'SIN PROCESO'
+        ],
 
         // Catálogos de Etapa y Actividad dependiente
         etapasProcesales: [
@@ -813,6 +1034,7 @@ function cobroJuridicoData() {
                 etapa_procesal: '',
                 fecha_actividad: '',
                 actividad: '',
+                soporte: null,
                 gestion: '',
             };
         },
@@ -868,6 +1090,54 @@ function cobroJuridicoData() {
         },
 
         // AJAX Methods
+        // Getters y Métodos para Departamentos y Municipios dependientes con buscador
+        get filteredDepartamentos() {
+            if (!this.deptSearch.trim()) return this.departamentosList;
+            const q = this.deptSearch.toLowerCase().trim();
+            return this.departamentosList.filter(d => 
+                (d.name && d.name.toLowerCase().includes(q)) ||
+                (d.dian_code && String(d.dian_code).toLowerCase().includes(q))
+            );
+        },
+
+        get selectedDepartment() {
+            if (!this.s1.departamento) return null;
+            return this.departamentosList.find(d => 
+                (d.name && d.name.toLowerCase() === this.s1.departamento.toLowerCase()) ||
+                (d.dian_code && String(d.dian_code) === String(this.s1.departamento)) ||
+                String(d.id) === String(this.s1.departamento)
+            ) || null;
+        },
+
+        get availableMunicipios() {
+            if (!this.selectedDepartment) return [];
+            return this.selectedDepartment.municipios || [];
+        },
+
+        get filteredMunicipios() {
+            if (!this.munSearch.trim()) return this.availableMunicipios;
+            const q = this.munSearch.toLowerCase().trim();
+            return this.availableMunicipios.filter(m => 
+                (m.name && m.name.toLowerCase().includes(q)) ||
+                (m.dian_code && String(m.dian_code).toLowerCase().includes(q))
+            );
+        },
+
+        selectDepartamento(dept) {
+            if (this.s1.departamento !== dept.name) {
+                this.s1.departamento = dept.name;
+                this.s1.municipio = '';
+            }
+            this.deptOpen = false;
+            this.deptSearch = '';
+        },
+
+        selectMunicipio(mun) {
+            this.s1.municipio = mun.name;
+            this.munOpen = false;
+            this.munSearch = '';
+        },
+
         async postData(url, data) {
             this.loading = true;
             try {
@@ -897,6 +1167,7 @@ function cobroJuridicoData() {
                 const isNew = !this.cobro_juridico_id;
                 if (isNew) {
                     this.cobro_juridico_id = res.cobro_juridico_id;
+                    this.s1.no_consecutivo = res.no_consecutivo;
                     this.s1.no_radicado = res.no_radicado;
                     window.history.pushState(null, '', `/cobros-juridicos/${this.cobro_juridico_id}`);
                 }
@@ -954,6 +1225,39 @@ function cobroJuridicoData() {
                 if (!response.ok) throw new Error(result.message || 'Error al subir el archivo');
                 
                 this.depositos[index].soporte = result.path;
+            } catch (error) {
+                this.showError(error.message);
+            } finally {
+                this.loading = false;
+                event.target.value = '';
+            }
+        },
+
+        async uploadGestionSoporte(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                return this.showError('El archivo no debe pesar más de 5MB');
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            this.loading = true;
+            try {
+                const response = await fetch('{{ route('cobros-juridicos.uploadGestionSoporte') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.message || 'Error al subir el archivo');
+                
+                this.nueva_gestion.soporte = result.path;
             } catch (error) {
                 this.showError(error.message);
             } finally {
