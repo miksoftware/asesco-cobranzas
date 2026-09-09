@@ -1045,6 +1045,9 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
     {{-- Modal Detalle de Proceso Judicial (Estilo Rama Judicial) --}}
     <div x-show="procesoModalOpen" 
          x-transition.opacity 
@@ -1158,15 +1161,15 @@
                             <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wide">Demandante(s)</h4>
                         </div>
                         <div class="space-y-1.5 flex-1">
-                            <template x-if="selectedProceso?.demandantes && selectedProceso.demandantes.length > 0">
-                                <template x-for="(dem, i) in (Array.isArray(selectedProceso.demandantes) ? selectedProceso.demandantes : [selectedProceso.demandantes])" :key="i">
+                            <template x-if="selectedDemandantes.length > 0">
+                                <template x-for="(dem, i) in selectedDemandantes" :key="i">
                                     <div class="flex items-start gap-2 text-xs text-gray-800 bg-blue-50/40 px-2.5 py-1.5 rounded border border-blue-100/60">
                                         <span class="text-blue-500 font-bold">•</span>
                                         <span class="font-medium" x-text="dem"></span>
                                     </div>
                                 </template>
                             </template>
-                            <template x-if="!selectedProceso?.demandantes || selectedProceso.demandantes.length === 0">
+                            <template x-if="selectedDemandantes.length === 0">
                                 <span class="text-xs text-gray-400 italic">No hay demandantes registrados</span>
                             </template>
                         </div>
@@ -1179,15 +1182,15 @@
                             <h4 class="text-xs font-bold text-gray-800 uppercase tracking-wide">Demandado(s)</h4>
                         </div>
                         <div class="space-y-1.5 flex-1">
-                            <template x-if="selectedProceso?.demandados && selectedProceso.demandados.length > 0">
-                                <template x-for="(dem, i) in (Array.isArray(selectedProceso.demandados) ? selectedProceso.demandados : [selectedProceso.demandados])" :key="i">
+                            <template x-if="selectedDemandados.length > 0">
+                                <template x-for="(dem, i) in selectedDemandados" :key="i">
                                     <div class="flex items-start gap-2 text-xs text-gray-800 bg-red-50/40 px-2.5 py-1.5 rounded border border-red-100/60">
                                         <span class="text-red-500 font-bold">•</span>
                                         <span class="font-medium" x-text="dem"></span>
                                     </div>
                                 </template>
                             </template>
-                            <template x-if="!selectedProceso?.demandados || selectedProceso.demandados.length === 0">
+                            <template x-if="selectedDemandados.length === 0">
                                 <span class="text-xs text-gray-400 italic">No hay demandados registrados</span>
                             </template>
                         </div>
@@ -1496,6 +1499,18 @@ function cobroJuridicoData() {
                 const fec = (a.fecha_actuacion || '').toLowerCase();
                 return act.includes(q) || anot.includes(q) || fec.includes(q);
             });
+        },
+        get selectedDemandantes() {
+            if (!this.selectedProceso || !this.selectedProceso.demandantes) return [];
+            return Array.isArray(this.selectedProceso.demandantes) 
+                ? this.selectedProceso.demandantes.filter(Boolean) 
+                : [this.selectedProceso.demandantes].filter(Boolean);
+        },
+        get selectedDemandados() {
+            if (!this.selectedProceso || !this.selectedProceso.demandados) return [];
+            return Array.isArray(this.selectedProceso.demandados) 
+                ? this.selectedProceso.demandados.filter(Boolean) 
+                : [this.selectedProceso.demandados].filter(Boolean);
         },
 
         // Methods
@@ -1895,6 +1910,7 @@ function cobroJuridicoData() {
             }
         },
         openProcesoModal(proceso) {
+            console.log('Abriendo modal de proceso:', proceso);
             this.selectedProceso = proceso;
             this.actuacionSearch = '';
             this.procesoModalOpen = true;
