@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('referencia', 20)->index();          // Cédula del titular
             $table->string('cedula_tercero', 20)->index();      // Cédula del tercero
             $table->string('nombre_tercero');                    // Nombre completo del tercero
-            $table->enum('calidad', ['TT', 'CD']);              // TT = Titular, CD = Codeudor
-            $table->string('empresa');                           // Empresa a la que debe
-            $table->string('dato');                              // Teléfono, correo, etc.
-            $table->string('tipo_dato');                         // celular, fijo, correo, etc.
+            $table->string('calidad', 50)->default('TT');              // TT = Titular, CD = Codeudor, etc.
+            $table->string('empresa', 100);                           // Empresa a la que debe
+            $table->string('dato', 150);                              // Teléfono, correo, etc.
+            $table->string('tipo_dato', 50);                         // celular, fijo, correo, etc.
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // Quién subió el registro
             $table->timestamps();
 
