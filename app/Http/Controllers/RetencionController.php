@@ -168,7 +168,11 @@ class RetencionController extends Controller
         $retencion->abonos()->delete();
 
         if ($request->abonos) {
-            foreach ($request->abonos as $abonoData) {
+            $abonosList = collect($request->abonos)->sortByDesc(function ($item) {
+                return $item['fecha_descuento'] ?? '1900-01-01';
+            })->values();
+
+            foreach ($abonosList as $abonoData) {
                 $retencion->abonos()->create([
                     'fecha_descuento' => $abonoData['fecha_descuento'] ?? null,
                     'valor' => $abonoData['valor'] ?? null,

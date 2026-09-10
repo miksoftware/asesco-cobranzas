@@ -152,8 +152,8 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-3">
-                    {{-- Fila 1: Datos de la Empresa y Contrato --}}
+                {{-- Fila 1: Datos de la Empresa y Contrato (6 columnas) --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-3 mb-3">
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Nit Empresa">Nit Empresa</label>
                         <input type="text" x-model="s2.nit_empresa" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
@@ -192,8 +192,10 @@
                             <option value="7. Terminacion de Contrato">7. Terminacion de Contrato</option>
                         </select>
                     </div>
+                </div>
 
-                    {{-- Fila 2: Condiciones y Estado de Retención --}}
+                {{-- Fila 2: Condiciones y Estado de Retención (4 columnas) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-3 mb-3">
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Rango Salarial">Rango Salarial</label>
                         <select x-model="s2.rango_salarial" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange bg-white disabled:bg-gray-100 disabled:text-gray-500">
@@ -246,26 +248,10 @@
                             <option value="Fallecido">Fallecido</option>
                         </select>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Fecha Despacho">Fecha Despacho</label>
-                        <input type="date" x-model="s2.fecha_despacho" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Número Oficio">Número Oficio</label>
-                        <input type="text" x-model="s2.numero_oficio" :disabled="is_section2_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                    </div>
-
-                    {{-- Fila 3: Cifras Financieras --}}
-                    <div>
-                        <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Cuota Mensual">Cuota Mensual</label>
-                        <div class="relative">
-                            <span class="absolute left-2 top-1.5 text-gray-500">$</span>
-                            <input type="number" x-model.number="s2.cuota_mensual" :disabled="is_section2_locked" class="w-full pl-6 pr-2 py-1.5 rounded border border-gray-300 text-xs text-gray-800 focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
-                        </div>
-                    </div>
-
+                {{-- Fila 3: Cifras Financieras (4 columnas) --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-3">
                     <div>
                         <label class="block text-[11px] font-semibold text-gray-600 uppercase mb-1 truncate" title="Valor Total Retención">Valor Total Retención</label>
                         <div class="relative">
@@ -333,10 +319,10 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            <template x-for="(abono, index) in abonos" :key="index">
+                            <template x-for="(abono, index) in abonos" :key="abono._cid || abono.id || index">
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="p-2">
-                                        <input type="date" x-model="abono.fecha_descuento" :disabled="is_abonos_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                                        <input type="date" x-model="abono.fecha_descuento" @change="sortAbonos()" :disabled="is_abonos_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                                     </td>
                                     <td class="p-2">
                                         <div class="relative">
@@ -690,7 +676,15 @@ function retencionesData() {
         },
 
         // Relaciones
-        abonos: existingRetencion?.abonos || [],
+        abonos: (existingRetencion?.abonos || []).map((a, i) => ({
+            ...a,
+            _cid: a.id || `temp_${i}_${Date.now()}`
+        })).sort((a, b) => {
+            if (!a.fecha_descuento && !b.fecha_descuento) return 0;
+            if (!a.fecha_descuento) return -1;
+            if (!b.fecha_descuento) return 1;
+            return new Date(b.fecha_descuento) - new Date(a.fecha_descuento);
+        }),
         gestiones: existingRetencion?.gestiones || [],
         histories: existingRetencion?.histories || [],
 
@@ -744,13 +738,22 @@ function retencionesData() {
         // Methods
         calcularSaldoFila(index) {
             let saldo = parseFloat(this.s2.valor_retencion_total) || 0;
-            for (let i = 0; i <= index; i++) {
+            for (let i = index; i < this.abonos.length; i++) {
                 saldo -= (parseFloat(this.abonos[i].valor) || 0);
             }
             return saldo;
         },
+        sortAbonos() {
+            this.abonos.sort((a, b) => {
+                if (!a.fecha_descuento && !b.fecha_descuento) return 0;
+                if (!a.fecha_descuento) return -1;
+                if (!b.fecha_descuento) return 1;
+                return new Date(b.fecha_descuento) - new Date(a.fecha_descuento);
+            });
+        },
         addAbono() {
-            this.abonos.push({ 
+            this.abonos.unshift({ 
+                _cid: `new_${Date.now()}_${Math.random()}`,
                 fecha_descuento: '', 
                 valor: null, 
                 fecha_consignacion: '', 
@@ -843,6 +846,7 @@ function retencionesData() {
 
         async saveAbonos() {
             if (!this.retencion_id) return this.showError('Debe guardar la Sección 1 primero.');
+            this.sortAbonos();
             const data = { abonos: this.abonos, retencion_id: this.retencion_id };
             const res = await this.postData('{{ route('retenciones.saveAbonos') }}', data);
             if (res.success) {
