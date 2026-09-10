@@ -35,7 +35,7 @@ class Retencion extends Model
 
     public function abonos()
     {
-        return $this->hasMany(RetencionAbono::class)->orderBy('fecha_descuento', 'desc')->orderBy('id', 'desc');
+        return $this->hasMany(RetencionAbono::class)->orderByRaw('COALESCE(fecha_consignacion, fecha_descuento) DESC, id DESC');
     }
 
     public function gestiones()

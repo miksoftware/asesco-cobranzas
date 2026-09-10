@@ -331,7 +331,7 @@
                                         </div>
                                     </td>
                                     <td class="p-2">
-                                        <input type="date" x-model="abono.fecha_consignacion" :disabled="is_abonos_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
+                                        <input type="date" x-model="abono.fecha_consignacion" @change="sortAbonos()" :disabled="is_abonos_locked" class="w-full px-2 py-1.5 rounded border border-gray-300 text-xs focus:outline-none focus:border-asesco-orange disabled:bg-gray-100 disabled:text-gray-500">
                                     </td>
                                     <td class="p-2 text-center">
                                         <input type="checkbox" x-model="abono.reportado" :disabled="is_abonos_locked" class="w-4 h-4 text-asesco-orange border-gray-300 rounded focus:ring-asesco-orange cursor-pointer disabled:opacity-50">
@@ -680,10 +680,12 @@ function retencionesData() {
             ...a,
             _cid: a.id || `temp_${i}_${Date.now()}`
         })).sort((a, b) => {
-            if (!a.fecha_descuento && !b.fecha_descuento) return 0;
-            if (!a.fecha_descuento) return -1;
-            if (!b.fecha_descuento) return 1;
-            return new Date(b.fecha_descuento) - new Date(a.fecha_descuento);
+            const dateA = a.fecha_consignacion || a.fecha_descuento || '';
+            const dateB = b.fecha_consignacion || b.fecha_descuento || '';
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return -1;
+            if (!dateB) return 1;
+            return dateB.localeCompare(dateA);
         }),
         gestiones: existingRetencion?.gestiones || [],
         histories: existingRetencion?.histories || [],
@@ -744,11 +746,13 @@ function retencionesData() {
             return saldo;
         },
         sortAbonos() {
-            this.abonos.sort((a, b) => {
-                if (!a.fecha_descuento && !b.fecha_descuento) return 0;
-                if (!a.fecha_descuento) return -1;
-                if (!b.fecha_descuento) return 1;
-                return new Date(b.fecha_descuento) - new Date(a.fecha_descuento);
+            this.abonos = [...this.abonos].sort((a, b) => {
+                const dateA = a.fecha_consignacion || a.fecha_descuento || '';
+                const dateB = b.fecha_consignacion || b.fecha_descuento || '';
+                if (!dateA && !dateB) return 0;
+                if (!dateA) return -1;
+                if (!dateB) return 1;
+                return dateB.localeCompare(dateA);
             });
         },
         addAbono() {
@@ -850,6 +854,12 @@ function retencionesData() {
             const data = { abonos: this.abonos, retencion_id: this.retencion_id };
             const res = await this.postData('{{ route('retenciones.saveAbonos') }}', data);
             if (res.success) {
+                if (res.abonos) {
+                    this.abonos = res.abonos.map((a, i) => ({
+                        ...a,
+                        _cid: a.id || `temp_${i}_${Date.now()}`
+                    }));
+                }
                 this.is_abonos_locked = true;
                 this.showSuccessAndReload('Abonos guardados con éxito.');
             }

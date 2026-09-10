@@ -169,7 +169,7 @@ class RetencionController extends Controller
 
         if ($request->abonos) {
             $abonosList = collect($request->abonos)->sortByDesc(function ($item) {
-                return $item['fecha_descuento'] ?? '1900-01-01';
+                return $item['fecha_consignacion'] ?: ($item['fecha_descuento'] ?? '1900-01-01');
             })->values();
 
             foreach ($abonosList as $abonoData) {
@@ -188,6 +188,7 @@ class RetencionController extends Controller
 
         return response()->json([
             'success' => true,
+            'abonos' => $retencion->abonos()->get(),
             'message' => 'Abonos guardados correctamente.'
         ]);
     }
