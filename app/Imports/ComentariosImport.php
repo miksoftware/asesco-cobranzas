@@ -26,6 +26,8 @@ class ComentariosImport implements ToCollection, WithHeadingRow, WithChunkReadin
      */
     protected array $formulaCache = [];
 
+    protected int $rowIndex = 1;
+
     public function registerEvents(): array
     {
         return [
@@ -54,10 +56,8 @@ class ComentariosImport implements ToCollection, WithHeadingRow, WithChunkReadin
 
     public function collection(Collection $rows): void
     {
-        $rowIndex = 1; // Starts at 1 because heading row is 0
-
         foreach ($rows as $row) {
-            $rowIndex++;
+            $this->rowIndex++;
             try {
                 if (!$this->headingsLogged) {
                     Log::info('ComentariosImport - Keys:', $row->keys()->toArray());
@@ -74,22 +74,22 @@ class ComentariosImport implements ToCollection, WithHeadingRow, WithChunkReadin
                 // Mapear a claves normalizadas
                 $mapped = $this->mapRow($row);
 
-                $fecha          = $this->parseFecha($mapped['fecha'] ?? null);
-                $hora           = $this->parseHora($mapped['hora'] ?? null);
-                $gestor         = $this->cleanText($mapped['gestor'] ?? null);
-                $comentario     = $this->cleanComentario($mapped['comentario'] ?? null);
-                $canal          = $this->cleanText($mapped['canal'] ?? null);
-                $tipoContacto   = $this->cleanText($mapped['tipo_de_contacto'] ?? null);
-                $accionCobro    = $this->cleanText($mapped['accion_de_cobro'] ?? null);
-                $cedula         = $this->cleanCedula($mapped['cedula'] ?? null);
-                $nombre         = $this->cleanText($mapped['nombre'] ?? null);
-                $empresa        = $this->cleanText($mapped['empresa'] ?? null);
+                $fecha          = $this->parseFecha($this->getVal($mapped, ['fecha', 'fecha_gestion', 'fecha_de_gestion', 'f_gestion']));
+                $hora           = $this->parseHora($this->getVal($mapped, ['hora', 'hora_gestion', 'hora_de_gestion']));
+                $gestor         = $this->cleanText($this->getVal($mapped, ['gestor', 'asesor', 'agente', 'usuario', 'gestor_cobranza']));
+                $comentario     = $this->cleanComentario($this->getVal($mapped, ['comentario', 'comentarios', 'gestion', 'observacion', 'observaciones', 'nota', 'notas', 'detalle']));
+                $canal          = $this->cleanText($this->getVal($mapped, ['canal', 'medio']));
+                $tipoContacto   = $this->cleanText($this->getVal($mapped, ['tipo_de_contacto', 'tipo_contacto', 'contacto']));
+                $accionCobro    = $this->cleanText($this->getVal($mapped, ['accion_de_cobro', 'accion_cobro', 'accion']));
+                $cedula         = $this->cleanCedula($this->getVal($mapped, ['cedula', 'cedula_titular', 'cedula_deudor', 'documento', 'identificacion', 'cc', 'referencia']));
+                $nombre         = $this->cleanText($this->getVal($mapped, ['nombre', 'nombre_deudor', 'nombre_titular', 'cliente', 'titular']));
+                $empresa        = $this->cleanText($this->getVal($mapped, ['empresa', 'entidad', 'cartera']));
 
                 // Efecto de gestión: usar cache de fórmula si existe, sino el valor directo
-                $efectoRaw = $mapped['efecto_de_gestion'] ?? null;
+                $efectoRaw = $this->getVal($mapped, ['efecto_de_gestion', 'efecto_gestion', 'efecto', 'resultado']);
                 // Si el valor raw es una fórmula o #N/A, buscar en cache
                 if ($efectoRaw === null || str_starts_with((string) $efectoRaw, '=') || str_contains((string) $efectoRaw, '#N/A') || str_contains((string) $efectoRaw, 'VLOOKUP')) {
-                    $cachedVal = $this->formulaCache["{$rowIndex}_G"] ?? null;
+                    $cachedVal = $this->formulaCache["{$this->rowIndex}_G"] ?? null;
                     if ($cachedVal !== null) {
                         $efectoRaw = $cachedVal;
                     }
@@ -282,5 +282,15 @@ class ComentariosImport implements ToCollection, WithHeadingRow, WithChunkReadin
         if ($value === null) return null;
         $value = trim(preg_replace('/\s+/', ' ', (string) $value));
         return $value !== '' ? $value : null;
+    }
+
+    private function getVal(array $mapped, array $keys)
+    {
+        foreach ($keys as $k) {
+            if (array_key_exists($k, $mapped) && $mapped[$k] !== null && trim((string) $mapped[$k]) !== '') {
+                return $mapped[$k];
+            }
+        }
+        return null;
     }
 }

@@ -147,10 +147,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/cargues/telefonos/plantilla', [CargueController::class, 'descargarPlantilla'])->name('cargues.telefonos.plantilla');
         Route::get('/cargues/comentarios', [CargueController::class, 'comentarios'])->name('cargues.comentarios');
         Route::get('/cargues/comentarios/listar', [CargueController::class, 'listarComentarios'])->name('cargues.comentarios.listar');
+        Route::get('/cargues/comentarios/plantilla', [CargueController::class, 'descargarPlantillaComentarios'])->name('cargues.comentarios.plantilla');
     });
     Route::middleware('permission:cargues.importar')->group(function () {
         Route::post('/cargues/telefonos/validar', [CargueController::class, 'validarTerceros'])->name('cargues.telefonos.validar');
         Route::post('/cargues/telefonos/importar', [CargueController::class, 'importar'])->name('cargues.telefonos.importar');
+        Route::post('/cargues/comentarios/validar', [CargueController::class, 'validarComentarios'])->name('cargues.comentarios.validar');
         Route::post('/cargues/comentarios/importar', [CargueController::class, 'importarComentarios'])->name('cargues.comentarios.importar');
     });
 });

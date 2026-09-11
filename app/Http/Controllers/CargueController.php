@@ -336,21 +336,13 @@ class CargueController extends Controller
     }
 
     /**
-     * Importar archivo XLSX de comentarios (cargue inicial, una sola vez).
+     * Importar archivo XLSX de comentarios.
      */
     public function importarComentarios(Request $request): JsonResponse
     {
         $request->validate([
-            'archivo' => 'required|file|mimes:xlsx,xls|max:20480', // Max 20MB
+            'archivo' => 'required|file|mimes:xlsx,xls|max:30720', // Max 30MB
         ]);
-
-        // Verificar si ya se hizo el cargue inicial (solo bloquear si hay registros reales)
-        if (Comentario::count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Ya se realizó el cargue inicial de comentarios. No se permite subir nuevamente.',
-            ], 422);
-        }
 
         try {
             $import = new ComentariosImport();
@@ -364,6 +356,12 @@ class CargueController extends Controller
                 'nuevos'     => $resultado['nuevos'],
                 'duplicados' => $resultado['duplicados'],
                 'errores'    => $resultado['errores'],
+                'stats'      => [
+                    'total_comentarios' => number_format(Comentario::count()),
+                    'total_cedulas'     => number_format(Comentario::distinct('cedula')->count('cedula')),
+                    'total_gestores'    => number_format(Comentario::distinct('gestor')->count('gestor')),
+                    'total_empresas'    => number_format(Comentario::distinct('empresa')->count('empresa')),
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
@@ -371,6 +369,201 @@ class CargueController extends Controller
                 'message' => 'Error al procesar el archivo: ' . $e->getMessage(),
             ], 422);
         }
+    }
+
+    /**
+     * Validar contenido y estructura del archivo Excel de comentarios antes de procesar.
+     */
+    public function validarComentarios(Request $request): JsonResponse
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:xlsx,xls|max:30720',
+        ]);
+
+        $file = $request->file('archivo');
+
+        try {
+            $array = Excel::toArray(new \stdClass(), $file);
+            if (empty($array) || empty($array[0])) {
+                return response()->json([
+                    'valid'   => false,
+                    'message' => 'El archivo Excel se encuentra vacío.',
+                    'errores' => [['fila' => 1, 'cedula' => '-', 'campo' => 'Archivo', 'error' => 'El archivo está vacío.']],
+                ], 422);
+            }
+
+            $rows = $array[0];
+            $headerRow = array_map(function ($val) {
+                return mb_strtolower(trim((string) $val));
+            }, $rows[0] ?? []);
+
+            $headersMap = [];
+            foreach ($headerRow as $idx => $h) {
+                $hClean = preg_replace('/[^a-z0-9_]/', '', str_replace([' ', '-', '.'], '_', $h));
+                $headersMap[$hClean] = $idx;
+            }
+
+            $findCol = function (array $names) use ($headersMap) {
+                foreach ($names as $n) {
+                    if (isset($headersMap[$n])) return $headersMap[$n];
+                }
+                return null;
+            };
+
+            $colCedula       = $findCol(['cedula', 'cedula_titular', 'cedula_deudor', 'documento', 'identificacion', 'cc', 'referencia']);
+            $colComentario   = $findCol(['comentario', 'comentarios', 'gestion', 'observacion', 'observaciones', 'nota', 'notas', 'detalle']);
+            $colGestor       = $findCol(['gestor', 'asesor', 'agente', 'usuario', 'gestor_cobranza']);
+            $colFecha        = $findCol(['fecha', 'fecha_gestion', 'fecha_de_gestion', 'f_gestion']);
+            $colHora         = $findCol(['hora', 'hora_gestion', 'hora_de_gestion']);
+            $colCanal        = $findCol(['canal', 'medio']);
+            $colTipoContacto = $findCol(['tipo_de_contacto', 'tipo_contacto', 'contacto']);
+            $colEfecto       = $findCol(['efecto_de_gestion', 'efecto_gestion', 'efecto', 'resultado']);
+            $colAccion       = $findCol(['accion_de_cobro', 'accion_cobro', 'accion']);
+            $colNombre       = $findCol(['nombre', 'nombre_deudor', 'nombre_titular', 'cliente', 'titular']);
+            $colEmpresa      = $findCol(['empresa', 'entidad', 'cartera']);
+
+            $missingHeaders = [];
+            if ($colCedula === null)     $missingHeaders[] = 'CEDULA (o DOCUMENTO)';
+            if ($colComentario === null) $missingHeaders[] = 'COMENTARIO (o OBSERVACION/GESTION)';
+
+            if (!empty($missingHeaders)) {
+                return response()->json([
+                    'valid'   => false,
+                    'message' => 'Faltan columnas requeridas en el archivo Excel: ' . implode(', ', $missingHeaders),
+                    'errores' => [[
+                        'fila'   => 1,
+                        'cedula' => '-',
+                        'campo'  => 'Encabezados',
+                        'error'  => 'Faltan las columnas obligatorias: ' . implode(', ', $missingHeaders)
+                    ]],
+                ]);
+            }
+
+            $errores = [];
+            $totalFilas = 0;
+            $cedulasSet = [];
+            $gestoresSet = [];
+            $empresasSet = [];
+
+            for ($i = 1; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                $excelFila = $i + 1;
+
+                $isEmptyRow = true;
+                foreach ($row as $cell) {
+                    if ($cell !== null && trim((string) $cell) !== '') {
+                        $isEmptyRow = false;
+                        break;
+                    }
+                }
+                if ($isEmptyRow) continue;
+
+                $totalFilas++;
+
+                $valCedula     = $colCedula !== null ? preg_replace('/[^0-9]/', '', trim((string) ($row[$colCedula] ?? ''))) : '';
+                $valComentario = $colComentario !== null ? trim((string) ($row[$colComentario] ?? '')) : '';
+                $valGestor     = $colGestor !== null ? trim((string) ($row[$colGestor] ?? '')) : '';
+                $valEmpresa    = $colEmpresa !== null ? trim((string) ($row[$colEmpresa] ?? '')) : '';
+
+                if ($valCedula === '') {
+                    $errores[] = [
+                        'fila'   => $excelFila,
+                        'cedula' => '-',
+                        'campo'  => 'CEDULA',
+                        'error'  => 'La cédula es obligatoria y debe contener dígitos numéricos.',
+                    ];
+                } else {
+                    $cedulasSet[$valCedula] = true;
+                }
+
+                if ($valComentario === '' && $valGestor === '') {
+                    $errores[] = [
+                        'fila'   => $excelFila,
+                        'cedula' => $valCedula ?: '-',
+                        'campo'  => 'COMENTARIO',
+                        'error'  => 'El comentario u observación es obligatorio.',
+                    ];
+                }
+
+                if ($valGestor !== '') {
+                    $gestoresSet[$valGestor] = true;
+                }
+                if ($valEmpresa !== '') {
+                    $empresasSet[$valEmpresa] = true;
+                }
+            }
+
+            $filasConError = count(array_unique(array_column($errores, 'fila')));
+            $isValid = count($errores) === 0;
+
+            return response()->json([
+                'valid'       => $isValid,
+                'total_filas' => $totalFilas,
+                'validas'     => $isValid ? $totalFilas : ($totalFilas - $filasConError),
+                'stats'       => [
+                    'cedulas'  => count($cedulasSet),
+                    'gestores' => count($gestoresSet),
+                    'empresas' => count($empresasSet),
+                ],
+                'errores'     => array_slice($errores, 0, 100),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'valid'   => false,
+                'message' => 'Error al leer el archivo Excel: ' . $e->getMessage(),
+                'errores' => [['fila' => 1, 'cedula' => '-', 'campo' => 'Archivo', 'error' => $e->getMessage()]],
+            ], 422);
+        }
+    }
+
+    /**
+     * Descargar plantilla Excel XLSX para cargue de comentarios.
+     */
+    public function descargarPlantillaComentarios()
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Comentarios');
+
+        $headers = [
+            'FECHA',
+            'HORA',
+            'GESTOR',
+            'COMENTARIO',
+            'CANAL',
+            'TIPO_DE_CONTACTO',
+            'EFECTO_DE_GESTION',
+            'ACCION_DE_COBRO',
+            'CEDULA',
+            'NOMBRE',
+            'EMPRESA',
+        ];
+
+        $sheet->fromArray([$headers], null, 'A1');
+
+        $sampleData = [
+            ['2026-09-10', '10:30 a. m.', 'GERENCIA ASESCO', 'Cliente informa que realizará abono el fin de semana.', 'GESTOR', 'DIRECTO', 'PROMESA DE PAGO', 'LLAMADA', '1003714361', 'ROJAS PEREZ ANA ISABEL', 'BANCO COOPERATIVO'],
+            ['2026-09-10', '02:15 p. m.', 'JULY TOSCANO', 'Se envía mensaje de WhatsApp recordando saldo en mora.', 'WHATSAPP', 'INDIRECTO', 'EN GESTIÓN', 'MENSAJE WPP', '1041324841', 'ALEXANDER DE JESUS MORALES', 'COOMULTRASAN'],
+        ];
+
+        $sheet->fromArray($sampleData, null, 'A2');
+
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => 'E8611A']],
+        ];
+        $sheet->getStyle('A1:K1')->applyFromArray($headerStyle);
+
+        foreach (range('A', 'K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $fileName = 'Plantilla_Cargue_Comentarios.xlsx';
+        $tempPath = storage_path('app/public/' . $fileName);
+        $writer->save($tempPath);
+
+        return response()->download($tempPath, $fileName)->deleteFileAfterSend(true);
     }
 
     /**
